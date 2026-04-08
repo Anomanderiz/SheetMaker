@@ -12,12 +12,11 @@ import {
 import { ContentEditor } from "@/components/ContentEditor";
 import { HandoutRenderer } from "@/components/HandoutRenderer";
 import { MapEditor } from "@/components/MapEditor";
-import type { Handout } from "@/lib/types";
+import type { DeviceMode, Handout } from "@/lib/types";
 
 import styles from "./HandoutEditor.module.css";
 
 type EditorTab = "content" | "map" | "preview" | "share";
-type PreviewMode = "desktop" | "tablet" | "mobile";
 
 async function readFileAsDataUrl(file: File) {
   return new Promise<string>((resolve, reject) => {
@@ -28,7 +27,7 @@ async function readFileAsDataUrl(file: File) {
   });
 }
 
-function previewWidth(mode: PreviewMode) {
+function previewWidth(mode: DeviceMode) {
   if (mode === "mobile") return 390;
   if (mode === "tablet") return 768;
   return 1200;
@@ -37,7 +36,7 @@ function previewWidth(mode: PreviewMode) {
 export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
   const [handout, setHandout] = useState(initialHandout);
   const [activeTab, setActiveTab] = useState<EditorTab>("content");
-  const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
+  const [previewMode, setPreviewMode] = useState<DeviceMode>("desktop");
   const [saveState, setSaveState] = useState<"idle" | "dirty" | "saving" | "saved" | "error">(
     "idle",
   );
@@ -234,7 +233,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
               <div className={styles.previewHeader}>
                 <p className={styles.cardKicker}>Preview</p>
                 <div className={styles.previewModes}>
-                  {(["desktop", "tablet", "mobile"] as PreviewMode[]).map((mode) => (
+                  {(["desktop", "tablet", "mobile"] as DeviceMode[]).map((mode) => (
                     <button
                       key={mode}
                       type="button"
@@ -248,8 +247,12 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
               </div>
 
               <div className={styles.previewFrame}>
-                <div style={{ width: previewWidth(previewMode), maxWidth: "100%" }}>
-                  <HandoutRenderer handout={deferredHandout} embedded />
+                <div style={{ width: previewWidth(previewMode) }}>
+                  <HandoutRenderer
+                    handout={deferredHandout}
+                    embedded
+                    mapDeviceMode={previewMode}
+                  />
                 </div>
               </div>
             </section>
@@ -299,7 +302,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
             <div className={styles.previewHeader}>
               <p className={styles.cardKicker}>Live Preview</p>
               <div className={styles.previewModes}>
-                {(["desktop", "tablet", "mobile"] as PreviewMode[]).map((mode) => (
+                {(["desktop", "tablet", "mobile"] as DeviceMode[]).map((mode) => (
                   <button
                     key={mode}
                     type="button"
@@ -313,8 +316,12 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
             </div>
 
             <div className={styles.previewScroll}>
-              <div style={{ width: previewWidth(previewMode), maxWidth: "100%" }}>
-                <HandoutRenderer handout={deferredHandout} embedded />
+              <div style={{ width: previewWidth(previewMode) }}>
+                <HandoutRenderer
+                  handout={deferredHandout}
+                  embedded
+                  mapDeviceMode={previewMode}
+                />
               </div>
             </div>
           </div>

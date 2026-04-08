@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 
-import type { Handout } from "@/lib/types";
+import type { DeviceMode, Handout } from "@/lib/types";
 
 import { WebOfFate } from "./WebOfFate";
 import styles from "./HandoutRenderer.module.css";
@@ -11,11 +11,13 @@ import styles from "./HandoutRenderer.module.css";
 interface HandoutRendererProps {
   handout: Handout;
   embedded?: boolean;
+  mapDeviceMode?: DeviceMode;
 }
 
 export function HandoutRenderer({
   handout,
   embedded = false,
+  mapDeviceMode,
 }: HandoutRendererProps) {
   const [lightboxId, setLightboxId] = useState<string | null>(null);
 
@@ -104,6 +106,7 @@ export function HandoutRenderer({
             <WebOfFate
               nodes={handout.relationshipNodes}
               edges={handout.relationshipEdges}
+              forcedDeviceMode={mapDeviceMode}
             />
           </section>
 

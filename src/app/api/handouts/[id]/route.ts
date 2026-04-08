@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getHandoutById, saveHandout } from "@/lib/data/handoutRepository";
+import { deleteHandout, getHandoutById, saveHandout } from "@/lib/data/handoutRepository";
 import type { Handout } from "@/lib/types";
 
 export async function GET(
@@ -30,4 +30,18 @@ export async function PATCH(
 
   const saved = await saveHandout(payload.handout);
   return NextResponse.json({ handout: saved });
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const deleted = await deleteHandout(id);
+
+  if (!deleted) {
+    return NextResponse.json({ error: "Handout not found" }, { status: 404 });
+  }
+
+  return new NextResponse(null, { status: 204 });
 }

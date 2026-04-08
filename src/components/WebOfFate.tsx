@@ -9,6 +9,7 @@ import styles from "./WebOfFate.module.css";
 interface WebOfFateProps {
   nodes: RelationshipNode[];
   edges: RelationshipEdge[];
+  forcedDeviceMode?: DeviceMode;
 }
 
 interface TransformState {
@@ -24,7 +25,7 @@ function distance(a: { x: number; y: number }, b: { x: number; y: number }) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-export function WebOfFate({ nodes, edges }: WebOfFateProps) {
+export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
   const panStateRef = useRef<{
@@ -56,7 +57,7 @@ export function WebOfFate({ nodes, edges }: WebOfFateProps) {
   }, []);
 
   const deviceMode: DeviceMode =
-    width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop";
+    forcedDeviceMode ?? (width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop");
   const stageWidth = Math.max(width - 2, 280);
   const stageHeight =
     deviceMode === "mobile" ? 460 : deviceMode === "tablet" ? 390 : 340;

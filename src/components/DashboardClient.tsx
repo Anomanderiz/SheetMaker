@@ -19,7 +19,10 @@ export function DashboardClient({
 }: DashboardClientProps) {
   const router = useRouter();
   const [handouts, setHandouts] = useState(initialHandouts);
-  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [pendingState, setPendingState] = useState<{
+    id: string;
+    action: "share" | "delete";
+  } | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const sortedHandouts = useMemo(
@@ -31,7 +34,7 @@ export function DashboardClient({
   );
 
   async function toggleShare(id: string, isShared: boolean) {
-    setPendingId(id);
+    setPendingState({ id, action: "share" });
     const response = await fetch(`/api/handouts/${id}/share`, {
       method: "PATCH",
       headers: {
@@ -41,7 +44,7 @@ export function DashboardClient({
     });
 
     if (!response.ok) {
-      setPendingId(null);
+      setPendingState(null);
       return;
     }
 
@@ -55,7 +58,32 @@ export function DashboardClient({
     startTransition(() => {
       router.refresh();
     });
-    setPendingId(null);
+    setPendingState(null);
+  }
+
+  async function removeHandout(id: string, name: string) {
+    const confirmed = window.confirm(`Delete "${name}"? This cannot be undone.`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setPendingState({ id, action: "delete" });
+    const response = await fetch(`/api/handouts/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      setPendingState(null);
+      return;
+    }
+
+    setHandouts((current) => current.filter((handout) => handout.id !== id));
+
+    startTransition(() => {
+      router.refresh();
+    });
+    setPendingState(null);
   }
 
   return (
@@ -108,13 +136,23 @@ export function DashboardClient({
                 type="button"
                 className={styles.ghost}
                 onClick={() => toggleShare(handout.id, handout.isShared)}
-                disabled={pendingId === handout.id || isPending}
+                disabled={pendingState?.id === handout.id || isPending}
               >
-                {pendingId === handout.id
+                {pendingState?.id === handout.id && pendingState.action === "share"
                   ? "Updating..."
                   : handout.isShared
                     ? "Unshare"
                     : "Share"}
+              </button>
+              <button
+                type="button"
+                className={styles.danger}
+                onClick={() => removeHandout(handout.id, handout.identity.name)}
+                disabled={pendingState?.id === handout.id || isPending}
+              >
+                {pendingState?.id === handout.id && pendingState.action === "delete"
+                  ? "Deleting..."
+                  : "Delete"}
               </button>
             </div>
 

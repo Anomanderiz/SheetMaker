@@ -122,7 +122,8 @@
 
 .primary,
 .secondary,
-.ghost {
+.ghost,
+.danger {
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -146,6 +147,12 @@
 
 .ghost {
   border-color: rgba(183, 200, 221, 0.12);
+}
+
+.danger {
+  background: rgba(136, 49, 49, 0.16);
+  border-color: rgba(209, 113, 113, 0.24);
+  color: #ffd1d1;
 }
 
 .metaList {
@@ -190,7 +197,8 @@
 
   .primary,
   .secondary,
-  .ghost {
+  .ghost,
+  .danger {
     width: 100%;
   }
 }
