@@ -48,12 +48,26 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
       return;
     }
 
+    const host = hostRef.current;
     const observer = new ResizeObserver(([entry]) => {
       setWidth(entry.contentRect.width);
     });
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setTransform((current) => ({
+        ...current,
+        scale: clamp(current.scale - event.deltaY * 0.0012, 0.7, 2.4),
+      }));
+    };
 
-    observer.observe(hostRef.current);
-    return () => observer.disconnect();
+    observer.observe(host);
+    host.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      observer.disconnect();
+      host.removeEventListener("wheel", handleWheel);
+    };
   }, []);
 
   const deviceMode: DeviceMode =
@@ -110,14 +124,6 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
 
   const activeNode =
     positionedNodes.find((node) => node.id === activeNodeId) ?? positionedNodes[0] ?? null;
-
-  function handleWheel(event: React.WheelEvent<HTMLDivElement>) {
-    event.preventDefault();
-    setTransform((current) => ({
-      ...current,
-      scale: clamp(current.scale - event.deltaY * 0.0012, 0.7, 2.4),
-    }));
-  }
 
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if ((event.target as HTMLElement).closest("button")) {
@@ -211,7 +217,6 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
           ref={hostRef}
           className={styles.viewport}
           style={{ height: stageHeight }}
-          onWheel={handleWheel}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}

@@ -60,6 +60,7 @@
   position: relative;
   overflow: hidden;
   touch-action: none;
+  overscroll-behavior: contain;
 }
 
 .scene {
