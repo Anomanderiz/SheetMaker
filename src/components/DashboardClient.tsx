@@ -129,7 +129,7 @@ export function DashboardClient({
               <Link href={`/app/handouts/${handout.id}/edit`} className={styles.primary}>
                 Edit
               </Link>
-              <Link href={`/h/${handout.slug}`} className={styles.secondary}>
+              <Link href={`/app/handouts/${handout.id}`} className={styles.secondary}>
                 View
               </Link>
               <button
