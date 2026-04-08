@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   useCallback,
-  useDeferredValue,
   useEffect,
   useRef,
   useState,
@@ -36,6 +35,7 @@ function previewWidth(mode: DeviceMode) {
 export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
   const [handout, setHandout] = useState(initialHandout);
   const [activeTab, setActiveTab] = useState<EditorTab>("content");
+  const [mapEditorMode, setMapEditorMode] = useState<"desktop" | "mobile">("desktop");
   const [previewMode, setPreviewMode] = useState<DeviceMode>("desktop");
   const [saveState, setSaveState] = useState<"idle" | "dirty" | "saving" | "saved" | "error">(
     "idle",
@@ -45,7 +45,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
   const handoutRef = useRef(initialHandout);
   const editVersionRef = useRef(0);
   const saveRequestIdRef = useRef(0);
-  const deferredHandout = useDeferredValue(handout);
+  const liveMapDeviceMode = activeTab === "map" ? mapEditorMode : previewMode;
 
   function markDirty() {
     setSaveState("dirty");
@@ -217,6 +217,11 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
               <MapEditor
                 nodes={handout.relationshipNodes}
                 edges={handout.relationshipEdges}
+                deviceMode={mapEditorMode}
+                onModeChange={(mode) => {
+                  setMapEditorMode(mode);
+                  setPreviewMode(mode);
+                }}
                 onChange={({ relationshipNodes, relationshipEdges }) =>
                   updateHandout((current) => ({
                     ...current,
@@ -249,9 +254,9 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
               <div className={styles.previewFrame}>
                 <div style={{ width: previewWidth(previewMode) }}>
                   <HandoutRenderer
-                    handout={deferredHandout}
+                    handout={handout}
                     embedded
-                    mapDeviceMode={previewMode}
+                    mapDeviceMode={liveMapDeviceMode}
                   />
                 </div>
               </div>
@@ -318,9 +323,9 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
             <div className={styles.previewScroll}>
               <div style={{ width: previewWidth(previewMode) }}>
                 <HandoutRenderer
-                  handout={deferredHandout}
+                  handout={handout}
                   embedded
-                  mapDeviceMode={previewMode}
+                  mapDeviceMode={liveMapDeviceMode}
                 />
               </div>
             </div>
