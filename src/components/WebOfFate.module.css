@@ -12,7 +12,7 @@
 
 .kicker,
 .detailLabel {
-  color: #a9682f;
+  color: #cd9840;
   font-family: var(--font-cinzel), serif;
   font-size: 0.78rem;
   letter-spacing: 0.22em;
@@ -24,7 +24,7 @@
   font-family: var(--font-cinzel), serif;
   font-size: clamp(1.3rem, 2.6vw, 1.9rem);
   line-height: 1.15;
-  color: #442716;
+  color: #f4e5ca;
 }
 
 .actions {
@@ -38,9 +38,9 @@
 .actions button {
   padding: 10px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(106, 61, 28, 0.18);
-  background: rgba(250, 239, 215, 0.76);
-  color: #5a3217;
+  border: 1px solid rgba(205, 152, 64, 0.22);
+  background: rgba(15, 10, 9, 0.46);
+  color: #e3c69a;
 }
 
 .actions button {
@@ -49,11 +49,11 @@
 
 .viewportWrap {
   border-radius: 28px;
-  border: 1px solid rgba(104, 61, 29, 0.18);
+  border: 1px solid rgba(205, 152, 64, 0.18);
   overflow: hidden;
   background:
-    radial-gradient(circle at top, rgba(161, 97, 42, 0.14), transparent 38%),
-    linear-gradient(180deg, rgba(254, 248, 236, 0.98), rgba(238, 225, 197, 0.96));
+    radial-gradient(circle at top, rgba(205, 152, 64, 0.1), transparent 38%),
+    linear-gradient(180deg, rgba(32, 18, 15, 0.98), rgba(18, 10, 9, 0.98));
 }
 
 .viewport {
@@ -83,21 +83,21 @@
 }
 
 .solid {
-  stroke: rgba(124, 66, 35, 0.72);
+  stroke: rgba(205, 152, 64, 0.78);
 }
 
 .dashed {
-  stroke: rgba(71, 65, 132, 0.65);
+  stroke: rgba(156, 110, 63, 0.72);
   stroke-dasharray: 8 8;
 }
 
 .ominous {
-  stroke: rgba(114, 18, 22, 0.82);
+  stroke: rgba(176, 92, 72, 0.82);
   stroke-dasharray: 2 8;
 }
 
 .edgeLabel {
-  fill: #64361b;
+  fill: #f0dcc0;
   font-family: var(--font-cinzel), serif;
   font-size: 13px;
   letter-spacing: 0.06em;
@@ -120,9 +120,9 @@
   width: clamp(52px, 8vw, 72px);
   aspect-ratio: 1;
   border-radius: 999px;
-  border: 2px solid rgba(88, 46, 22, 0.9);
-  background: linear-gradient(180deg, #ede0c0, #ceb381);
-  box-shadow: 0 14px 28px rgba(71, 40, 21, 0.22);
+  border: 2px solid rgba(205, 152, 64, 0.76);
+  background: linear-gradient(180deg, #8e5020, #562e28);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.32);
 }
 
 .nodePortrait {
@@ -133,7 +133,7 @@
 .nodeIcon {
   display: grid;
   place-items: center;
-  color: #4f2410;
+  color: #f8ead0;
   font-family: var(--font-cinzel-decorative), serif;
   font-size: 1.2rem;
 }
@@ -144,61 +144,66 @@
   width: 100%;
   padding: 10px 12px;
   border-radius: 20px;
-  background: rgba(255, 249, 235, 0.88);
-  border: 1px solid rgba(99, 58, 30, 0.14);
-  color: #4e2a14;
-  box-shadow: 0 12px 24px rgba(80, 45, 24, 0.14);
+  border: 1px solid rgba(205, 152, 64, 0.18);
+  background: linear-gradient(180deg, rgba(47, 26, 21, 0.92), rgba(22, 13, 11, 0.96));
+  color: #ead6b4;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
 }
 
 .nodeText strong {
   font-family: var(--font-cinzel), serif;
   font-size: 1rem;
   line-height: 1;
+  color: #f8ead0;
 }
 
 .nodeText span {
   font-size: 0.92rem;
+  color: #d2b184;
 }
 
 .active .nodeText {
-  border-color: rgba(159, 82, 37, 0.42);
-  box-shadow: 0 16px 28px rgba(88, 46, 22, 0.2);
+  border-color: rgba(205, 152, 64, 0.36);
+  box-shadow:
+    0 16px 28px rgba(0, 0, 0, 0.24),
+    0 0 0 1px rgba(205, 152, 64, 0.18);
 }
 
 .self .nodePortrait,
 .self .nodeIcon {
-  border-color: rgba(177, 122, 31, 0.95);
+  border-color: rgba(205, 152, 64, 0.94);
 }
 
 .enemy .nodePortrait,
 .enemy .nodeIcon,
 .threat .nodePortrait,
 .threat .nodeIcon {
-  border-color: rgba(125, 32, 24, 0.95);
+  border-color: rgba(181, 92, 74, 0.92);
 }
 
 .ally .nodePortrait,
 .ally .nodeIcon {
-  border-color: rgba(52, 107, 67, 0.95);
+  border-color: rgba(137, 157, 122, 0.92);
 }
 
 .faction .nodePortrait,
 .faction .nodeIcon {
-  border-color: rgba(89, 68, 139, 0.95);
+  border-color: rgba(145, 122, 168, 0.92);
 }
 
 .details {
   padding: 18px 20px;
   border-radius: 22px;
-  border: 1px solid rgba(105, 63, 31, 0.14);
-  background: rgba(251, 244, 228, 0.82);
-  color: #563019;
+  border: 1px solid rgba(205, 152, 64, 0.18);
+  background: linear-gradient(180deg, rgba(25, 15, 13, 0.96), rgba(14, 9, 8, 0.98));
+  color: #dfc59f;
 }
 
 .details h4 {
   margin-top: 6px;
   font-family: var(--font-cinzel), serif;
   font-size: 1.5rem;
+  color: #f8ead0;
 }
 
 .details p:last-child {

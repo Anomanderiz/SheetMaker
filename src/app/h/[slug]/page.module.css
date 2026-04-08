@@ -1,8 +1,12 @@
 .page {
+  --tone-gold: #cd9840;
+  --text-strong: #f8ead0;
+  --text-body: #dfc59f;
+  --line-soft: rgba(205, 152, 64, 0.18);
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(196, 154, 40, 0.12), transparent 28%),
-    linear-gradient(180deg, #130b08 0%, #090504 100%);
+    radial-gradient(circle at top, rgba(205, 152, 64, 0.1), transparent 28%),
+    linear-gradient(180deg, #120b09 0%, #0d0706 48%, #070404 100%);
 }
 
 .topbar {
@@ -14,8 +18,10 @@
   gap: 16px;
   align-items: center;
   padding: 18px 24px;
-  border-bottom: 1px solid rgba(255, 230, 181, 0.12);
-  background: rgba(12, 7, 5, 0.88);
+  border-bottom: 1px solid var(--line-soft);
+  background:
+    radial-gradient(circle at top, rgba(205, 152, 64, 0.08), transparent 40%),
+    linear-gradient(180deg, rgba(39, 22, 18, 0.92), rgba(16, 10, 9, 0.94));
   backdrop-filter: blur(16px);
 }
 
@@ -25,7 +31,7 @@
 }
 
 .kicker {
-  color: #dfc15d;
+  color: var(--tone-gold);
   font-family: var(--font-cinzel), serif;
   font-size: 0.76rem;
   letter-spacing: 0.22em;
@@ -36,7 +42,7 @@
   margin-top: 6px;
   font-family: var(--font-cinzel), serif;
   font-size: clamp(1.7rem, 3vw, 2.4rem);
-  color: #fff0cb;
+  color: var(--text-strong);
 }
 
 .urlBlock {
@@ -46,7 +52,7 @@
 }
 
 .urlBlock span {
-  color: #e0c98d;
+  color: var(--text-body);
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -57,8 +63,9 @@
   max-width: 100%;
   padding: 10px 12px;
   border-radius: 14px;
-  background: rgba(255, 244, 214, 0.08);
-  color: #fff0cb;
+  border: 1px solid var(--line-soft);
+  background: rgba(205, 152, 64, 0.08);
+  color: var(--text-strong);
   overflow-wrap: anywhere;
 }
 
@@ -75,9 +82,9 @@
   min-width: 130px;
   padding: 12px 16px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 230, 181, 0.12);
-  background: rgba(255, 244, 214, 0.08);
-  color: #fff0cb;
+  border: 1px solid var(--line-soft);
+  background: rgba(205, 152, 64, 0.08);
+  color: var(--text-strong);
 }
 
 @media print {
