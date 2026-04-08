@@ -11,6 +11,7 @@ import {
 import { ContentEditor } from "@/components/ContentEditor";
 import { HandoutRenderer } from "@/components/HandoutRenderer";
 import { MapEditor } from "@/components/MapEditor";
+import { getPublicHandoutUrl } from "@/lib/site";
 import type { DeviceMode, Handout } from "@/lib/types";
 
 import styles from "./HandoutEditor.module.css";
@@ -46,6 +47,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
   const editVersionRef = useRef(0);
   const saveRequestIdRef = useRef(0);
   const liveMapDeviceMode = activeTab === "map" ? mapEditorMode : previewMode;
+  const publicUrl = getPublicHandoutUrl(handout.slug);
 
   function markDirty() {
     setSaveState("dirty");
@@ -293,8 +295,8 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
                   <span>Enable public sharing</span>
                 </label>
                 <div className={styles.subcard}>
-                  <p>Public route</p>
-                  <code>/h/{handout.slug}</code>
+                  <p>Public URL</p>
+                  <code>{publicUrl}</code>
                   <p>Saves update the live shared handout immediately while sharing is enabled.</p>
                 </div>
               </div>

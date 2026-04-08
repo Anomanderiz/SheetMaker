@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { HandoutRenderer } from "@/components/HandoutRenderer";
+import { PdfDownloadButton } from "@/components/PdfDownloadButton";
 import { getHandoutById } from "@/lib/data/handoutRepository";
+import { getPublicHandoutUrl } from "@/lib/site";
 
 import styles from "./page.module.css";
 
@@ -20,15 +22,24 @@ export default async function HandoutPreviewPage({
     notFound();
   }
 
+  const publicUrl = getPublicHandoutUrl(handout.slug);
+
   return (
     <main className={styles.page}>
       <header className={styles.topbar}>
-        <div>
+        <div className={styles.identity}>
           <p className={styles.kicker}>Preview</p>
           <h1>{handout.identity.name}</h1>
+          {handout.isShared ? (
+            <div className={styles.urlBlock}>
+              <span>Shared URL</span>
+              <code>{publicUrl}</code>
+            </div>
+          ) : null}
         </div>
 
         <div className={styles.actions}>
+          <PdfDownloadButton className={styles.secondary} />
           <Link href="/app/handouts" className={styles.secondary}>
             Dashboard
           </Link>

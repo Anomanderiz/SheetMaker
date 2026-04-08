@@ -307,6 +307,34 @@
   border-radius: 18px;
 }
 
+@media print {
+  .shell {
+    min-height: auto;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .handout {
+    width: 100%;
+    box-shadow: none;
+  }
+
+  .header,
+  .panel,
+  .longformBlock,
+  .secretBlock,
+  .sessionEntry,
+  .galleryCard {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .lightbox {
+    display: none;
+  }
+}
+
 @media (max-width: 1023px) {
   .overview,
   .storyGrid {

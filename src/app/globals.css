@@ -70,3 +70,11 @@ img {
   position: absolute;
   width: 1px;
 }
+
+@media print {
+  html,
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

@@ -68,7 +68,6 @@
   gap: 10px;
 }
 
-.primary,
 .secondary {
   display: inline-flex;
   align-items: center;
@@ -77,15 +76,6 @@
   padding: 12px 16px;
   border-radius: 999px;
   border: 1px solid rgba(255, 230, 181, 0.12);
-}
-
-.primary {
-  background: linear-gradient(180deg, #d6ac3d, #8b6118);
-  color: #1b0b02;
-  font-weight: 700;
-}
-
-.secondary {
   background: rgba(255, 244, 214, 0.08);
   color: #fff0cb;
 }
@@ -112,7 +102,6 @@
     grid-template-columns: 1fr;
   }
 
-  .primary,
   .secondary {
     width: 100%;
   }

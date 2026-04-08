@@ -284,6 +284,7 @@
   border-radius: 14px;
   background: rgba(0, 0, 0, 0.28);
   color: #ffe8b0;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 1279px) {
