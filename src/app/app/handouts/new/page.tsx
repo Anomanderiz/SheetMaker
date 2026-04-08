@@ -17,10 +17,10 @@ export default function NewHandoutPage() {
     <main className={styles.page}>
       <section className={styles.panel}>
         <p className={styles.kicker}>New Handout</p>
-        <h1>Create a fresh dossier from the parchment template.</h1>
+        <h1>Create a new character handout.</h1>
         <p>
-          The first save remains editable and can be shared publicly once the
-          slug and content are ready.
+          A new handout opens in the editor immediately. You can fill in content,
+          adjust the map, and publish a read-only link when it is ready.
         </p>
 
         <form action={createAndRedirect}>

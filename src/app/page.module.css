@@ -2,8 +2,8 @@
   min-height: 100vh;
   padding: 24px;
   background:
-    radial-gradient(circle at top, rgba(196, 154, 40, 0.18), transparent 32%),
-    linear-gradient(180deg, #120906 0%, #1a0f0a 55%, #0f0806 100%);
+    radial-gradient(circle at top, rgba(190, 161, 93, 0.14), transparent 32%),
+    linear-gradient(180deg, #0b1117 0%, #101a24 52%, #0b1015 100%);
 }
 
 .hero {
@@ -14,16 +14,16 @@
   align-content: center;
   gap: 20px;
   padding: 40px clamp(20px, 4vw, 48px);
-  border: 1px solid rgba(255, 233, 191, 0.14);
+  border: 1px solid rgba(183, 200, 221, 0.12);
   border-radius: 28px;
   background:
-    linear-gradient(180deg, rgba(48, 26, 18, 0.92), rgba(20, 11, 8, 0.96)),
-    url("/seed/gallery-2.jpg") center/cover;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+    radial-gradient(circle at top right, rgba(113, 144, 190, 0.16), transparent 34%),
+    linear-gradient(180deg, rgba(21, 31, 43, 0.96), rgba(12, 18, 24, 0.98));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
 }
 
 .kicker {
-  color: #e7c86c;
+  color: #c8d8eb;
   font-family: var(--font-cinzel), serif;
   font-size: 0.85rem;
   letter-spacing: 0.24em;
@@ -31,18 +31,18 @@
 }
 
 .hero h1 {
-  max-width: 12ch;
-  font-family: var(--font-cinzel-decorative), serif;
-  font-size: clamp(2.8rem, 8vw, 5.4rem);
-  line-height: 0.96;
-  color: #fff4da;
+  max-width: 13ch;
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(2.8rem, 8vw, 5rem);
+  line-height: 1;
+  color: #f6fbff;
 }
 
 .summary {
   max-width: 46rem;
   font-size: clamp(1.1rem, 2.5vw, 1.45rem);
   line-height: 1.5;
-  color: #efe0ba;
+  color: #c5d2de;
 }
 
 .actions {
@@ -59,7 +59,7 @@
   min-width: 190px;
   padding: 14px 20px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 236, 188, 0.2);
+  border: 1px solid rgba(183, 200, 221, 0.18);
   transition:
     transform 140ms ease,
     border-color 140ms ease,
@@ -67,34 +67,34 @@
 }
 
 .primary {
-  background: linear-gradient(180deg, #d0a73a, #8d6116);
-  color: #180b03;
+  background: linear-gradient(180deg, #dbe6f1, #8ca1b8);
+  color: #0d1822;
   font-weight: 700;
 }
 
 .secondary {
-  background: rgba(255, 244, 219, 0.06);
-  color: #fff1c7;
+  background: rgba(219, 230, 241, 0.06);
+  color: #e4eff8;
 }
 
 .primary:hover,
 .secondary:hover {
   transform: translateY(-1px);
-  border-color: rgba(255, 236, 188, 0.35);
+  border-color: rgba(183, 200, 221, 0.32);
 }
 
 .meta {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  color: #cfbe96;
+  color: #a9bbcd;
   font-size: 0.95rem;
 }
 
 .meta span {
   padding: 10px 14px;
   border-radius: 999px;
-  background: rgba(255, 243, 214, 0.08);
+  background: rgba(219, 230, 241, 0.07);
 }
 
 @media (max-width: 767px) {

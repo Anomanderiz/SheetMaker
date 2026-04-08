@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import {
-  startTransition,
   useCallback,
   useDeferredValue,
   useEffect,
@@ -44,6 +43,9 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
   );
   const [saveMessage, setSaveMessage] = useState("Ready.");
   const autosaveSkipRef = useRef(true);
+  const handoutRef = useRef(initialHandout);
+  const editVersionRef = useRef(0);
+  const saveRequestIdRef = useRef(0);
   const deferredHandout = useDeferredValue(handout);
 
   function markDirty() {
@@ -52,7 +54,9 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
   }
 
   const persistHandout = useCallback(
-    async (nextHandout: Handout = handout) => {
+    async (nextHandout: Handout = handoutRef.current) => {
+      const requestId = ++saveRequestIdRef.current;
+      const requestVersion = editVersionRef.current;
       setSaveState("saving");
       setSaveMessage("Saving live handout...");
 
@@ -63,20 +67,48 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
       });
 
       if (!response.ok) {
+        if (requestId !== saveRequestIdRef.current) {
+          return;
+        }
+
+        if (requestVersion !== editVersionRef.current) {
+          setSaveState("dirty");
+          setSaveMessage("Changes pending...");
+          return;
+        }
+
         setSaveState("error");
         setSaveMessage("Save failed.");
         return;
       }
 
       const payload = (await response.json()) as { handout: Handout };
+
+      if (requestId !== saveRequestIdRef.current) {
+        return;
+      }
+
+      if (requestVersion !== editVersionRef.current) {
+        setSaveState("dirty");
+        setSaveMessage("Changes pending...");
+        return;
+      }
+
       autosaveSkipRef.current = true;
-      startTransition(() => {
-        setHandout(payload.handout);
+      setHandout((current) => {
+        const merged = {
+          ...current,
+          slug: payload.handout.slug,
+          createdAt: payload.handout.createdAt,
+          updatedAt: payload.handout.updatedAt,
+        };
+        handoutRef.current = merged;
+        return merged;
       });
       setSaveState("saved");
       setSaveMessage(`Saved ${new Date(payload.handout.updatedAt).toLocaleTimeString()}.`);
     },
-    [handout],
+    [],
   );
 
   useEffect(() => {
@@ -92,16 +124,21 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
     return () => window.clearTimeout(timeout);
   }, [handout, persistHandout]);
 
-  function updateHandout(nextHandout: Handout) {
+  function updateHandout(nextHandout: Handout | ((current: Handout) => Handout)) {
     markDirty();
-    setHandout(nextHandout);
+    editVersionRef.current += 1;
+    setHandout((current) => {
+      const resolved =
+        typeof nextHandout === "function" ? nextHandout(current) : nextHandout;
+      handoutRef.current = resolved;
+      return resolved;
+    });
   }
 
   function updatePortrait(file?: File | null) {
     if (!file) return;
     void readFileAsDataUrl(file).then((src) => {
-      markDirty();
-      setHandout((current) => ({
+      updateHandout((current) => ({
         ...current,
         portrait: { ...current.portrait, src, alt: current.portrait.alt || "Character portrait" },
       }));
@@ -111,8 +148,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
   function updateGalleryImage(id: string, file?: File | null) {
     if (!file) return;
     void readFileAsDataUrl(file).then((src) => {
-      markDirty();
-      setHandout((current) => ({
+      updateHandout((current) => ({
         ...current,
         gallery: current.gallery.map((asset) => (asset.id === id ? { ...asset, src } : asset)),
       }));
@@ -183,11 +219,11 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
                 nodes={handout.relationshipNodes}
                 edges={handout.relationshipEdges}
                 onChange={({ relationshipNodes, relationshipEdges }) =>
-                  updateHandout({
-                    ...handout,
+                  updateHandout((current) => ({
+                    ...current,
                     relationshipNodes,
                     relationshipEdges,
-                  })
+                  }))
                 }
               />
             </section>
@@ -228,7 +264,10 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
                   <input
                     value={handout.slug}
                     onChange={(event) =>
-                      updateHandout({ ...handout, slug: event.target.value })
+                      updateHandout((current) => ({
+                        ...current,
+                        slug: event.target.value,
+                      }))
                     }
                   />
                 </label>
@@ -237,10 +276,10 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
                     type="checkbox"
                     checked={handout.isShared}
                     onChange={(event) =>
-                      updateHandout({
-                        ...handout,
+                      updateHandout((current) => ({
+                        ...current,
                         isShared: event.target.checked,
-                      })
+                      }))
                     }
                   />
                   <span>Enable public sharing</span>

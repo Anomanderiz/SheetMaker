@@ -62,11 +62,11 @@ export function DashboardClient({
     <main className={styles.page}>
       <section className={styles.hero}>
         <div>
-          <p className={styles.kicker}>Owner Dashboard</p>
-          <h1>Character handouts built from the original parchment dossier.</h1>
+          <p className={styles.kicker}>Handouts</p>
+          <h1>Manage drafts, published links, and active campaign records.</h1>
           <p className={styles.summary}>
-            Create, edit, save, preview, and share a responsive handout with
-            structured lore, session notes, and a configurable Web of Fate.
+            Create and maintain character handouts with structured stats, lore,
+            media, session notes, and configurable relationship maps.
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export function DashboardClient({
           <article key={handout.id} className={styles.card}>
             <div className={styles.cardHeader}>
               <div>
-                <p className={styles.cardEyebrow}>{handout.theme}</p>
+                <p className={styles.cardEyebrow}>Handout</p>
                 <h2>{handout.identity.name}</h2>
               </div>
               <span

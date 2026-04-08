@@ -19,9 +19,20 @@ function replaceAt<T>(items: T[], index: number, nextItem: T) {
   return items.map((item, itemIndex) => (itemIndex === index ? nextItem : item));
 }
 
+function moveItem<T>(items: T[], from: number, to: number) {
+  if (to < 0 || to >= items.length || from === to) {
+    return items;
+  }
+
+  const next = [...items];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}
+
 interface ContentEditorProps {
   handout: Handout;
-  onChange: (handout: Handout) => void;
+  onChange: (handout: Handout | ((current: Handout) => Handout)) => void;
   onPortraitUpload: (file?: File | null) => void;
   onGalleryUpload: (id: string, file?: File | null) => void;
 }
@@ -32,7 +43,7 @@ export function ContentEditor({
   onPortraitUpload,
   onGalleryUpload,
 }: ContentEditorProps) {
-  const patch = (recipe: (current: Handout) => Handout) => onChange(recipe(handout));
+  const patch = (recipe: (current: Handout) => Handout) => onChange(recipe);
 
   return (
     <div className={styles.stack}>
@@ -163,7 +174,7 @@ export function ContentEditor({
         <div className={styles.stack}>
           {handout.statGroups.map((group, groupIndex) => (
             <div key={group.id} className={styles.subcard}>
-              <div className={styles.inlineRow}>
+              <div className={styles.groupHeader}>
                 <input
                   value={group.title}
                   onChange={(event) =>
@@ -176,21 +187,47 @@ export function ContentEditor({
                     }))
                   }
                 />
-                <button
-                  type="button"
-                  onClick={() =>
-                    patch((current) => ({
-                      ...current,
-                      statGroups: current.statGroups.filter((item) => item.id !== group.id),
-                    }))
-                  }
-                >
-                  Remove group
-                </button>
+                <div className={styles.actionRow}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      patch((current) => ({
+                        ...current,
+                        statGroups: moveItem(current.statGroups, groupIndex, groupIndex - 1),
+                      }))
+                    }
+                    disabled={groupIndex === 0}
+                  >
+                    Up
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      patch((current) => ({
+                        ...current,
+                        statGroups: moveItem(current.statGroups, groupIndex, groupIndex + 1),
+                      }))
+                    }
+                    disabled={groupIndex === handout.statGroups.length - 1}
+                  >
+                    Down
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      patch((current) => ({
+                        ...current,
+                        statGroups: current.statGroups.filter((item) => item.id !== group.id),
+                      }))
+                    }
+                  >
+                    Remove group
+                  </button>
+                </div>
               </div>
 
               {group.fields.map((field, fieldIndex) => (
-                <div key={field.id} className={styles.doubleRow}>
+                <div key={field.id} className={styles.fieldRow}>
                   <input
                     value={field.label}
                     onChange={(event) =>
@@ -221,6 +258,20 @@ export function ContentEditor({
                       }))
                     }
                   />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      patch((current) => ({
+                        ...current,
+                        statGroups: replaceAt(current.statGroups, groupIndex, {
+                          ...group,
+                          fields: group.fields.filter((item) => item.id !== field.id),
+                        }),
+                      }))
+                    }
+                  >
+                    Remove field
+                  </button>
                 </div>
               ))}
 

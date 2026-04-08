@@ -199,7 +199,10 @@
 
 .inlineRow,
 .doubleRow,
-.tripleRow {
+.tripleRow,
+.groupHeader,
+.fieldRow,
+.actionRow {
   display: grid;
   gap: 10px;
 }
@@ -213,8 +216,28 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.groupHeader {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.actionRow {
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  align-items: center;
+}
+
+.fieldRow {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+}
+
 .tripleRow {
   grid-template-columns: 140px minmax(0, 1fr) auto;
+}
+
+.subcard button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .checkbox {
@@ -310,7 +333,10 @@
   .fieldGrid,
   .doubleRow,
   .tripleRow,
-  .inlineRow {
+  .inlineRow,
+  .groupHeader,
+  .fieldRow,
+  .actionRow {
     grid-template-columns: 1fr;
   }
 }

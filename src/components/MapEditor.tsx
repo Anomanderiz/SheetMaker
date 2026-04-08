@@ -10,6 +10,7 @@ import {
   MiniMap,
   Position,
   ReactFlow,
+  ReactFlowProvider,
   type Connection,
   type Edge,
   type EdgeChange,
@@ -69,8 +70,12 @@ function toFlowNodes(sourceNodes: RelationshipNode[], mode: "desktop" | "mobile"
       y: (mode === "mobile" && node.mobileY !== undefined ? node.mobileY : node.y) * scene.height,
     },
     data: {
-      label: node.label,
-      rel: node.rel,
+      label: (
+        <div className={styles.flowNode}>
+          <strong>{node.label}</strong>
+          <span>{node.rel}</span>
+        </div>
+      ),
     },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
@@ -78,9 +83,8 @@ function toFlowNodes(sourceNodes: RelationshipNode[], mode: "desktop" | "mobile"
       ...nodeTint(node.type),
       border: "1px solid rgba(52, 23, 7, 0.2)",
       borderRadius: 18,
-      padding: 10,
-      width: 152,
-      fontFamily: "var(--font-cinzel), serif",
+      padding: 12,
+      width: 164,
       boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
     },
   }));
@@ -107,63 +111,95 @@ function toFlowEdges(sourceEdges: RelationshipEdge[]): Edge[] {
   }));
 }
 
+function buildPayload(
+  sourceNodes: RelationshipNode[],
+  sourceEdges: RelationshipEdge[],
+  flowNodes: Node[],
+  flowEdges: Edge[],
+  mode: "desktop" | "mobile",
+) {
+  const scene = sceneSize(mode);
+
+  const relationshipNodes = sourceNodes.map((node) => {
+    const flowNode = flowNodes.find((candidate) => candidate.id === node.id);
+    if (!flowNode) {
+      return node;
+    }
+
+    const normalizedX = Math.min(Math.max(flowNode.position.x / scene.width, 0), 1);
+    const normalizedY = Math.min(Math.max(flowNode.position.y / scene.height, 0), 1);
+
+    return mode === "mobile"
+      ? { ...node, mobileX: normalizedX, mobileY: normalizedY }
+      : { ...node, x: normalizedX, y: normalizedY };
+  });
+
+  const relationshipEdges = flowEdges.map((edge) => {
+    const existing = sourceEdges.find((candidate) => candidate.id === edge.id);
+    return {
+      id: edge.id,
+      fromNodeId: edge.source,
+      toNodeId: edge.target,
+      style: existing?.style ?? "solid",
+      label: typeof edge.label === "string" ? edge.label : existing?.label ?? "",
+    } satisfies RelationshipEdge;
+  });
+
+  return {
+    relationshipNodes,
+    relationshipEdges,
+  };
+}
+
 export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
   const [deviceMode, setDeviceMode] = useState<"desktop" | "mobile">("desktop");
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(nodes[0]?.id ?? null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
-  const flowNodes = useMemo(() => toFlowNodes(nodes, deviceMode), [deviceMode, nodes]);
-  const flowEdges = useMemo(() => toFlowEdges(edges), [edges]);
+  const [flowNodes, setFlowNodes] = useState<Node[]>(() => toFlowNodes(nodes, "desktop"));
+  const [flowEdges, setFlowEdges] = useState<Edge[]>(() => toFlowEdges(edges));
 
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? null;
   const selectedEdge = edges.find((edge) => edge.id === selectedEdgeId) ?? null;
-
   const nodeOptions = useMemo(
     () => nodes.map((node) => ({ id: node.id, label: node.label })),
     [nodes],
   );
 
-  function syncToParent(nextFlowNodes: Node[], nextFlowEdges: Edge[]) {
-    const scene = sceneSize(deviceMode);
+  function commit(nextFlowNodes: Node[], nextFlowEdges: Edge[], mode = deviceMode) {
+    onChange(buildPayload(nodes, edges, nextFlowNodes, nextFlowEdges, mode));
+  }
 
-    const nextRelationshipNodes = nodes.map((node) => {
-      const flowNode = nextFlowNodes.find((candidate) => candidate.id === node.id);
-      if (!flowNode) {
-        return node;
-      }
-
-      const normalizedX = Math.min(Math.max(flowNode.position.x / scene.width, 0), 1);
-      const normalizedY = Math.min(Math.max(flowNode.position.y / scene.height, 0), 1);
-
-      return deviceMode === "mobile"
-        ? { ...node, mobileX: normalizedX, mobileY: normalizedY }
-        : { ...node, x: normalizedX, y: normalizedY };
-    });
-
-    const nextRelationshipEdges = nextFlowEdges.map((edge) => {
-      const existing = edges.find((candidate) => candidate.id === edge.id);
-      return {
-        id: edge.id,
-        fromNodeId: edge.source,
-        toNodeId: edge.target,
-        style: existing?.style ?? "solid",
-        label: typeof edge.label === "string" ? edge.label : existing?.label ?? "",
-      } satisfies RelationshipEdge;
-    });
-
-    onChange({
-      relationshipNodes: nextRelationshipNodes,
-      relationshipEdges: nextRelationshipEdges,
-    });
+  function resetCanvas(mode: "desktop" | "mobile", nextNodes = nodes, nextEdges = edges) {
+    setDeviceMode(mode);
+    setFlowNodes(toFlowNodes(nextNodes, mode));
+    setFlowEdges(toFlowEdges(nextEdges));
   }
 
   function handleNodesChange(changes: NodeChange[]) {
-    const next = applyNodeChanges(changes, flowNodes);
-    syncToParent(next, flowEdges);
+    setFlowNodes((current) => {
+      const next = applyNodeChanges(changes, current);
+      const shouldCommit = changes.some(
+        (change) =>
+          change.type === "remove" ||
+          (change.type === "position" && "dragging" in change && !change.dragging),
+      );
+
+      if (shouldCommit) {
+        commit(next, flowEdges);
+      }
+
+      return next;
+    });
   }
 
   function handleEdgesChange(changes: EdgeChange[]) {
-    const next = applyEdgeChanges(changes, flowEdges);
-    syncToParent(flowNodes, next);
+    setFlowEdges((current) => {
+      const next = applyEdgeChanges(changes, current);
+      if (changes.some((change) => change.type === "remove")) {
+        commit(flowNodes, next);
+      }
+      return next;
+    });
   }
 
   function handleConnect(connection: Connection) {
@@ -176,11 +212,13 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
         id: uid(),
         source: connection.source,
         target: connection.target,
-        label: "new tie",
+        label: "New tie",
       },
       flowEdges,
     );
-    syncToParent(flowNodes, next);
+
+    setFlowEdges(next);
+    commit(flowNodes, next);
   }
 
   function addNode() {
@@ -197,31 +235,38 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
       mobileY: 0.5,
     };
 
+    const nextNodes = [...nodes, newNode];
     onChange({
-      relationshipNodes: [...nodes, newNode],
+      relationshipNodes: nextNodes,
       relationshipEdges: edges,
     });
+    resetCanvas(deviceMode, nextNodes, edges);
     setSelectedNodeId(newNode.id);
     setSelectedEdgeId(null);
   }
 
   function deleteSelection() {
     if (selectedNodeId) {
+      const nextNodes = nodes.filter((node) => node.id !== selectedNodeId);
+      const nextEdges = edges.filter(
+        (edge) => edge.fromNodeId !== selectedNodeId && edge.toNodeId !== selectedNodeId,
+      );
       onChange({
-        relationshipNodes: nodes.filter((node) => node.id !== selectedNodeId),
-        relationshipEdges: edges.filter(
-          (edge) => edge.fromNodeId !== selectedNodeId && edge.toNodeId !== selectedNodeId,
-        ),
+        relationshipNodes: nextNodes,
+        relationshipEdges: nextEdges,
       });
+      resetCanvas(deviceMode, nextNodes, nextEdges);
       setSelectedNodeId(null);
       return;
     }
 
     if (selectedEdgeId) {
+      const nextEdges = edges.filter((edge) => edge.id !== selectedEdgeId);
       onChange({
         relationshipNodes: nodes,
-        relationshipEdges: edges.filter((edge) => edge.id !== selectedEdgeId),
+        relationshipEdges: nextEdges,
       });
+      resetCanvas(deviceMode, nodes, nextEdges);
       setSelectedEdgeId(null);
     }
   }
@@ -234,12 +279,14 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
       return;
     }
 
+    const nextNodes = nodes.map((node) =>
+      node.id === selectedNodeId ? { ...node, [field]: value } : node,
+    );
     onChange({
-      relationshipNodes: nodes.map((node) =>
-        node.id === selectedNodeId ? { ...node, [field]: value } : node,
-      ),
+      relationshipNodes: nextNodes,
       relationshipEdges: edges,
     });
+    setFlowNodes(toFlowNodes(nextNodes, deviceMode));
   }
 
   function updateEdgeField<K extends keyof RelationshipEdge>(
@@ -250,12 +297,14 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
       return;
     }
 
+    const nextEdges = edges.map((edge) =>
+      edge.id === selectedEdgeId ? { ...edge, [field]: value } : edge,
+    );
     onChange({
       relationshipNodes: nodes,
-      relationshipEdges: edges.map((edge) =>
-        edge.id === selectedEdgeId ? { ...edge, [field]: value } : edge,
-      ),
+      relationshipEdges: nextEdges,
     });
+    setFlowEdges(toFlowEdges(nextEdges));
   }
 
   return (
@@ -265,14 +314,14 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
           <button
             type="button"
             className={deviceMode === "desktop" ? styles.active : ""}
-            onClick={() => setDeviceMode("desktop")}
+            onClick={() => resetCanvas("desktop")}
           >
             Desktop layout
           </button>
           <button
             type="button"
             className={deviceMode === "mobile" ? styles.active : ""}
-            onClick={() => setDeviceMode("mobile")}
+            onClick={() => resetCanvas("mobile")}
           >
             Mobile layout
           </button>
@@ -282,7 +331,7 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
           <button type="button" onClick={addNode}>
             Add node
           </button>
-          <button type="button" onClick={deleteSelection}>
+          <button type="button" onClick={deleteSelection} disabled={!selectedNodeId && !selectedEdgeId}>
             Delete selected
           </button>
         </div>
@@ -290,30 +339,35 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
 
       <div className={styles.layout}>
         <div className={styles.canvas}>
-          <ReactFlow
-            nodes={flowNodes}
-            edges={flowEdges}
-            onNodesChange={handleNodesChange}
-            onEdgesChange={handleEdgesChange}
-            onConnect={handleConnect}
-            onSelectionChange={({ nodes: pickedNodes, edges: pickedEdges }) => {
-              setSelectedNodeId(pickedNodes[0]?.id ?? null);
-              setSelectedEdgeId(pickedEdges[0]?.id ?? null);
-            }}
-            onNodeClick={(_event, node) => {
-              setSelectedNodeId(node.id);
-              setSelectedEdgeId(null);
-            }}
-            onEdgeClick={(_event, edge) => {
-              setSelectedEdgeId(edge.id);
-              setSelectedNodeId(null);
-            }}
-            proOptions={{ hideAttribution: true }}
-          >
-            <Background gap={18} color="#cdb995" />
-            <MiniMap pannable zoomable />
-            <Controls />
-          </ReactFlow>
+          <ReactFlowProvider>
+            <ReactFlow
+              key={deviceMode}
+              nodes={flowNodes}
+              edges={flowEdges}
+              fitView
+              fitViewOptions={{ padding: 0.18 }}
+              onNodesChange={handleNodesChange}
+              onEdgesChange={handleEdgesChange}
+              onConnect={handleConnect}
+              onSelectionChange={({ nodes: pickedNodes, edges: pickedEdges }) => {
+                setSelectedNodeId(pickedNodes[0]?.id ?? null);
+                setSelectedEdgeId(pickedEdges[0]?.id ?? null);
+              }}
+              onNodeClick={(_event, node) => {
+                setSelectedNodeId(node.id);
+                setSelectedEdgeId(null);
+              }}
+              onEdgeClick={(_event, edge) => {
+                setSelectedEdgeId(edge.id);
+                setSelectedNodeId(null);
+              }}
+              proOptions={{ hideAttribution: true }}
+            >
+              <Background gap={18} color="#cdb995" />
+              <MiniMap pannable zoomable />
+              <Controls />
+            </ReactFlow>
+          </ReactFlowProvider>
         </div>
 
         <aside className={styles.sidebar}>
@@ -433,11 +487,11 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
           ) : (
             <div className={styles.editorCard}>
               <p className={styles.kicker}>Map Editor</p>
-              <h3>Select a node or edge.</h3>
+              <h3>Drag nodes, connect edges, then edit details here.</h3>
               <p>
-                Desktop and mobile positions are edited separately, so you can
-                keep the public handout legible on phones without compromising
-                the desktop layout.
+                Layouts are stored separately for desktop and mobile, so you can
+                tune the public handout for both screen sizes without fighting a
+                single shared layout.
               </p>
             </div>
           )}

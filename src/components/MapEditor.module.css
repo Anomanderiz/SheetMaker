@@ -26,6 +26,12 @@
   color: #fff0cb;
 }
 
+.modeToggle button:disabled,
+.toolbarActions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .modeToggle .active {
   background: linear-gradient(180deg, #d6ab3d, #8b6118);
   color: #190b03;
@@ -97,6 +103,24 @@
   border: 1px solid rgba(255, 230, 181, 0.12);
   background: rgba(8, 5, 4, 0.36);
   color: #fff0cb;
+}
+
+.flowNode {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+}
+
+.flowNode strong {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.98rem;
+  line-height: 1.1;
+}
+
+.flowNode span {
+  color: inherit;
+  font-size: 0.82rem;
+  opacity: 0.78;
 }
 
 @media (max-width: 1023px) {
