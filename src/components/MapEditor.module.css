@@ -1,0 +1,110 @@
+.shell {
+  display: grid;
+  gap: 16px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.modeToggle,
+.toolbarActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.modeToggle button,
+.toolbarActions button {
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 230, 181, 0.12);
+  background: rgba(255, 244, 222, 0.08);
+  color: #fff0cb;
+}
+
+.modeToggle .active {
+  background: linear-gradient(180deg, #d6ab3d, #8b6118);
+  color: #190b03;
+  font-weight: 700;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) 320px;
+  gap: 16px;
+}
+
+.canvas {
+  min-height: 560px;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 230, 181, 0.12);
+  background: #f3e6ca;
+}
+
+.sidebar {
+  display: grid;
+  align-content: start;
+}
+
+.editorCard {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 230, 181, 0.12);
+  background: rgba(18, 10, 7, 0.56);
+}
+
+.kicker {
+  color: #dfc15d;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.editorCard h3 {
+  font-family: var(--font-cinzel), serif;
+  color: #fff0cb;
+}
+
+.editorCard p {
+  color: #d7c39a;
+  line-height: 1.6;
+}
+
+.editorCard label {
+  display: grid;
+  gap: 6px;
+}
+
+.editorCard span {
+  color: #efd9ae;
+  font-size: 0.92rem;
+}
+
+.editorCard input,
+.editorCard select,
+.editorCard textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 230, 181, 0.12);
+  background: rgba(8, 5, 4, 0.36);
+  color: #fff0cb;
+}
+
+@media (max-width: 1023px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .canvas {
+    min-height: 420px;
+  }
+}

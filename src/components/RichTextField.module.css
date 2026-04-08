@@ -1,0 +1,41 @@
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field > span {
+  color: #f1dfb7;
+  font-size: 0.95rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.toolbar button {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 230, 181, 0.12);
+  background: rgba(255, 244, 222, 0.08);
+  color: #f8eed9;
+}
+
+.editor {
+  min-height: 140px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 230, 181, 0.12);
+  background: rgba(14, 8, 6, 0.52);
+  color: #fff0cb;
+  line-height: 1.6;
+  outline: none;
+}
+
+.editor :global(blockquote) {
+  margin: 0;
+  padding-left: 14px;
+  border-left: 3px solid rgba(212, 171, 75, 0.5);
+  color: #d8c59c;
+}

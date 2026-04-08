@@ -1,0 +1,119 @@
+.page {
+  min-height: 100vh;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(196, 154, 40, 0.18), transparent 32%),
+    linear-gradient(180deg, #120906 0%, #1a0f0a 55%, #0f0806 100%);
+}
+
+.hero {
+  max-width: 1040px;
+  margin: 0 auto;
+  min-height: calc(100vh - 48px);
+  display: grid;
+  align-content: center;
+  gap: 20px;
+  padding: 40px clamp(20px, 4vw, 48px);
+  border: 1px solid rgba(255, 233, 191, 0.14);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(48, 26, 18, 0.92), rgba(20, 11, 8, 0.96)),
+    url("/seed/gallery-2.jpg") center/cover;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+
+.kicker {
+  color: #e7c86c;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 12ch;
+  font-family: var(--font-cinzel-decorative), serif;
+  font-size: clamp(2.8rem, 8vw, 5.4rem);
+  line-height: 0.96;
+  color: #fff4da;
+}
+
+.summary {
+  max-width: 46rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.45rem);
+  line-height: 1.5;
+  color: #efe0ba;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 190px;
+  padding: 14px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 236, 188, 0.2);
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+
+.primary {
+  background: linear-gradient(180deg, #d0a73a, #8d6116);
+  color: #180b03;
+  font-weight: 700;
+}
+
+.secondary {
+  background: rgba(255, 244, 219, 0.06);
+  color: #fff1c7;
+}
+
+.primary:hover,
+.secondary:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 236, 188, 0.35);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #cfbe96;
+  font-size: 0.95rem;
+}
+
+.meta span {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 243, 214, 0.08);
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding: 16px;
+  }
+
+  .hero {
+    min-height: calc(100vh - 32px);
+    padding: 28px 18px;
+    border-radius: 22px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .primary,
+  .secondary {
+    width: 100%;
+  }
+}
