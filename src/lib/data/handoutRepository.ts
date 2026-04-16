@@ -1,4 +1,4 @@
-import { createBlankHandout } from "@/lib/seed";
+import { createBlankHandout, seededHandout } from "@/lib/seed";
 import { readLocalStore, writeLocalStore } from "@/lib/data/localDb";
 import { createSupabaseAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import type { Handout } from "@/lib/types";
@@ -102,7 +102,11 @@ export async function getHandoutById(id: string) {
 
 export async function getHandoutBySlug(slug: string) {
   const handouts = await getAllHandouts();
-  return handouts.find((handout) => handout.slug === slug) ?? null;
+  const found = handouts.find((handout) => handout.slug === slug) ?? null;
+  if (!found && seededHandout.slug === slug && seededHandout.isShared) {
+    return seededHandout;
+  }
+  return found;
 }
 
 export async function createHandout() {
