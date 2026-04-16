@@ -1,55 +1,80 @@
+/* ── Map Editor ───────────────────────────────────────────────────────── */
+
 .shell {
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
+
+/* ── Toolbar ──────────────────────────────────────────────────────────── */
 
 .toolbar {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(180, 24, 24, 0.14);
 }
 
 .modeToggle,
 .toolbarActions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 0;
 }
 
 .modeToggle button,
 .toolbarActions button {
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 230, 181, 0.12);
-  background: rgba(255, 244, 222, 0.08);
-  color: #fff0cb;
+  padding: 8px 16px;
+  border: 1px solid rgba(180, 24, 24, 0.18);
+  border-right: 0;
+  background: transparent;
+  color: var(--foreground-muted);
+  font: inherit;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+
+.modeToggle button:last-child,
+.toolbarActions button:last-child {
+  border-right: 1px solid rgba(180, 24, 24, 0.18);
+}
+
+.modeToggle button:hover,
+.toolbarActions button:hover {
+  background: rgba(180, 24, 24, 0.1);
+  color: #d8c4b8;
 }
 
 .modeToggle button:disabled,
 .toolbarActions button:disabled {
-  opacity: 0.45;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
 .modeToggle .active {
-  background: linear-gradient(180deg, #d6ab3d, #8b6118);
-  color: #190b03;
+  background: rgba(140, 10, 10, 0.3);
+  border-color: rgba(180, 24, 24, 0.4);
+  color: #f0d0c0;
   font-weight: 700;
 }
 
+/* ── Canvas + sidebar layout ──────────────────────────────────────────── */
+
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) 320px;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1.3fr) 300px;
+  gap: 14px;
 }
 
 .canvas {
-  min-height: 560px;
-  border-radius: 24px;
+  min-height: 540px;
+  border: 1px solid rgba(180, 24, 24, 0.16);
+  background: #080508;
   overflow: hidden;
-  border: 1px solid rgba(255, 230, 181, 0.12);
-  background: #f3e6ca;
 }
 
 .sidebar {
@@ -57,71 +82,97 @@
   align-content: start;
 }
 
+/* ── Sidebar editor card ──────────────────────────────────────────────── */
+
 .editorCard {
   display: grid;
   gap: 12px;
-  padding: 18px;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 230, 181, 0.12);
-  background: rgba(18, 10, 7, 0.56);
+  padding: 16px;
+  border: 1px solid rgba(180, 24, 24, 0.14);
+  background: #0e080c;
 }
 
 .kicker {
-  color: #dfc15d;
+  color: var(--accent);
   font-family: var(--font-cinzel), serif;
-  font-size: 0.76rem;
-  letter-spacing: 0.22em;
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
 }
 
 .editorCard h3 {
   font-family: var(--font-cinzel), serif;
-  color: #fff0cb;
+  color: #e0cccc;
+  font-size: 1.05rem;
 }
 
 .editorCard p {
-  color: #d7c39a;
-  line-height: 1.6;
+  color: var(--foreground-muted);
+  line-height: 1.65;
+  font-size: 0.9rem;
+  font-style: italic;
 }
 
 .editorCard label {
   display: grid;
-  gap: 6px;
+  gap: 5px;
 }
 
 .editorCard span {
-  color: #efd9ae;
-  font-size: 0.92rem;
+  color: var(--accent);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
 .editorCard input,
 .editorCard select,
 .editorCard textarea {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 230, 181, 0.12);
-  background: rgba(8, 5, 4, 0.36);
-  color: #fff0cb;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 1px solid rgba(180, 24, 24, 0.2);
+  border-radius: 0;
+  background: transparent;
+  color: #e0cccc;
+  font: inherit;
+  transition: border-color 0.14s;
 }
+
+.editorCard input:focus,
+.editorCard select:focus,
+.editorCard textarea:focus {
+  outline: none;
+  border-bottom-color: rgba(180, 24, 24, 0.55);
+}
+
+.editorCard select option {
+  background: #1c0810;
+}
+
+/* ── Flow node appearance (used inside ReactFlow canvas) ──────────────── */
 
 .flowNode {
   display: grid;
-  gap: 4px;
+  gap: 3px;
   text-align: left;
 }
 
 .flowNode strong {
   font-family: var(--font-cinzel), serif;
-  font-size: 0.98rem;
+  font-size: 0.9rem;
   line-height: 1.1;
+  letter-spacing: 0.03em;
 }
 
 .flowNode span {
-  color: inherit;
-  font-size: 0.82rem;
-  opacity: 0.78;
+  font-size: 0.78rem;
+  opacity: 0.7;
+  font-style: italic;
 }
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
 
 @media (max-width: 1023px) {
   .layout {
@@ -129,6 +180,22 @@
   }
 
   .canvas {
-    min-height: 420px;
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 767px) {
+  .toolbar {
+    flex-direction: column;
+  }
+
+  .modeToggle,
+  .toolbarActions {
+    width: 100%;
+  }
+
+  .modeToggle button,
+  .toolbarActions button {
+    flex: 1;
   }
 }

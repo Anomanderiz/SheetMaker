@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   addEdge,
   applyEdgeChanges,
@@ -36,21 +36,16 @@ interface MapEditorProps {
 }
 
 const uid = () => crypto.randomUUID();
+const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
 
 function nodeTint(type: RelationshipNodeType) {
   switch (type) {
-    case "self":
-      return { background: "#f4d684", color: "#341707" };
-    case "ally":
-      return { background: "#c8e2c8", color: "#10331f" };
-    case "enemy":
-      return { background: "#ecc0ba", color: "#4c120c" };
-    case "threat":
-      return { background: "#d7b0b7", color: "#4d0d13" };
-    case "faction":
-      return { background: "#d6cef0", color: "#27133d" };
-    default:
-      return { background: "#efe3ca", color: "#3f2617" };
+    case "self":    return { background: "#1e0f04", color: "#f4d684", border: "1.5px solid rgba(196,160,40,0.55)" };
+    case "ally":    return { background: "#071c10", color: "#a8d8a8", border: "1.5px solid rgba(60,140,80,0.45)" };
+    case "enemy":   return { background: "#1c0608", color: "#f0a0a0", border: "1.5px solid rgba(180,24,24,0.55)" };
+    case "threat":  return { background: "#180814", color: "#d8a0e0", border: "1.5px solid rgba(160,40,160,0.45)" };
+    case "faction": return { background: "#0e0c1e", color: "#a0b0e8", border: "1.5px solid rgba(80,80,200,0.45)" };
+    default:        return { background: "#14100e", color: "#d8c8b8", border: "1.5px solid rgba(160,100,80,0.35)" };
   }
 }
 
@@ -60,34 +55,42 @@ function sceneSize(mode: "desktop" | "mobile") {
     : { width: 920, height: 520 };
 }
 
-function toFlowNodes(sourceNodes: RelationshipNode[], mode: "desktop" | "mobile"): Node[] {
+function toFlowNodes(
+  sourceNodes: RelationshipNode[],
+  mode: "desktop" | "mobile",
+  prevFlowNodes?: Node[],
+): Node[] {
   const scene = sceneSize(mode);
 
-  return sourceNodes.map((node) => ({
-    id: node.id,
-    position: {
-      x: (mode === "mobile" && node.mobileX !== undefined ? node.mobileX : node.x) * scene.width,
-      y: (mode === "mobile" && node.mobileY !== undefined ? node.mobileY : node.y) * scene.height,
-    },
-    data: {
-      label: (
-        <div className={styles.flowNode}>
-          <strong>{node.label}</strong>
-          <span>{node.rel}</span>
-        </div>
-      ),
-    },
-    sourcePosition: Position.Right,
-    targetPosition: Position.Left,
-    style: {
-      ...nodeTint(node.type),
-      border: "1px solid rgba(52, 23, 7, 0.2)",
-      borderRadius: 18,
-      padding: 12,
-      width: 164,
-      boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
-    },
-  }));
+  return sourceNodes.map((node) => {
+    const prev = prevFlowNodes?.find((p) => p.id === node.id);
+    return {
+      id: node.id,
+      position: {
+        x: (mode === "mobile" && node.mobileX !== undefined ? node.mobileX : node.x) * scene.width,
+        y: (mode === "mobile" && node.mobileY !== undefined ? node.mobileY : node.y) * scene.height,
+      },
+      data: {
+        label: (
+          <div className={styles.flowNode}>
+            <strong>{node.label}</strong>
+            <span>{node.rel}</span>
+          </div>
+        ),
+      },
+      selected: prev?.selected ?? false,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      style: {
+        ...nodeTint(node.type),
+        borderRadius: 14,
+        padding: "10px 14px",
+        width: 164,
+        boxShadow: "0 8px 20px rgba(0,0,0,0.4)",
+        fontFamily: "var(--font-im-fell-english), serif",
+      },
+    };
+  });
 }
 
 function toFlowEdges(sourceEdges: RelationshipEdge[]): Edge[] {
@@ -99,15 +102,16 @@ function toFlowEdges(sourceEdges: RelationshipEdge[]): Edge[] {
     animated: edge.style === "ominous",
     style:
       edge.style === "dashed"
-        ? { strokeDasharray: "6 6", stroke: "#493f86" }
+        ? { strokeDasharray: "6 6", stroke: "rgba(100,80,200,0.65)", strokeWidth: 2 }
         : edge.style === "ominous"
-          ? { strokeDasharray: "2 8", stroke: "#7c1f1f" }
-          : { stroke: "#6f472c" },
+          ? { strokeDasharray: "3 6", stroke: "rgba(180,20,20,0.85)", strokeWidth: 2.2 }
+          : { stroke: "rgba(180,100,60,0.65)", strokeWidth: 1.8 },
     labelStyle: {
-      fill: "#4b2713",
+      fill: "#e8c890",
       fontFamily: "var(--font-cinzel), serif",
-      fontSize: 12,
+      fontSize: 11,
     },
+    labelBgStyle: { fill: "rgba(14,8,10,0.75)", stroke: "none" },
   }));
 }
 
@@ -122,12 +126,10 @@ function buildPayload(
 
   const relationshipNodes = sourceNodes.map((node) => {
     const flowNode = flowNodes.find((candidate) => candidate.id === node.id);
-    if (!flowNode) {
-      return node;
-    }
+    if (!flowNode) return node;
 
-    const normalizedX = Math.min(Math.max(flowNode.position.x / scene.width, 0), 1);
-    const normalizedY = Math.min(Math.max(flowNode.position.y / scene.height, 0), 1);
+    const normalizedX = clamp(flowNode.position.x / scene.width, 0, 1);
+    const normalizedY = clamp(flowNode.position.y / scene.height, 0, 1);
 
     return mode === "mobile"
       ? { ...node, mobileX: normalizedX, mobileY: normalizedY }
@@ -145,9 +147,39 @@ function buildPayload(
     } satisfies RelationshipEdge;
   });
 
+  return { relationshipNodes, relationshipEdges };
+}
+
+/** Spread nodes in a circle so they never all start stacked at center */
+function autoArrange(sourceNodes: RelationshipNode[]): RelationshipNode[] {
+  if (sourceNodes.length === 0) return sourceNodes;
+
+  const selfIndex = sourceNodes.findIndex((n) => n.type === "self");
+  const centerIdx = selfIndex >= 0 ? selfIndex : 0;
+  const others = sourceNodes.filter((_, i) => i !== centerIdx);
+  const cx = 0.5;
+  const cy = 0.5;
+  const r = 0.36;
+
+  return sourceNodes.map((node, i) => {
+    if (i === centerIdx) {
+      return { ...node, x: cx, y: cy, mobileX: cx, mobileY: cy };
+    }
+    const oi = others.indexOf(node);
+    const angle = ((2 * Math.PI * oi) / Math.max(others.length, 1)) - Math.PI / 2;
+    const x = clamp(cx + r * Math.cos(angle), 0.04, 0.96);
+    const y = clamp(cy + r * Math.sin(angle), 0.04, 0.96);
+    return { ...node, x, y, mobileX: x, mobileY: y };
+  });
+}
+
+/** Pick a spread position for a new node that avoids center stacking */
+function spreadPosition(existingCount: number) {
+  const r = 0.36;
+  const angle = ((2 * Math.PI * existingCount) / Math.max(existingCount + 1, 6)) - Math.PI / 2;
   return {
-    relationshipNodes,
-    relationshipEdges,
+    x: clamp(0.5 + r * Math.cos(angle), 0.06, 0.94),
+    y: clamp(0.5 + r * Math.sin(angle), 0.06, 0.94),
   };
 }
 
@@ -158,6 +190,10 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
   const [flowNodes, setFlowNodes] = useState<Node[]>(() => toFlowNodes(nodes, "desktop"));
   const [flowEdges, setFlowEdges] = useState<Edge[]>(() => toFlowEdges(edges));
 
+  // Track whether a sidebar text field has focus — prevents ReactFlow's
+  // onSelectionChange from clearing selectedNodeId while the user is typing.
+  const fieldFocusedRef = useRef(false);
+
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? null;
   const selectedEdge = edges.find((edge) => edge.id === selectedEdgeId) ?? null;
   const nodeOptions = useMemo(
@@ -165,13 +201,26 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
     [nodes],
   );
 
+  // Keep canvas in sync with prop changes (label edits etc.) while preserving selection
+  useEffect(() => {
+    if (fieldFocusedRef.current) return; // don't reset canvas while user is typing
+    setFlowNodes((prev) => toFlowNodes(nodes, deviceMode, prev));
+  }, [nodes, deviceMode]);
+
   function commit(nextFlowNodes: Node[], nextFlowEdges: Edge[], mode = deviceMode) {
     onChange(buildPayload(nodes, edges, nextFlowNodes, nextFlowEdges, mode));
   }
 
-  function resetCanvas(mode: "desktop" | "mobile", nextNodes = nodes, nextEdges = edges) {
+  function resetCanvas(
+    mode: "desktop" | "mobile",
+    nextNodes = nodes,
+    nextEdges = edges,
+  ) {
     setDeviceMode(mode);
-    setFlowNodes(toFlowNodes(nextNodes, mode));
+    setSelectedNodeId(null);
+    setSelectedEdgeId(null);
+    const newFlowNodes = toFlowNodes(nextNodes, mode);
+    setFlowNodes(newFlowNodes);
     setFlowEdges(toFlowEdges(nextEdges));
   }
 
@@ -183,11 +232,9 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
           change.type === "remove" ||
           (change.type === "position" && "dragging" in change && !change.dragging),
       );
-
       if (shouldCommit) {
         commit(next, flowEdges);
       }
-
       return next;
     });
   }
@@ -203,25 +250,22 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
   }
 
   function handleConnect(connection: Connection) {
-    if (!connection.source || !connection.target) {
-      return;
-    }
-
+    if (!connection.source || !connection.target) return;
     const next = addEdge(
       {
         id: uid(),
         source: connection.source,
         target: connection.target,
-        label: "New tie",
+        label: "relates to",
       },
       flowEdges,
     );
-
     setFlowEdges(next);
     commit(flowNodes, next);
   }
 
   function addNode() {
+    const pos = spreadPosition(nodes.length);
     const newNode: RelationshipNode = {
       id: uid(),
       type: "neutral",
@@ -229,19 +273,26 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
       rel: "Connection",
       tooltip: "Describe why this person, faction, or threat matters.",
       icon: "?",
-      x: 0.5,
-      y: 0.5,
-      mobileX: 0.5,
-      mobileY: 0.5,
+      x: pos.x,
+      y: pos.y,
+      mobileX: pos.x,
+      mobileY: pos.y,
     };
-
     const nextNodes = [...nodes, newNode];
-    onChange({
-      relationshipNodes: nextNodes,
-      relationshipEdges: edges,
-    });
-    resetCanvas(deviceMode, nextNodes, edges);
+    onChange({ relationshipNodes: nextNodes, relationshipEdges: edges });
+    const newFlowNodes = toFlowNodes(nextNodes, deviceMode);
+    setFlowNodes(newFlowNodes);
     setSelectedNodeId(newNode.id);
+    setSelectedEdgeId(null);
+  }
+
+  function handleAutoArrange() {
+    const arranged = autoArrange(nodes);
+    onChange({ relationshipNodes: arranged, relationshipEdges: edges });
+    const newFlowNodes = toFlowNodes(arranged, deviceMode);
+    setFlowNodes(newFlowNodes);
+    setFlowEdges(toFlowEdges(edges));
+    setSelectedNodeId(null);
     setSelectedEdgeId(null);
   }
 
@@ -251,22 +302,16 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
       const nextEdges = edges.filter(
         (edge) => edge.fromNodeId !== selectedNodeId && edge.toNodeId !== selectedNodeId,
       );
-      onChange({
-        relationshipNodes: nextNodes,
-        relationshipEdges: nextEdges,
-      });
-      resetCanvas(deviceMode, nextNodes, nextEdges);
+      onChange({ relationshipNodes: nextNodes, relationshipEdges: nextEdges });
+      setFlowNodes(toFlowNodes(nextNodes, deviceMode));
+      setFlowEdges(toFlowEdges(nextEdges));
       setSelectedNodeId(null);
       return;
     }
-
     if (selectedEdgeId) {
       const nextEdges = edges.filter((edge) => edge.id !== selectedEdgeId);
-      onChange({
-        relationshipNodes: nodes,
-        relationshipEdges: nextEdges,
-      });
-      resetCanvas(deviceMode, nodes, nextEdges);
+      onChange({ relationshipNodes: nodes, relationshipEdges: nextEdges });
+      setFlowEdges(toFlowEdges(nextEdges));
       setSelectedEdgeId(null);
     }
   }
@@ -275,35 +320,24 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
     field: K,
     value: RelationshipNode[K],
   ) {
-    if (!selectedNodeId) {
-      return;
-    }
-
+    if (!selectedNodeId) return;
     const nextNodes = nodes.map((node) =>
       node.id === selectedNodeId ? { ...node, [field]: value } : node,
     );
-    onChange({
-      relationshipNodes: nextNodes,
-      relationshipEdges: edges,
-    });
-    setFlowNodes(toFlowNodes(nextNodes, deviceMode));
+    // Only call onChange — the useEffect above will sync flowNodes
+    // while preserving selection via fieldFocusedRef guard
+    onChange({ relationshipNodes: nextNodes, relationshipEdges: edges });
   }
 
   function updateEdgeField<K extends keyof RelationshipEdge>(
     field: K,
     value: RelationshipEdge[K],
   ) {
-    if (!selectedEdgeId) {
-      return;
-    }
-
+    if (!selectedEdgeId) return;
     const nextEdges = edges.map((edge) =>
       edge.id === selectedEdgeId ? { ...edge, [field]: value } : edge,
     );
-    onChange({
-      relationshipNodes: nodes,
-      relationshipEdges: nextEdges,
-    });
+    onChange({ relationshipNodes: nodes, relationshipEdges: nextEdges });
     setFlowEdges(toFlowEdges(nextEdges));
   }
 
@@ -316,14 +350,14 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
             className={deviceMode === "desktop" ? styles.active : ""}
             onClick={() => resetCanvas("desktop")}
           >
-            Desktop layout
+            Desktop
           </button>
           <button
             type="button"
             className={deviceMode === "mobile" ? styles.active : ""}
             onClick={() => resetCanvas("mobile")}
           >
-            Mobile layout
+            Mobile
           </button>
         </div>
 
@@ -331,8 +365,15 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
           <button type="button" onClick={addNode}>
             Add node
           </button>
-          <button type="button" onClick={deleteSelection} disabled={!selectedNodeId && !selectedEdgeId}>
-            Delete selected
+          <button type="button" onClick={handleAutoArrange} disabled={nodes.length < 2}>
+            Auto-arrange
+          </button>
+          <button
+            type="button"
+            onClick={deleteSelection}
+            disabled={!selectedNodeId && !selectedEdgeId}
+          >
+            Delete
           </button>
         </div>
       </div>
@@ -350,6 +391,8 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
               onEdgesChange={handleEdgesChange}
               onConnect={handleConnect}
               onSelectionChange={({ nodes: pickedNodes, edges: pickedEdges }) => {
+                // Don't steal selection while the user is typing in a sidebar field
+                if (fieldFocusedRef.current) return;
                 setSelectedNodeId(pickedNodes[0]?.id ?? null);
                 setSelectedEdgeId(pickedEdges[0]?.id ?? null);
               }}
@@ -363,8 +406,8 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
               }}
               proOptions={{ hideAttribution: true }}
             >
-              <Background gap={18} color="#cdb995" />
-              <MiniMap pannable zoomable />
+              <Background gap={18} color="rgba(180,40,40,0.12)" />
+              <MiniMap pannable zoomable style={{ background: "#14080e" }} />
               <Controls />
             </ReactFlow>
           </ReactFlowProvider>
@@ -372,7 +415,11 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
 
         <aside className={styles.sidebar}>
           {selectedNode ? (
-            <div className={styles.editorCard}>
+            <div
+              className={styles.editorCard}
+              onFocusCapture={() => { fieldFocusedRef.current = true; }}
+              onBlurCapture={() => { fieldFocusedRef.current = false; }}
+            >
               <p className={styles.kicker}>Node</p>
               <h3>{selectedNode.label}</h3>
 
@@ -407,22 +454,22 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
                 </select>
               </label>
               <label>
-                <span>Tooltip</span>
+                <span>Tooltip / description</span>
                 <textarea
-                  rows={5}
+                  rows={4}
                   value={selectedNode.tooltip}
                   onChange={(event) => updateNodeField("tooltip", event.target.value)}
                 />
               </label>
               <label>
-                <span>Icon</span>
+                <span>Icon character</span>
                 <input
                   value={selectedNode.icon ?? ""}
                   onChange={(event) => updateNodeField("icon", event.target.value)}
                 />
               </label>
               <label>
-                <span>Portrait URL or data URL</span>
+                <span>Portrait URL</span>
                 <input
                   value={selectedNode.assetSrc ?? ""}
                   onChange={(event) => updateNodeField("assetSrc", event.target.value)}
@@ -430,9 +477,13 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
               </label>
             </div>
           ) : selectedEdge ? (
-            <div className={styles.editorCard}>
+            <div
+              className={styles.editorCard}
+              onFocusCapture={() => { fieldFocusedRef.current = true; }}
+              onBlurCapture={() => { fieldFocusedRef.current = false; }}
+            >
               <p className={styles.kicker}>Edge</p>
-              <h3>Edit relationship</h3>
+              <h3>Edit connection</h3>
 
               <label>
                 <span>Label</span>
@@ -446,15 +497,12 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
                 <select
                   value={selectedEdge.style}
                   onChange={(event) =>
-                    updateEdgeField(
-                      "style",
-                      event.target.value as RelationshipEdge["style"],
-                    )
+                    updateEdgeField("style", event.target.value as RelationshipEdge["style"])
                   }
                 >
-                  <option value="solid">solid</option>
-                  <option value="dashed">dashed</option>
-                  <option value="ominous">ominous</option>
+                  <option value="solid">solid — known tie</option>
+                  <option value="dashed">dashed — tenuous / uncertain</option>
+                  <option value="ominous">ominous — threat / fate</option>
                 </select>
               </label>
               <label>
@@ -486,12 +534,12 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
             </div>
           ) : (
             <div className={styles.editorCard}>
-              <p className={styles.kicker}>Map Editor</p>
-              <h3>Drag nodes, connect edges, then edit details here.</h3>
+              <p className={styles.kicker}>Web of Fate</p>
+              <h3>Click a node or edge to edit</h3>
               <p>
-                Layouts are stored separately for desktop and mobile, so you can
-                tune the public handout for both screen sizes without fighting a
-                single shared layout.
+                Drag nodes to reposition. Connect nodes by dragging from a handle.
+                Use Auto-arrange to spread a fresh layout into a circular web.
+                Desktop and mobile layouts are stored separately.
               </p>
             </div>
           )}

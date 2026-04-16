@@ -4,38 +4,69 @@
 }
 
 .field > span {
-  color: #f1dfb7;
-  font-size: 0.95rem;
+  color: var(--accent);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 0;
 }
 
 .toolbar button {
-  padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 230, 181, 0.12);
-  background: rgba(255, 244, 222, 0.08);
-  color: #f8eed9;
+  padding: 6px 12px;
+  border: 1px solid rgba(180, 24, 24, 0.18);
+  border-right: 0;
+  background: transparent;
+  color: var(--foreground-muted);
+  font: inherit;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: background 0.14s;
+}
+
+.toolbar button:last-child {
+  border-right: 1px solid rgba(180, 24, 24, 0.18);
+}
+
+.toolbar button:hover {
+  background: rgba(180, 24, 24, 0.1);
+  color: #d8c4b8;
 }
 
 .editor {
   min-height: 140px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 230, 181, 0.12);
-  background: rgba(14, 8, 6, 0.52);
-  color: #fff0cb;
-  line-height: 1.6;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 1px solid rgba(180, 24, 24, 0.2);
+  border-left: 2px solid rgba(180, 24, 24, 0.15);
+  background: transparent;
+  color: #d8c4b8;
+  line-height: 1.72;
   outline: none;
+  font: inherit;
+  transition: border-color 0.15s;
+}
+
+.editor:focus {
+  border-bottom-color: rgba(180, 24, 24, 0.5);
+  border-left-color: rgba(180, 24, 24, 0.4);
 }
 
 .editor :global(blockquote) {
   margin: 0;
-  padding-left: 14px;
-  border-left: 3px solid rgba(212, 171, 75, 0.5);
-  color: #d8c59c;
+  padding: 8px 0 8px 14px;
+  border-left: 2px solid rgba(180, 24, 24, 0.35);
+  color: #a08878;
+  font-style: italic;
+}
+
+.editor :global(ul),
+.editor :global(ol) {
+  padding-left: 18px;
 }

@@ -1,11 +1,16 @@
 :root {
-  --background: #140c09;
-  --foreground: #f7edd8;
-  --surface: #20140f;
-  --surface-border: rgba(255, 225, 180, 0.16);
-  --accent: #c49a28;
-  --accent-strong: #7a0000;
-  --muted: #d1c2a4;
+  --background: #080508;
+  --surface: #120810;
+  --surface-raised: #1c1018;
+  --surface-border: rgba(180, 24, 24, 0.18);
+  --surface-border-dim: rgba(180, 24, 24, 0.1);
+  --accent: #b51c1c;
+  --accent-bright: #e02828;
+  --accent-gold: #c4a028;
+  --accent-gold-dim: rgba(196, 160, 40, 0.16);
+  --foreground: #e0cccc;
+  --foreground-muted: #9a7878;
+  --foreground-dim: #6a5050;
 }
 
 *,

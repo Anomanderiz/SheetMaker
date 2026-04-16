@@ -1,79 +1,62 @@
+/* ── Handout Editor ───────────────────────────────────────────────────── */
+
 .page {
   min-height: 100vh;
-  padding: 18px;
+  padding: 16px;
   background:
-    radial-gradient(circle at top, rgba(196, 154, 40, 0.12), transparent 28%),
-    linear-gradient(180deg, #130b08 0%, #090504 100%);
+    radial-gradient(ellipse at top, rgba(140, 10, 10, 0.1), transparent 36%),
+    linear-gradient(180deg, #080508 0%, #040204 100%);
 }
+
+/* ── Topbar ───────────────────────────────────────────────────────────── */
 
 .topbar {
   max-width: 1560px;
-  margin: 0 auto 16px;
+  margin: 0 auto 14px;
   display: flex;
   justify-content: space-between;
   gap: 16px;
   align-items: center;
-  padding: 22px 24px;
-  border-radius: 26px;
-  border: 1px solid rgba(255, 230, 181, 0.12);
-  background: linear-gradient(180deg, rgba(47, 26, 18, 0.94), rgba(18, 10, 7, 0.98));
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(180, 24, 24, 0.18);
 }
 
 .kicker,
 .cardKicker {
-  color: #dfc15d;
+  color: var(--accent);
   font-family: var(--font-cinzel), serif;
-  font-size: 0.76rem;
-  letter-spacing: 0.22em;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
 }
 
 .topbar h1 {
   margin-top: 6px;
   font-family: var(--font-cinzel-decorative), serif;
-  font-size: clamp(2.2rem, 4vw, 3.6rem);
+  font-size: clamp(2rem, 3.5vw, 3.2rem);
   line-height: 0.95;
-  color: #fff0cb;
+  color: #e0cccc;
 }
 
 .topbarActions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
   justify-content: end;
 }
 
-.status,
-.ghost,
-.primary,
-.tabs button,
-.previewModes button,
-.secondary,
-.inlineRow button,
-.subcard button,
-.checkbox,
-.previewFrame,
-.card input,
-.card select,
-.card textarea {
-  font: inherit;
-}
+/* ── Status / buttons ─────────────────────────────────────────────────── */
 
 .status {
-  padding: 10px 12px;
-  border-radius: 999px;
-  background: rgba(255, 244, 214, 0.08);
-  color: #e8d4ad;
+  padding: 8px 12px;
+  border: 1px solid rgba(180, 24, 24, 0.1);
+  color: var(--foreground-muted);
+  font-size: 0.82rem;
 }
 
-.saved {
-  color: #d4f3b8;
-}
-
-.error {
-  color: #ffb4b4;
-}
+.saved { color: rgba(140, 200, 120, 0.85); }
+.error { color: rgba(220, 80, 80, 0.9); }
 
 .ghost,
 .primary,
@@ -82,9 +65,15 @@
 .secondary,
 .inlineRow button,
 .subcard button {
-  border: 1px solid rgba(255, 230, 181, 0.12);
-  border-radius: 999px;
-  padding: 10px 14px;
+  padding: 9px 16px;
+  border: 1px solid rgba(180, 24, 24, 0.2);
+  border-radius: 0;
+  font: inherit;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
 }
 
 .ghost,
@@ -93,38 +82,75 @@
 .secondary,
 .inlineRow button,
 .subcard button {
-  background: rgba(255, 244, 214, 0.08);
-  color: #fff0cb;
+  background: transparent;
+  color: var(--foreground-muted);
+  border-color: rgba(180, 24, 24, 0.15);
+}
+
+.ghost:hover,
+.secondary:hover,
+.inlineRow button:hover,
+.subcard button:hover {
+  background: rgba(180, 24, 24, 0.08);
+  color: #d8c4b8;
 }
 
 .primary,
 .activeTab,
 .activePreviewMode {
-  background: linear-gradient(180deg, #d6ac3d, #8b6118);
-  color: #1b0b02;
+  background: rgba(140, 10, 10, 0.35);
+  border-color: rgba(180, 24, 24, 0.45);
+  color: #f0d0c0;
   font-weight: 700;
 }
 
+.primary:hover {
+  background: rgba(180, 24, 24, 0.45);
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────── */
+
 .tabs {
   max-width: 1560px;
-  margin: 0 auto 16px;
+  margin: 0 auto 14px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 0;
+  border-bottom: 1px solid rgba(180, 24, 24, 0.14);
 }
+
+.tabs button {
+  border-radius: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 10px 20px;
+}
+
+.tabs .activeTab {
+  background: transparent;
+  border-bottom-color: var(--accent);
+  color: #f0d0c0;
+}
+
+.tabs button:hover:not(.activeTab) {
+  background: rgba(180, 24, 24, 0.06);
+  border-bottom-color: rgba(180, 24, 24, 0.3);
+}
+
+/* ── Workspace layout ─────────────────────────────────────────────────── */
 
 .workspace {
   max-width: 1560px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(400px, 1.08fr);
-  gap: 18px;
+  gap: 16px;
   align-items: start;
 }
 
 .editorPane {
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .previewPane {
@@ -132,14 +158,15 @@
   top: 16px;
 }
 
+/* ── Cards ────────────────────────────────────────────────────────────── */
+
 .previewPanel,
 .card {
   display: grid;
   gap: 14px;
   padding: 18px;
-  border-radius: 26px;
-  border: 1px solid rgba(255, 230, 181, 0.12);
-  background: linear-gradient(180deg, rgba(39, 21, 15, 0.95), rgba(13, 8, 6, 0.98));
+  border: 1px solid rgba(180, 24, 24, 0.14);
+  background: #0e080c;
 }
 
 .cardKicker {
@@ -148,7 +175,7 @@
 
 .stack {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .fieldGrid {
@@ -169,32 +196,57 @@
 
 .card span,
 .subcard span {
-  color: #efd9ae;
-  font-size: 0.92rem;
+  color: var(--accent);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 .card input,
 .card select,
 .card textarea {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 230, 181, 0.12);
-  background: rgba(8, 5, 4, 0.36);
-  color: #fff0cb;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid rgba(180, 24, 24, 0.2);
+  border-radius: 0;
+  background: transparent;
+  color: #e0cccc;
+  font: inherit;
+  transition: border-color 0.15s;
+}
+
+.card input:focus,
+.card select:focus,
+.card textarea:focus {
+  outline: none;
+  border-bottom-color: rgba(180, 24, 24, 0.55);
+}
+
+.card select option {
+  background: #1c0810;
 }
 
 .tagEditor,
 .subcard {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .subcard {
   padding: 14px;
-  border-radius: 20px;
-  background: rgba(255, 243, 209, 0.04);
-  border: 1px solid rgba(255, 230, 181, 0.1);
+  border-left: 2px solid rgba(180, 24, 24, 0.2);
+  background: rgba(180, 24, 24, 0.03);
+}
+
+.subcard code {
+  display: block;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #d8a090;
+  font-family: monospace;
+  font-size: 0.9rem;
 }
 
 .inlineRow,
@@ -232,27 +284,33 @@
 }
 
 .tripleRow {
-  grid-template-columns: 140px minmax(0, 1fr) auto;
+  grid-template-columns: 130px minmax(0, 1fr) auto;
 }
 
-.subcard button:disabled {
-  opacity: 0.45;
+.subcard button:disabled,
+.inlineRow button:disabled {
+  opacity: 0.35;
   cursor: not-allowed;
 }
+
+/* ── Checkbox ─────────────────────────────────────────────────────────── */
 
 .checkbox {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: rgba(255, 243, 209, 0.04);
-  border: 1px solid rgba(255, 230, 181, 0.1);
+  padding: 10px 12px;
+  border-left: 2px solid rgba(180, 24, 24, 0.18);
+  background: rgba(180, 24, 24, 0.04);
+  color: #d8c4b8;
 }
 
 .checkbox input {
   width: auto;
+  border-bottom: none;
 }
+
+/* ── Preview ──────────────────────────────────────────────────────────── */
 
 .previewHeader {
   display: flex;
@@ -263,28 +321,30 @@
 
 .previewModes {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 0;
+}
+
+.previewModes button {
+  border-radius: 0;
+  border-right: 0;
+}
+
+.previewModes button:last-child {
+  border-right: 1px solid rgba(180, 24, 24, 0.2);
 }
 
 .previewScroll,
 .previewFrame {
   overflow: auto;
-  padding: 10px;
-  border-radius: 22px;
-  background: rgba(255, 243, 209, 0.05);
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .previewScroll {
   max-height: calc(100vh - 220px);
 }
 
-.subcard code {
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(0, 0, 0, 0.28);
-  color: #ffe8b0;
-}
+/* ── Responsive ───────────────────────────────────────────────────────── */
 
 @media (max-width: 1279px) {
   .workspace {
@@ -299,14 +359,13 @@
 
 @media (max-width: 767px) {
   .page {
-    padding: 10px;
+    padding: 8px;
   }
 
   .topbar,
   .card,
   .previewPanel {
-    padding: 16px;
-    border-radius: 22px;
+    padding: 14px;
   }
 
   .topbar,
@@ -322,6 +381,20 @@
   .tabs {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-bottom: 0;
+    gap: 1px;
+    background: rgba(180, 24, 24, 0.1);
+  }
+
+  .tabs button {
+    border-bottom: 0;
+    border: 0;
+    text-align: center;
+  }
+
+  .tabs .activeTab {
+    border: 0;
+    background: rgba(140, 10, 10, 0.35);
   }
 
   .tabs button,
