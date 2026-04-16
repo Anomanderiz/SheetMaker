@@ -170,6 +170,7 @@ export function HandoutRenderer({
               <WebOfFate
                 nodes={handout.relationshipNodes}
                 edges={handout.relationshipEdges}
+                backgroundSrc={handout.mapBackgroundSrc}
               />
             </section>
           ) : null}

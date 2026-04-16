@@ -106,6 +106,7 @@ export interface Handout {
   traitTags: TraitTag[];
   relationshipNodes: RelationshipNode[];
   relationshipEdges: RelationshipEdge[];
+  mapBackgroundSrc?: string;
   loreSections: LoreSection[];
   secretBlocks: SecretBlock[];
   gallery: GalleryAsset[];

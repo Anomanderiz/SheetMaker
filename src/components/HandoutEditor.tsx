@@ -226,6 +226,33 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
           {activeTab === "map" ? (
             <section className={styles.card}>
               <p className={styles.cardKicker}>Web of Fate Editor</p>
+              <div className={styles.inlineRow}>
+                <label>
+                  <span>Background image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      void readFileAsDataUrl(file).then((src) =>
+                        updateHandout((current) => ({ ...current, mapBackgroundSrc: src }))
+                      );
+                    }}
+                  />
+                </label>
+                {handout.mapBackgroundSrc ? (
+                  <button
+                    type="button"
+                    className={styles.ghost}
+                    onClick={() =>
+                      updateHandout((current) => ({ ...current, mapBackgroundSrc: undefined }))
+                    }
+                  >
+                    Remove
+                  </button>
+                ) : null}
+              </div>
               <MapEditor
                 nodes={handout.relationshipNodes}
                 edges={handout.relationshipEdges}
@@ -259,7 +286,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
               </div>
 
               <div className={styles.previewFrame}>
-                <div style={{ width: previewWidth(previewMode), maxWidth: "100%" }}>
+                <div style={{ width: previewWidth(previewMode) }}>
                   <HandoutRenderer handout={deferredHandout} embedded />
                 </div>
               </div>
@@ -359,7 +386,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
             </div>
 
             <div className={styles.previewScroll}>
-              <div style={{ width: previewWidth(previewMode), maxWidth: "100%" }}>
+              <div style={{ width: previewWidth(previewMode) }}>
                 <HandoutRenderer handout={deferredHandout} embedded />
               </div>
             </div>

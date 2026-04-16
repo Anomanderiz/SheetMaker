@@ -105,6 +105,19 @@
 }
 .viewport:active { cursor: grabbing; }
 
+.bgLayer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ensure the scene (nodes + edges) sits above the background */
+.scene { z-index: 1; }
+
 .scene {
   position: relative;
   transform-origin: 0 0;

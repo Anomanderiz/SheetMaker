@@ -9,6 +9,7 @@ import styles from "./WebOfFate.module.css";
 interface WebOfFateProps {
   nodes: RelationshipNode[];
   edges: RelationshipEdge[];
+  backgroundSrc?: string;
 }
 
 interface TransformState {
@@ -24,7 +25,7 @@ function distance(a: { x: number; y: number }, b: { x: number; y: number }) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-export function WebOfFate({ nodes, edges }: WebOfFateProps) {
+export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
   const panStateRef = useRef<{
@@ -244,6 +245,13 @@ export function WebOfFate({ nodes, edges }: WebOfFateProps) {
           onPointerCancel={handlePointerEnd}
           onPointerLeave={handlePointerEnd}
         >
+          {backgroundSrc ? (
+            <div
+              className={styles.bgLayer}
+              style={{ backgroundImage: `url(${backgroundSrc})` }}
+              aria-hidden="true"
+            />
+          ) : null}
           <div
             className={styles.scene}
             style={{
