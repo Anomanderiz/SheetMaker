@@ -110,8 +110,8 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
     width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop";
   const stageWidth = Math.max(width - 2, 280);
   const stageHeight = isFullscreen
-    ? window.innerHeight - 120
-    : deviceMode === "mobile" ? 460 : deviceMode === "tablet" ? 390 : 340;
+    ? window.innerHeight - 80
+    : deviceMode === "mobile" ? 680 : deviceMode === "tablet" ? 560 : 520;
   const hideEdgeLabels = deviceMode === "mobile" || stageWidth < 640;
 
   const positionedNodes = useMemo(

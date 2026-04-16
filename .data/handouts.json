@@ -208,30 +208,10 @@
         }
       ],
       "gallery": [
-        {
-          "id": "g001",
-          "src": "/seed/gallery-1.jpg",
-          "alt": "A dramatic scene from the campaign",
-          "caption": "A moment that changed everything."
-        },
-        {
-          "id": "g002",
-          "src": "/seed/gallery-2.jpg",
-          "alt": "Documents and notes",
-          "caption": "Recovered notes and gathered intelligence."
-        },
-        {
-          "id": "g003",
-          "src": "/seed/gallery-3.jpg",
-          "alt": "A journey through dangerous terrain",
-          "caption": "The road between safety and the next objective."
-        },
-        {
-          "id": "g004",
-          "src": "/seed/gallery-4.jpg",
-          "alt": "An ominous chamber or location",
-          "caption": "Somewhere the character was not meant to find."
-        }
+        { "id": "g001", "src": "/gallery-placeholder.svg", "alt": "Gallery image", "caption": "A moment that changed everything." },
+        { "id": "g002", "src": "/gallery-placeholder.svg", "alt": "Gallery image", "caption": "Recovered notes and gathered intelligence." },
+        { "id": "g003", "src": "/gallery-placeholder.svg", "alt": "Gallery image", "caption": "The road between safety and the next objective." },
+        { "id": "g004", "src": "/gallery-placeholder.svg", "alt": "Gallery image", "caption": "Somewhere the character was not meant to find." }
       ],
       "sessionEntries": [
         {
