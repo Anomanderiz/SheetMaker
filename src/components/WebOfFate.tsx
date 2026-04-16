@@ -66,6 +66,20 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const el = hostRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      setTransform((current) => ({
+        ...current,
+        scale: clamp(current.scale - e.deltaY * 0.0012, 0.5, 3),
+      }));
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
   // Close fullscreen on Escape
   useEffect(() => {
     if (!isFullscreen) return;
@@ -145,14 +159,6 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
         : null,
     [activeNodeId, positionedEdges],
   );
-
-  function handleWheel(event: React.WheelEvent<HTMLDivElement>) {
-    event.preventDefault();
-    setTransform((current) => ({
-      ...current,
-      scale: clamp(current.scale - event.deltaY * 0.0012, 0.5, 3),
-    }));
-  }
 
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if ((event.target as HTMLElement).closest("button")) return;
@@ -263,7 +269,6 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
           ref={hostRef}
           className={styles.viewport}
           style={{ height: stageHeight }}
-          onWheel={handleWheel}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}
