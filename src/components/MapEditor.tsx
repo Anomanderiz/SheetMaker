@@ -38,14 +38,17 @@ interface MapEditorProps {
 const uid = () => crypto.randomUUID();
 const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
 
+// Nodes render on a black canvas — use white/off-white backgrounds with dark text.
+// Border colour is the only type-specific accent.
 function nodeTint(type: RelationshipNodeType) {
+  const base = { background: "#f2eeea", color: "#1a1418" };
   switch (type) {
-    case "self":    return { background: "#1e0f04", color: "#f4d684", border: "1.5px solid rgba(196,160,40,0.55)" };
-    case "ally":    return { background: "#071c10", color: "#a8d8a8", border: "1.5px solid rgba(60,140,80,0.45)" };
-    case "enemy":   return { background: "#1c0608", color: "#f0a0a0", border: "1.5px solid rgba(180,24,24,0.55)" };
-    case "threat":  return { background: "#180814", color: "#d8a0e0", border: "1.5px solid rgba(160,40,160,0.45)" };
-    case "faction": return { background: "#0e0c1e", color: "#a0b0e8", border: "1.5px solid rgba(80,80,200,0.45)" };
-    default:        return { background: "#14100e", color: "#d8c8b8", border: "1.5px solid rgba(160,100,80,0.35)" };
+    case "self":    return { ...base, border: "2px solid rgba(200,170,80,0.9)" };
+    case "ally":    return { ...base, border: "2px solid rgba(40,140,60,0.75)" };
+    case "enemy":   return { ...base, border: "2px solid rgba(180,20,20,0.9)" };
+    case "threat":  return { ...base, border: "2px solid rgba(140,20,160,0.75)" };
+    case "faction": return { ...base, border: "2px solid rgba(60,80,200,0.75)" };
+    default:        return { ...base, border: "2px solid rgba(160,150,150,0.55)" };
   }
 }
 
@@ -102,16 +105,17 @@ function toFlowEdges(sourceEdges: RelationshipEdge[]): Edge[] {
     animated: edge.style === "ominous",
     style:
       edge.style === "dashed"
-        ? { strokeDasharray: "6 6", stroke: "rgba(100,80,200,0.65)", strokeWidth: 2 }
+        ? { strokeDasharray: "6 6", stroke: "rgba(240,236,232,0.45)", strokeWidth: 1.6 }
         : edge.style === "ominous"
-          ? { strokeDasharray: "3 6", stroke: "rgba(180,20,20,0.85)", strokeWidth: 2.2 }
-          : { stroke: "rgba(180,100,60,0.65)", strokeWidth: 1.8 },
+          ? { strokeDasharray: "3 6", stroke: "rgba(180,20,20,0.9)", strokeWidth: 2.2 }
+          : { stroke: "rgba(240,236,232,0.75)", strokeWidth: 1.8 },
     labelStyle: {
-      fill: "#e8c890",
+      fill: "#d4c8b0",
       fontFamily: "var(--font-cinzel), serif",
       fontSize: 11,
+      letterSpacing: "0.06em",
     },
-    labelBgStyle: { fill: "rgba(14,8,10,0.75)", stroke: "none" },
+    labelBgStyle: { fill: "rgba(8,6,8,0.82)", stroke: "none" },
   }));
 }
 

@@ -5,8 +5,8 @@
 }
 
 @keyframes fatePulse {
-  0%, 100% { opacity: 0.65; stroke-width: 2; }
-  50%       { opacity: 1;    stroke-width: 2.8; }
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
 }
 
 .section {
@@ -14,13 +14,12 @@
   gap: 14px;
 }
 
-/* Fullscreen overlay */
 .fullscreenSection {
   position: fixed;
   inset: 0;
   z-index: 100;
   padding: 20px;
-  background: #0a0508;
+  background: var(--bg);
   overflow: auto;
   display: grid;
   gap: 14px;
@@ -37,72 +36,66 @@
 }
 
 .kicker {
-  color: var(--accent);
+  color: var(--grey);
   font-family: var(--font-cinzel), serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.3em;
+  font-size: 0.7rem;
+  letter-spacing: 0.34em;
   text-transform: uppercase;
 }
 
 .header h3 {
   margin-top: 6px;
   font-family: var(--font-cinzel), serif;
-  font-size: clamp(1.2rem, 2.4vw, 1.75rem);
+  font-size: clamp(1.2rem, 2.2vw, 1.7rem);
   line-height: 1.15;
-  color: #d4b4a0;
+  color: var(--white);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: end;
-  gap: 8px;
+  gap: 0;
   flex-shrink: 0;
 }
 
 .actions button {
   padding: 8px 14px;
-  border: 1px solid rgba(180, 24, 24, 0.22);
-  background: rgba(140, 10, 10, 0.12);
-  color: #c49090;
+  border: 1px solid rgba(180, 20, 20, 0.28);
+  border-right: 0;
+  background: transparent;
+  color: var(--grey);
   font: inherit;
   font-size: 1rem;
   cursor: pointer;
   line-height: 1;
-  border-radius: 0;
-  transition: background 0.15s;
+  transition: background 0.13s;
 }
 
-.actions button:hover {
-  background: rgba(180, 24, 24, 0.2);
-  color: #e0b0b0;
-}
+.actions button:last-child { border-right: 1px solid rgba(180, 20, 20, 0.28); }
+.actions button:hover { background: rgba(240, 236, 232, 0.06); color: var(--white); }
 
 /* ── Viewport ─────────────────────────────────────────────────────────── */
 
 .viewportWrap {
-  border: 1px solid rgba(180, 24, 24, 0.18);
+  border: 1px solid rgba(180, 20, 20, 0.3);
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 30% 30%, rgba(100, 0, 0, 0.1), transparent 55%),
-    radial-gradient(ellipse at 70% 70%, rgba(80, 0, 0, 0.08), transparent 55%),
-    #080508;
+  background: var(--bg);
   position: relative;
 }
 
-/* Decorative corner ornaments */
+/* corner ornaments */
 .viewportWrap::before,
 .viewportWrap::after {
   content: "✦";
   position: absolute;
-  color: rgba(180, 24, 24, 0.25);
-  font-size: 0.7rem;
+  color: rgba(180, 20, 20, 0.3);
+  font-size: 0.65rem;
   z-index: 2;
   pointer-events: none;
 }
-
-.viewportWrap::before { top: 8px; left: 8px; }
-.viewportWrap::after  { bottom: 8px; right: 8px; }
+.viewportWrap::before { top: 7px; left: 8px; }
+.viewportWrap::after  { bottom: 7px; right: 8px; }
 
 .viewport {
   position: relative;
@@ -110,10 +103,7 @@
   touch-action: none;
   cursor: grab;
 }
-
-.viewport:active {
-  cursor: grabbing;
-}
+.viewport:active { cursor: grabbing; }
 
 .scene {
   position: relative;
@@ -131,35 +121,33 @@
   overflow: visible;
 }
 
-.edge {
-  fill: none;
-}
+.edge { fill: none; }
 
 .solid {
-  stroke: rgba(180, 60, 40, 0.6);
-  stroke-width: 1.8;
+  stroke: rgba(240, 236, 232, 0.35);
+  stroke-width: 1.5;
 }
 
 .dashed {
-  stroke: rgba(100, 70, 180, 0.55);
-  stroke-width: 1.6;
-  stroke-dasharray: 8 6;
+  stroke: rgba(240, 236, 232, 0.22);
+  stroke-width: 1.4;
+  stroke-dasharray: 7 5;
 }
 
 .ominous {
-  stroke: rgba(200, 10, 10, 0.85);
-  stroke-width: 2.2;
+  stroke: rgba(180, 20, 20, 0.75);
+  stroke-width: 2;
   stroke-dasharray: 5 5;
   animation:
-    march 0.7s linear infinite,
-    fatePulse 2.2s ease-in-out infinite;
+    march 0.75s linear infinite,
+    fatePulse 2s ease-in-out infinite;
 }
 
 .edgeLabel {
-  fill: rgba(180, 100, 80, 0.75);
+  fill: var(--dim);
   font-family: var(--font-cinzel), serif;
   font-size: 11px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   text-anchor: middle;
   pointer-events: none;
 }
@@ -171,45 +159,40 @@
   display: grid;
   justify-items: center;
   gap: 7px;
-  width: min(156px, 26vw);
+  width: min(152px, 26vw);
   transform: translate(-50%, -50%);
   border: 0;
   background: transparent;
   cursor: pointer;
-  transition: filter 0.15s;
+  transition: filter 0.14s;
 }
 
-.node:hover { filter: brightness(1.15); }
+.node:hover { filter: brightness(1.12); }
 
 .nodePortrait,
 .nodeIcon {
-  width: clamp(48px, 7.5vw, 66px);
+  width: clamp(46px, 7vw, 62px);
   aspect-ratio: 1;
-  border-radius: 0;
-  border: 1px solid rgba(180, 24, 24, 0.5);
-  background: #140810;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 0 2px rgba(180, 24, 24, 0.12);
+  border: 1px solid rgba(240, 236, 232, 0.25);
+  background: var(--surface-hi);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.65);
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .node:hover .nodePortrait,
 .node:hover .nodeIcon {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(180, 24, 24, 0.28);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75);
 }
 
-.nodePortrait {
-  background-position: center;
-  background-size: cover;
-  filter: saturate(0.8);
-}
+.nodePortrait { background-position: center; background-size: cover; filter: grayscale(0.15); }
 
 .nodeIcon {
   display: grid;
   place-items: center;
-  color: var(--accent);
+  color: var(--white);
   font-family: var(--font-cinzel-decorative), serif;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
 
 .nodeText {
@@ -217,101 +200,81 @@
   gap: 3px;
   width: 100%;
   padding: 8px 10px;
-  background: rgba(14, 8, 12, 0.9);
-  border: 1px solid rgba(180, 24, 24, 0.16);
-  color: #d8c4b8;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
-  transition: box-shadow 0.15s, border-color 0.15s;
+  background: rgba(15, 12, 15, 0.92);
+  border: 1px solid rgba(240, 236, 232, 0.1);
+  color: var(--white);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.55);
+  transition: border-color 0.14s, box-shadow 0.14s;
 }
 
 .nodeText strong {
   font-family: var(--font-cinzel), serif;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   line-height: 1.1;
-  color: #e0cccc;
+  color: var(--white);
   letter-spacing: 0.04em;
 }
 
 .nodeText span {
-  font-size: 0.8rem;
-  color: var(--foreground-muted);
+  font-size: 0.78rem;
+  color: var(--grey);
   font-style: italic;
 }
 
+/* active ring */
 .active .nodeText {
-  border-color: rgba(180, 24, 24, 0.45);
+  border-color: rgba(180, 20, 20, 0.5);
   box-shadow:
-    0 0 0 2px rgba(180, 24, 24, 0.15),
-    0 10px 24px rgba(0, 0, 0, 0.6);
+    0 0 0 2px rgba(180, 20, 20, 0.15),
+    0 8px 22px rgba(0, 0, 0, 0.6);
 }
 
-/* Type accent colours on the portrait/icon */
-.self .nodeIcon,
-.self .nodePortrait {
-  border-color: rgba(196, 160, 40, 0.7);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(196,160,40,0.2);
+/* type-colour outlines on the portrait/icon — red spectrum for enemies, subtle for others */
+.self .nodePortrait, .self .nodeIcon {
+  border-color: rgba(220, 200, 140, 0.6);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.65), 0 0 10px rgba(200,170,80,0.18);
 }
-
-.self .nodeIcon { color: #c4a028; }
-
-.enemy .nodeIcon,
-.enemy .nodePortrait {
-  border-color: rgba(200, 20, 20, 0.7);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(200,20,20,0.2);
+.enemy .nodePortrait, .enemy .nodeIcon {
+  border-color: rgba(180, 20, 20, 0.65);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.65), 0 0 10px rgba(180,20,20,0.2);
 }
-
-.enemy .nodeIcon { color: #d04040; }
-
-.threat .nodeIcon,
-.threat .nodePortrait {
-  border-color: rgba(160, 20, 140, 0.6);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 10px rgba(160,20,140,0.2);
+.threat .nodePortrait, .threat .nodeIcon {
+  border-color: rgba(140, 20, 140, 0.5);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.65), 0 0 8px rgba(140,20,140,0.18);
 }
-
-.threat .nodeIcon { color: #c060c0; }
-
-.ally .nodeIcon,
-.ally .nodePortrait {
-  border-color: rgba(40, 120, 60, 0.6);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 10px rgba(40,120,60,0.18);
+.ally .nodePortrait, .ally .nodeIcon {
+  border-color: rgba(40, 140, 60, 0.45);
 }
-
-.ally .nodeIcon { color: #70c070; }
-
-.faction .nodeIcon,
-.faction .nodePortrait {
-  border-color: rgba(60, 70, 180, 0.55);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 10px rgba(60,70,180,0.18);
+.faction .nodePortrait, .faction .nodeIcon {
+  border-color: rgba(60, 80, 200, 0.45);
 }
-
-.faction .nodeIcon { color: #8090d8; }
 
 /* ── Detail panel ─────────────────────────────────────────────────────── */
 
 .detailLabel {
-  color: var(--accent);
+  color: var(--grey);
   font-family: var(--font-cinzel), serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.25em;
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
 }
 
 .details {
-  padding: 16px 18px;
-  border-left: 2px solid rgba(180, 24, 24, 0.3);
-  background: rgba(14, 8, 12, 0.7);
-  color: #c8b4a8;
+  padding: 14px 18px;
+  border-left: 2px solid rgba(180, 20, 20, 0.35);
+  background: var(--surface);
+  color: var(--grey);
 }
 
 .details h4 {
   margin-top: 5px;
   font-family: var(--font-cinzel), serif;
-  font-size: 1.35rem;
-  color: #e0cccc;
+  font-size: 1.3rem;
+  color: var(--white);
 }
 
 .details p:last-child {
-  margin-top: 8px;
+  margin-top: 7px;
   line-height: 1.68;
   font-style: italic;
 }
@@ -322,23 +285,23 @@
   display: grid;
   gap: 12px;
   padding: 56px 24px;
-  border: 1px dashed rgba(180, 24, 24, 0.18);
+  border: 1px dashed rgba(180, 20, 20, 0.22);
   text-align: center;
-  color: var(--foreground-muted);
+  color: var(--dim);
   font-style: italic;
 }
 
 .emptyIcon {
-  font-size: 2rem;
-  color: rgba(180, 24, 24, 0.3);
+  font-size: 1.8rem;
+  color: rgba(180, 20, 20, 0.28);
 }
 
 /* ── Fullscreen hint ──────────────────────────────────────────────────── */
 
 .fullscreenHint {
   text-align: center;
-  font-size: 0.78rem;
-  color: var(--foreground-dim);
+  font-size: 0.74rem;
+  color: var(--dim);
   letter-spacing: 0.08em;
   font-family: var(--font-cinzel), serif;
 }
@@ -346,31 +309,11 @@
 /* ── Responsive ───────────────────────────────────────────────────────── */
 
 @media (max-width: 767px) {
-  .header {
-    display: grid;
-  }
-
-  .actions {
-    justify-content: start;
-  }
-
-  .node {
-    width: min(128px, 30vw);
-  }
-
-  .nodeText {
-    padding: 7px 8px;
-  }
-
-  .nodeText strong {
-    font-size: 0.8rem;
-  }
-
-  .nodeText span {
-    font-size: 0.72rem;
-  }
-
-  .fullscreenSection {
-    padding: 12px;
-  }
+  .header { display: grid; }
+  .actions { justify-content: start; }
+  .node { width: min(124px, 30vw); }
+  .nodeText { padding: 7px 8px; }
+  .nodeText strong { font-size: 0.78rem; }
+  .nodeText span   { font-size: 0.7rem; }
+  .fullscreenSection { padding: 12px; }
 }

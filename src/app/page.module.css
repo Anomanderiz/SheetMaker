@@ -3,58 +3,58 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background:
-    radial-gradient(ellipse at top, rgba(140, 10, 10, 0.12), transparent 40%),
-    linear-gradient(180deg, #080508 0%, #040204 100%);
+  /* single very gentle gradient — no harsh radial spots */
+  background: linear-gradient(160deg, #100c10 0%, #080608 55%, #0c0810 100%);
 }
 
 .hero {
-  max-width: 900px;
+  max-width: 880px;
   width: 100%;
   display: grid;
   align-content: center;
-  gap: 24px;
-  padding: clamp(40px, 7vw, 72px) clamp(24px, 5vw, 60px);
-  border-left: 2px solid rgba(180, 24, 24, 0.3);
-  border-right: 2px solid rgba(180, 24, 24, 0.3);
+  gap: 26px;
+  padding: clamp(48px, 8vw, 80px) clamp(28px, 6vw, 64px);
+  border-left:  var(--rule);
+  border-right: var(--rule);
   position: relative;
 }
 
-/* Decorative horizontal rules */
 .hero::before,
 .hero::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(180, 24, 24, 0.4), transparent);
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(180, 20, 20, 0.45) 30%,
+    rgba(180, 20, 20, 0.45) 70%,
+    transparent 100%);
 }
-
 .hero::before { top: 0; }
 .hero::after  { bottom: 0; }
 
 .kicker {
-  color: var(--accent);
+  color: var(--grey);
   font-family: var(--font-cinzel), serif;
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   letter-spacing: 0.36em;
   text-transform: uppercase;
 }
 
 .hero h1 {
-  max-width: 16ch;
+  max-width: 14ch;
   font-family: var(--font-cinzel), serif;
-  font-size: clamp(2.4rem, 7vw, 4.8rem);
-  line-height: 1.02;
-  color: #e8d0c8;
+  font-size: clamp(2.4rem, 6.5vw, 4.6rem);
+  line-height: 1.04;
+  color: var(--white);
 }
 
 .summary {
   max-width: 44rem;
-  font-size: clamp(1rem, 2.2vw, 1.3rem);
-  line-height: 1.65;
-  color: var(--foreground-muted);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.7;
+  color: var(--grey);
 }
 
 .actions {
@@ -70,77 +70,53 @@
   align-items: center;
   justify-content: center;
   padding: 14px 28px;
-  border: 1px solid rgba(180, 24, 24, 0.25);
+  border: 1px solid rgba(180, 20, 20, 0.35);
   border-right: 0;
-  font: inherit;
   font-family: var(--font-cinzel), serif;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   letter-spacing: 0.12em;
   transition: background 0.15s;
 }
 
 .primary {
-  background: rgba(140, 10, 10, 0.28);
-  color: #f0d0c0;
+  background: rgba(240, 236, 232, 0.08);
+  color: var(--white);
   font-weight: 700;
-  border-color: rgba(180, 24, 24, 0.42);
+  border-color: rgba(180, 20, 20, 0.5);
 }
-
-.primary:hover {
-  background: rgba(180, 24, 24, 0.38);
-}
+.primary:hover { background: rgba(240, 236, 232, 0.14); }
 
 .secondary {
   background: transparent;
-  color: var(--foreground-muted);
-  border-right: 1px solid rgba(180, 24, 24, 0.25);
+  color: var(--grey);
+  border-right: 1px solid rgba(180, 20, 20, 0.35);
 }
-
-.secondary:hover {
-  background: rgba(180, 24, 24, 0.08);
-  color: #d8c4b8;
-}
+.secondary:hover { background: rgba(240, 236, 232, 0.05); color: var(--white); }
 
 .meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  color: var(--foreground-dim);
-  font-size: 0.84rem;
-  margin-top: 8px;
+  color: var(--dim);
+  font-size: 0.82rem;
   font-style: italic;
 }
 
-.meta span {
-  padding: 8px 16px 8px 0;
-}
-
+.meta span { padding: 6px 16px 6px 0; }
 .meta span + span {
   padding-left: 16px;
-  border-left: 1px solid rgba(180, 24, 24, 0.14);
+  border-left: 1px solid rgba(180, 20, 20, 0.18);
 }
 
 @media (max-width: 767px) {
-  .page {
-    padding: 16px;
-  }
-
-  .hero {
-    padding: 36px 20px;
-  }
-
-  .actions {
-    flex-direction: column;
-  }
-
+  .page { padding: 14px; }
+  .hero { padding: 36px 18px; }
+  .actions { flex-direction: column; }
   .primary,
   .secondary {
     width: 100%;
-    border-right: 1px solid rgba(180, 24, 24, 0.25);
+    border-right: 1px solid rgba(180, 20, 20, 0.35);
     border-bottom: 0;
   }
-
-  .secondary {
-    border-bottom: 1px solid rgba(180, 24, 24, 0.25);
-  }
+  .secondary { border-bottom: 1px solid rgba(180, 20, 20, 0.35); }
 }

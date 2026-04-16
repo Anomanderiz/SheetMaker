@@ -13,7 +13,7 @@
   gap: 12px;
   flex-wrap: wrap;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(180, 24, 24, 0.14);
+  border-bottom: var(--rule);
 }
 
 .modeToggle,
@@ -26,39 +26,38 @@
 .modeToggle button,
 .toolbarActions button {
   padding: 8px 16px;
-  border: 1px solid rgba(180, 24, 24, 0.18);
+  border: 1px solid rgba(180, 20, 20, 0.25);
   border-right: 0;
   background: transparent;
-  color: var(--foreground-muted);
-  font: inherit;
+  color: var(--grey);
   font-family: var(--font-cinzel), serif;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   letter-spacing: 0.1em;
   cursor: pointer;
-  transition: background 0.14s, color 0.14s;
+  transition: background 0.13s, color 0.13s;
 }
 
 .modeToggle button:last-child,
 .toolbarActions button:last-child {
-  border-right: 1px solid rgba(180, 24, 24, 0.18);
+  border-right: 1px solid rgba(180, 20, 20, 0.25);
 }
 
 .modeToggle button:hover,
 .toolbarActions button:hover {
-  background: rgba(180, 24, 24, 0.1);
-  color: #d8c4b8;
+  background: rgba(240, 236, 232, 0.06);
+  color: var(--white);
 }
 
 .modeToggle button:disabled,
 .toolbarActions button:disabled {
-  opacity: 0.3;
+  opacity: 0.28;
   cursor: not-allowed;
 }
 
 .modeToggle .active {
-  background: rgba(140, 10, 10, 0.3);
-  border-color: rgba(180, 24, 24, 0.4);
-  color: #f0d0c0;
+  background: rgba(240, 236, 232, 0.09);
+  border-color: rgba(180, 20, 20, 0.5);
+  color: var(--white);
   font-weight: 700;
 }
 
@@ -70,10 +69,11 @@
   gap: 14px;
 }
 
+/* Black canvas with a red outline border */
 .canvas {
   min-height: 540px;
-  border: 1px solid rgba(180, 24, 24, 0.16);
-  background: #080508;
+  border: 1px solid rgba(180, 20, 20, 0.28);
+  background: #080608;
   overflow: hidden;
 }
 
@@ -88,41 +88,38 @@
   display: grid;
   gap: 12px;
   padding: 16px;
-  border: 1px solid rgba(180, 24, 24, 0.14);
-  background: #0e080c;
+  border: 1px solid rgba(180, 20, 20, 0.2);
+  background: var(--surface);
 }
 
 .kicker {
-  color: var(--accent);
+  color: var(--grey);
   font-family: var(--font-cinzel), serif;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
 }
 
 .editorCard h3 {
   font-family: var(--font-cinzel), serif;
-  color: #e0cccc;
-  font-size: 1.05rem;
+  color: var(--white);
+  font-size: 1rem;
 }
 
 .editorCard p {
-  color: var(--foreground-muted);
+  color: var(--grey);
   line-height: 1.65;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-style: italic;
 }
 
-.editorCard label {
-  display: grid;
-  gap: 5px;
-}
+.editorCard label { display: grid; gap: 5px; }
 
 .editorCard span {
-  color: var(--accent);
+  color: var(--grey);
   font-family: var(--font-cinzel), serif;
-  font-size: 0.68rem;
-  letter-spacing: 0.2em;
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
 }
 
@@ -130,72 +127,58 @@
 .editorCard select,
 .editorCard textarea {
   width: 100%;
-  padding: 8px 10px;
+  padding: 8px 0;
   border: 0;
-  border-bottom: 1px solid rgba(180, 24, 24, 0.2);
-  border-radius: 0;
+  border-bottom: 1px solid rgba(180, 20, 20, 0.22);
   background: transparent;
-  color: #e0cccc;
+  color: var(--white);
   font: inherit;
-  transition: border-color 0.14s;
+  transition: border-color 0.13s;
 }
 
 .editorCard input:focus,
 .editorCard select:focus,
 .editorCard textarea:focus {
   outline: none;
-  border-bottom-color: rgba(180, 24, 24, 0.55);
+  border-bottom-color: rgba(180, 20, 20, 0.6);
 }
 
-.editorCard select option {
-  background: #1c0810;
-}
+.editorCard select option { background: #1c141c; }
 
-/* ── Flow node appearance (used inside ReactFlow canvas) ──────────────── */
+/* ── Flow node label (inside the ReactFlow canvas nodes) ──────────────── */
 
+/* Nodes are white/cream — text must be dark */
 .flowNode {
   display: grid;
   gap: 3px;
   text-align: left;
+  color: #1a1418;           /* dark text on white node */
 }
 
 .flowNode strong {
   font-family: var(--font-cinzel), serif;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.1;
   letter-spacing: 0.03em;
+  color: #1a1418;
 }
 
 .flowNode span {
-  font-size: 0.78rem;
-  opacity: 0.7;
+  font-size: 0.76rem;
+  opacity: 0.6;
   font-style: italic;
+  color: #1a1418;
 }
 
 /* ── Responsive ───────────────────────────────────────────────────────── */
 
 @media (max-width: 1023px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-
-  .canvas {
-    min-height: 400px;
-  }
+  .layout { grid-template-columns: 1fr; }
+  .canvas { min-height: 380px; }
 }
 
 @media (max-width: 767px) {
-  .toolbar {
-    flex-direction: column;
-  }
-
-  .modeToggle,
-  .toolbarActions {
-    width: 100%;
-  }
-
-  .modeToggle button,
-  .toolbarActions button {
-    flex: 1;
-  }
+  .toolbar { flex-direction: column; }
+  .modeToggle, .toolbarActions { width: 100%; }
+  .modeToggle button, .toolbarActions button { flex: 1; }
 }

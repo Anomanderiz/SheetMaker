@@ -1,77 +1,151 @@
 :root {
-  --background: #080508;
-  --surface: #120810;
-  --surface-raised: #1c1018;
-  --surface-border: rgba(180, 24, 24, 0.18);
-  --surface-border-dim: rgba(180, 24, 24, 0.1);
-  --accent: #b51c1c;
-  --accent-bright: #e02828;
-  --accent-gold: #c4a028;
-  --accent-gold-dim: rgba(196, 160, 40, 0.16);
-  --foreground: #e0cccc;
-  --foreground-muted: #9a7878;
-  --foreground-dim: #6a5050;
+  --bg:          #080608;
+  --surface:     #0f0c0f;
+  --surface-hi:  #181418;
+  --red:         rgba(180, 20, 20, 0.55);   /* decorative outlines only */
+  --red-strong:  rgba(180, 20, 20, 0.8);
+  --red-dim:     rgba(180, 20, 20, 0.2);
+  --white:       #f0ece8;
+  --grey:        #a09898;
+  --dim:         #5a5454;
+  --rule:        1px solid rgba(180, 20, 20, 0.28);
 }
 
 *,
 *::before,
-*::after {
-  box-sizing: border-box;
-}
+*::after { box-sizing: border-box; }
 
-html {
-  color-scheme: dark;
-}
+/* color-scheme intentionally omitted — explicit dark backgrounds are used  */
+/* throughout. Setting it to "dark" causes XyFlow to enable its own .dark   */
+/* theme (white-on-dark controls), which conflicts with our theming.         */
 
-body,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-ul,
-ol,
-figure {
-  margin: 0;
-}
+body, h1, h2, h3, h4, h5, h6,
+p, ul, ol, figure { margin: 0; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--white);
   font-family: var(--font-im-fell-english), Georgia, serif;
   min-height: 100vh;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-img {
-  max-width: 100%;
-  display: block;
-}
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+img { max-width: 100%; display: block; }
 
 .sr-only {
-  border: 0;
-  clip: rect(0 0 0 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  width: 1px;
+  border: 0; clip: rect(0 0 0 0); height: 1px;
+  margin: -1px; overflow: hidden; padding: 0;
+  position: absolute; width: 1px;
+}
+
+/* ── ReactFlow overrides ─────────────────────────────────────────────── */
+/* Canvas is black — nodes must be white, controls must have dark icons. */
+/* ReactFlow v12 reads --xy-* CSS variables for theming; set them here.  */
+
+/* Use the NON-"-default" variable names — these sit above the "-default"  */
+/* fallback chain and beat .react-flow.dark (which only overrides -default). */
+.react-flow {
+  /* Node */
+  --xy-node-background-color:        #f2eeea;
+  --xy-node-color:                   #1a1418;
+  --xy-node-border:                  1px solid rgba(160, 150, 150, 0.5);
+
+  /* Controls */
+  --xy-controls-button-background-color:        #f0ece8;
+  --xy-controls-button-background-color-hover:  #d8d0c8;
+  --xy-controls-button-color:                   #1a1014;
+  --xy-controls-button-color-hover:             #1a1014;
+  --xy-controls-button-border-color:            rgba(0, 0, 0, 0.14);
+
+  /* MiniMap */
+  --xy-minimap-background-color:          #0f0c0f;
+  --xy-minimap-mask-background-color:     rgba(180, 20, 20, 0.08);
+  --xy-minimap-node-background-color:     rgba(240, 236, 232, 0.55);
+  --xy-minimap-node-stroke-color:         transparent;
+
+  /* Edge labels */
+  --xy-edge-label-color:             #d4c8b0;
+  --xy-edge-label-background-color:  rgba(8, 6, 8, 0.82);
+
+  /* Selection */
+  --xy-selection-background-color:   rgba(180, 20, 20, 0.06);
+  --xy-selection-border:             1px solid rgba(180, 20, 20, 0.55);
+
+  /* Handles */
+  --xy-handle-background-color:      rgba(180, 20, 20, 0.6);
+  --xy-handle-border-color:          #f0ece8;
+}
+
+/* Fallback class-level overrides for controls (belt-and-suspenders) */
+.react-flow__controls {
+  background: #f0ece8;
+  border: 1px solid rgba(180, 20, 20, 0.35) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.react-flow__controls-button {
+  background: #f0ece8 !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(0,0,0,0.12) !important;
+  color: #1a1014 !important;
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: 0 !important;
+}
+
+.react-flow__controls-button:hover {
+  background: #d8d0c8 !important;
+}
+
+/* Target every SVG primitive used in the icon sprites */
+.react-flow__controls-button svg,
+.react-flow__controls-button svg path,
+.react-flow__controls-button svg rect,
+.react-flow__controls-button svg circle,
+.react-flow__controls-button svg line,
+.react-flow__controls-button svg polyline,
+.react-flow__controls-button svg polygon {
+  fill: #1a1014 !important;
+  stroke: #1a1014 !important;
+  color: #1a1014 !important;
+  max-width: 14px;
+  max-height: 14px;
+}
+
+.react-flow__minimap {
+  background: #0f0c0f !important;
+  border: 1px solid rgba(180, 20, 20, 0.28) !important;
+  border-radius: 0 !important;
+  width: 120px !important;
+  height: 80px !important;
+}
+
+.react-flow__minimap-mask {
+  fill: rgba(180, 20, 20, 0.08) !important;
+}
+
+.react-flow__minimap-node {
+  fill: rgba(240, 236, 232, 0.55) !important;
+  stroke: none !important;
+}
+
+.react-flow__edge-path {
+  stroke-linecap: round;
+}
+
+.react-flow__handle {
+  background: rgba(180, 20, 20, 0.6) !important;
+  border: 2px solid #f0ece8 !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.react-flow__attribution {
+  display: none;
 }
