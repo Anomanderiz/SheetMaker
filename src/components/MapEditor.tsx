@@ -48,6 +48,7 @@ function nodeTint(type: RelationshipNodeType) {
     case "enemy":   return { ...base, border: "2px solid rgba(180,20,20,0.9)" };
     case "threat":  return { ...base, border: "2px solid rgba(140,20,160,0.75)" };
     case "faction": return { ...base, border: "2px solid rgba(60,80,200,0.75)" };
+    case "mystery": return { ...base, border: "2px solid rgba(220,200,140,0.75)" };
     default:        return { ...base, border: "2px solid rgba(160,150,150,0.55)" };
   }
 }
@@ -462,6 +463,7 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
                   <option value="neutral">neutral</option>
                   <option value="faction">faction</option>
                   <option value="threat">threat</option>
+                  <option value="mystery">mystery</option>
                 </select>
               </label>
               <label>

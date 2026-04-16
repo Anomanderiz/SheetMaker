@@ -32,6 +32,7 @@ const NODE_TYPE_COLOR: Record<RelationshipNodeType, string> = {
   neutral: "rgba(200, 192, 188, 0.5)",
   faction: "rgba(60,   80, 200, 0.8)",
   threat:  "rgba(160,  20, 160, 0.8)",
+  mystery: "rgba(220, 200, 140, 0.8)",
 };
 
 const LEGEND_ENTRIES = [

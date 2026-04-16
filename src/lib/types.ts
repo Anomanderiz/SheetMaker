@@ -6,7 +6,8 @@ export type RelationshipNodeType =
   | "enemy"
   | "neutral"
   | "faction"
-  | "threat";
+  | "threat"
+  | "mystery";
 
 export type RelationshipEdgeStyle = "solid" | "dashed" | "ominous";
 
