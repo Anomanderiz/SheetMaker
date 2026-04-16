@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   useCallback,
+  useDeferredValue,
   useEffect,
   useRef,
   useState,
@@ -11,12 +12,22 @@ import {
 import { ContentEditor } from "@/components/ContentEditor";
 import { HandoutRenderer } from "@/components/HandoutRenderer";
 import { MapEditor } from "@/components/MapEditor";
-import { getPublicHandoutUrl } from "@/lib/site";
-import type { DeviceMode, Handout } from "@/lib/types";
+import type { Handout } from "@/lib/types";
 
 import styles from "./HandoutEditor.module.css";
 
 type EditorTab = "content" | "map" | "preview" | "share";
+type PreviewMode = "desktop" | "tablet" | "mobile";
+
+function downloadJson(handout: import("@/lib/types").Handout) {
+  const blob = new Blob([JSON.stringify(handout, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${handout.slug || handout.id}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 async function readFileAsDataUrl(file: File) {
   return new Promise<string>((resolve, reject) => {
@@ -27,7 +38,7 @@ async function readFileAsDataUrl(file: File) {
   });
 }
 
-function previewWidth(mode: DeviceMode) {
+function previewWidth(mode: PreviewMode) {
   if (mode === "mobile") return 390;
   if (mode === "tablet") return 768;
   return 1200;
@@ -36,18 +47,17 @@ function previewWidth(mode: DeviceMode) {
 export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
   const [handout, setHandout] = useState(initialHandout);
   const [activeTab, setActiveTab] = useState<EditorTab>("content");
-  const [mapEditorMode, setMapEditorMode] = useState<"desktop" | "mobile">("desktop");
-  const [previewMode, setPreviewMode] = useState<DeviceMode>("desktop");
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
   const [saveState, setSaveState] = useState<"idle" | "dirty" | "saving" | "saved" | "error">(
     "idle",
   );
   const [saveMessage, setSaveMessage] = useState("Ready.");
+  const [urlCopied, setUrlCopied] = useState(false);
   const autosaveSkipRef = useRef(true);
   const handoutRef = useRef(initialHandout);
   const editVersionRef = useRef(0);
   const saveRequestIdRef = useRef(0);
-  const liveMapDeviceMode = activeTab === "map" ? mapEditorMode : previewMode;
-  const publicUrl = getPublicHandoutUrl(handout.slug);
+  const deferredHandout = useDeferredValue(handout);
 
   function markDirty() {
     setSaveState("dirty");
@@ -219,11 +229,6 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
               <MapEditor
                 nodes={handout.relationshipNodes}
                 edges={handout.relationshipEdges}
-                deviceMode={mapEditorMode}
-                onModeChange={(mode) => {
-                  setMapEditorMode(mode);
-                  setPreviewMode(mode);
-                }}
                 onChange={({ relationshipNodes, relationshipEdges }) =>
                   updateHandout((current) => ({
                     ...current,
@@ -240,7 +245,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
               <div className={styles.previewHeader}>
                 <p className={styles.cardKicker}>Preview</p>
                 <div className={styles.previewModes}>
-                  {(["desktop", "tablet", "mobile"] as DeviceMode[]).map((mode) => (
+                  {(["desktop", "tablet", "mobile"] as PreviewMode[]).map((mode) => (
                     <button
                       key={mode}
                       type="button"
@@ -254,12 +259,8 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
               </div>
 
               <div className={styles.previewFrame}>
-                <div style={{ width: previewWidth(previewMode) }}>
-                  <HandoutRenderer
-                    handout={handout}
-                    embedded
-                    mapDeviceMode={liveMapDeviceMode}
-                  />
+                <div style={{ width: previewWidth(previewMode), maxWidth: "100%" }}>
+                  <HandoutRenderer handout={deferredHandout} embedded />
                 </div>
               </div>
             </section>
@@ -295,9 +296,44 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
                   <span>Enable public sharing</span>
                 </label>
                 <div className={styles.subcard}>
-                  <p>Public URL</p>
-                  <code>{publicUrl}</code>
+                  <p>Public route</p>
+                  <code>/h/{handout.slug}</code>
                   <p>Saves update the live shared handout immediately while sharing is enabled.</p>
+                  <div className={styles.actionRow}>
+                    <button
+                      type="button"
+                      className={styles.secondary}
+                      disabled={!handout.isShared}
+                      onClick={async () => {
+                        await navigator.clipboard.writeText(
+                          `${window.location.origin}/h/${handout.slug}`,
+                        );
+                        setUrlCopied(true);
+                        setTimeout(() => setUrlCopied(false), 2000);
+                      }}
+                    >
+                      {urlCopied ? "Copied!" : "Copy link"}
+                    </button>
+                    <a
+                      href={`/h/${handout.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={styles.secondary}
+                    >
+                      Open in new tab
+                    </a>
+                  </div>
+                </div>
+                <div className={styles.subcard}>
+                  <p>Export</p>
+                  <p>Download this handout as a JSON file for backup or migration.</p>
+                  <button
+                    type="button"
+                    className={styles.secondary}
+                    onClick={() => downloadJson(handout)}
+                  >
+                    Export JSON
+                  </button>
                 </div>
               </div>
             </section>
@@ -309,7 +345,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
             <div className={styles.previewHeader}>
               <p className={styles.cardKicker}>Live Preview</p>
               <div className={styles.previewModes}>
-                {(["desktop", "tablet", "mobile"] as DeviceMode[]).map((mode) => (
+                {(["desktop", "tablet", "mobile"] as PreviewMode[]).map((mode) => (
                   <button
                     key={mode}
                     type="button"
@@ -323,12 +359,8 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
             </div>
 
             <div className={styles.previewScroll}>
-              <div style={{ width: previewWidth(previewMode) }}>
-                <HandoutRenderer
-                  handout={handout}
-                  embedded
-                  mapDeviceMode={liveMapDeviceMode}
-                />
+              <div style={{ width: previewWidth(previewMode), maxWidth: "100%" }}>
+                <HandoutRenderer handout={deferredHandout} embedded />
               </div>
             </div>
           </div>

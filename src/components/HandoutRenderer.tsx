@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 
-import type { DeviceMode, Handout } from "@/lib/types";
+import type { Handout } from "@/lib/types";
 
 import { WebOfFate } from "./WebOfFate";
 import styles from "./HandoutRenderer.module.css";
@@ -11,13 +11,62 @@ import styles from "./HandoutRenderer.module.css";
 interface HandoutRendererProps {
   handout: Handout;
   embedded?: boolean;
-  mapDeviceMode?: DeviceMode;
+}
+
+function CopyLinkButton({ slug }: { slug: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(`${window.location.origin}/h/${slug}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2200);
+  }
+
+  return (
+    <button type="button" className={styles.copyLinkBtn} onClick={handleCopy} title="Copy shareable link">
+      {copied ? "✓ Copied!" : "Share link"}
+    </button>
+  );
+}
+
+function CollapsibleSession({
+  entry,
+}: {
+  entry: Handout["sessionEntries"][number];
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <article className={`${styles.sessionEntry} ${open ? styles.sessionOpen : ""}`}>
+      <button
+        type="button"
+        className={styles.sessionToggle}
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
+        <div className={styles.sessionMeta}>
+          <span>Session {entry.sessionNumber}</span>
+          <span>{new Date(entry.playedOn).toLocaleDateString()}</span>
+        </div>
+        <div className={styles.sessionSummaryRow}>
+          <h3>{entry.title}</h3>
+          <span className={styles.sessionChevron}>{open ? "▲" : "▼"}</span>
+        </div>
+      </button>
+
+      {open ? (
+        <div
+          className={styles.richText}
+          dangerouslySetInnerHTML={{ __html: entry.body }}
+        />
+      ) : null}
+    </article>
+  );
 }
 
 export function HandoutRenderer({
   handout,
   embedded = false,
-  mapDeviceMode,
 }: HandoutRendererProps) {
   const [lightboxId, setLightboxId] = useState<string | null>(null);
 
@@ -34,9 +83,21 @@ export function HandoutRenderer({
     [handout.sessionEntries],
   );
 
+  const hasGallery = handout.gallery.length > 0;
+  const hasSessions = handout.sessionEntries.length > 0;
+  const hasSecrets = handout.secretBlocks.length > 0;
+  const hasLore = handout.loreSections.length > 0;
+  const hasRelationships = handout.relationshipNodes.length > 0;
+
   return (
     <>
       <main className={`${styles.shell} ${embedded ? styles.embeddedShell : ""}`}>
+        {!embedded && handout.isShared ? (
+          <div className={styles.floatingShare}>
+            <CopyLinkButton slug={handout.slug} />
+          </div>
+        ) : null}
+
         <article className={styles.handout}>
           <header className={styles.header}>
             <p className={styles.kicker}>Character Dossier</p>
@@ -82,81 +143,87 @@ export function HandoutRenderer({
               </div>
             </section>
 
-            <div className={`${styles.panel} ${styles.campaignPanel}`}>
-              {remainingStatGroups.map((group) => (
-                <section key={group.id} className={styles.groupBlock}>
+            {remainingStatGroups.length > 0 ? (
+              <div className={`${styles.panel} ${styles.campaignPanel}`}>
+                {remainingStatGroups.map((group) => (
+                  <section key={group.id} className={styles.groupBlock}>
+                    <div className={styles.sectionHeader}>
+                      <p className={styles.sectionKicker}>Campaign State</p>
+                      <h2>{group.title}</h2>
+                    </div>
+                    <dl className={styles.statList}>
+                      {group.fields.map((field) => (
+                        <div key={field.id}>
+                          <dt>{field.label}</dt>
+                          <dd>{field.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </section>
+                ))}
+              </div>
+            ) : null}
+          </section>
+
+          {hasRelationships ? (
+            <section className={`${styles.panel} ${styles.mapPanel}`}>
+              <WebOfFate
+                nodes={handout.relationshipNodes}
+                edges={handout.relationshipEdges}
+              />
+            </section>
+          ) : null}
+
+          {(hasLore || hasSecrets) ? (
+            <section className={styles.storyGrid}>
+              {hasLore ? (
+                <div className={`${styles.panel} ${styles.lorePanel}`}>
                   <div className={styles.sectionHeader}>
-                    <p className={styles.sectionKicker}>Campaign State</p>
-                    <h2>{group.title}</h2>
+                    <p className={styles.sectionKicker}>Lore</p>
+                    <h2>Chronicle and current state</h2>
                   </div>
-                  <dl className={styles.statList}>
-                    {group.fields.map((field) => (
-                      <div key={field.id}>
-                        <dt>{field.label}</dt>
-                        <dd>{field.value}</dd>
-                      </div>
+                  <div className={styles.longformStack}>
+                    {handout.loreSections.map((section) => (
+                      <section key={section.id} className={styles.longformBlock}>
+                        <h3>{section.title}</h3>
+                        <div
+                          className={styles.richText}
+                          dangerouslySetInnerHTML={{ __html: section.body }}
+                        />
+                      </section>
                     ))}
-                  </dl>
-                </section>
-              ))}
-            </div>
-          </section>
+                  </div>
+                </div>
+              ) : null}
 
-          <section className={`${styles.panel} ${styles.mapPanel}`}>
-            <WebOfFate
-              nodes={handout.relationshipNodes}
-              edges={handout.relationshipEdges}
-              forcedDeviceMode={mapDeviceMode}
-            />
-          </section>
+              {hasSecrets ? (
+                <aside className={`${styles.panel} ${styles.secretPanel}`}>
+                  <div className={styles.sectionHeader}>
+                    <p className={styles.sectionKicker}>Secrets</p>
+                    <h2>Private knowledge and blind spots</h2>
+                  </div>
+                  <div className={styles.secretStack}>
+                    {handout.secretBlocks.map((block) => (
+                      <section key={block.id} className={styles.secretBlock}>
+                        <h3>{block.title}</h3>
+                        <div
+                          className={styles.richText}
+                          dangerouslySetInnerHTML={{ __html: block.body }}
+                        />
+                      </section>
+                    ))}
+                  </div>
+                </aside>
+              ) : null}
+            </section>
+          ) : null}
 
-          <section className={styles.storyGrid}>
-            <div className={`${styles.panel} ${styles.lorePanel}`}>
+          {hasGallery ? (
+            <section className={`${styles.panel} ${styles.galleryPanel}`}>
               <div className={styles.sectionHeader}>
-                <p className={styles.sectionKicker}>Lore</p>
-                <h2>Chronicle and current state</h2>
+                <p className={styles.sectionKicker}>Gallery</p>
+                <h2>Fragments of memory, omen, and aftermath</h2>
               </div>
-
-              <div className={styles.longformStack}>
-                {handout.loreSections.map((section) => (
-                  <section key={section.id} className={styles.longformBlock}>
-                    <h3>{section.title}</h3>
-                    <div
-                      className={styles.richText}
-                      dangerouslySetInnerHTML={{ __html: section.body }}
-                    />
-                  </section>
-                ))}
-              </div>
-            </div>
-
-            <aside className={`${styles.panel} ${styles.secretPanel}`}>
-              <div className={styles.sectionHeader}>
-                <p className={styles.sectionKicker}>Secrets</p>
-                <h2>Private knowledge and blind spots</h2>
-              </div>
-
-              <div className={styles.secretStack}>
-                {handout.secretBlocks.map((block) => (
-                  <section key={block.id} className={styles.secretBlock}>
-                    <h3>{block.title}</h3>
-                    <div
-                      className={styles.richText}
-                      dangerouslySetInnerHTML={{ __html: block.body }}
-                    />
-                  </section>
-                ))}
-              </div>
-            </aside>
-          </section>
-
-          <section className={`${styles.panel} ${styles.galleryPanel}`}>
-            <div className={styles.sectionHeader}>
-              <p className={styles.sectionKicker}>Gallery</p>
-              <h2>Fragments of memory, omen, and aftermath</h2>
-            </div>
-
-            {handout.gallery.length > 0 ? (
               <div className={styles.galleryGrid}>
                 {handout.gallery.map((asset) => (
                   <button
@@ -170,37 +237,22 @@ export function HandoutRenderer({
                   </button>
                 ))}
               </div>
-            ) : (
-              <p className={styles.emptyState}>No gallery images added yet.</p>
-            )}
-          </section>
+            </section>
+          ) : null}
 
-          <section className={`${styles.panel} ${styles.sessionPanel}`}>
-            <div className={styles.sectionHeader}>
-              <p className={styles.sectionKicker}>Session Notes</p>
-              <h2>Update the handout as the campaign evolves</h2>
-            </div>
-
-            {sortedSessions.length > 0 ? (
+          {hasSessions ? (
+            <section className={`${styles.panel} ${styles.sessionPanel}`}>
+              <div className={styles.sectionHeader}>
+                <p className={styles.sectionKicker}>Session Notes</p>
+                <h2>Update the handout as the campaign evolves</h2>
+              </div>
               <div className={styles.sessionList}>
                 {sortedSessions.map((entry) => (
-                  <article key={entry.id} className={styles.sessionEntry}>
-                    <div className={styles.sessionMeta}>
-                      <span>Session {entry.sessionNumber}</span>
-                      <span>{new Date(entry.playedOn).toLocaleDateString()}</span>
-                    </div>
-                    <h3>{entry.title}</h3>
-                    <div
-                      className={styles.richText}
-                      dangerouslySetInnerHTML={{ __html: entry.body }}
-                    />
-                  </article>
+                  <CollapsibleSession key={entry.id} entry={entry} />
                 ))}
               </div>
-            ) : (
-              <p className={styles.emptyState}>No session notes recorded yet.</p>
-            )}
-          </section>
+            </section>
+          ) : null}
         </article>
       </main>
 

@@ -9,7 +9,6 @@ import styles from "./WebOfFate.module.css";
 interface WebOfFateProps {
   nodes: RelationshipNode[];
   edges: RelationshipEdge[];
-  forcedDeviceMode?: DeviceMode;
 }
 
 interface TransformState {
@@ -25,7 +24,7 @@ function distance(a: { x: number; y: number }, b: { x: number; y: number }) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
+export function WebOfFate({ nodes, edges }: WebOfFateProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
   const panStateRef = useRef<{
@@ -42,39 +41,39 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
   const [width, setWidth] = useState(0);
   const [transform, setTransform] = useState<TransformState>({ x: 0, y: 0, scale: 1 });
   const [activeNodeId, setActiveNodeId] = useState<string | null>(nodes[0]?.id ?? null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
-    if (!hostRef.current) {
-      return;
-    }
-
-    const host = hostRef.current;
+    if (!hostRef.current) return;
     const observer = new ResizeObserver(([entry]) => {
       setWidth(entry.contentRect.width);
     });
-    const handleWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-      setTransform((current) => ({
-        ...current,
-        scale: clamp(current.scale - event.deltaY * 0.0012, 0.7, 2.4),
-      }));
-    };
-
-    observer.observe(host);
-    host.addEventListener("wheel", handleWheel, { passive: false });
-
-    return () => {
-      observer.disconnect();
-      host.removeEventListener("wheel", handleWheel);
-    };
+    observer.observe(hostRef.current);
+    return () => observer.disconnect();
   }, []);
 
+  // Close fullscreen on Escape
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsFullscreen(false);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isFullscreen]);
+
+  // Lock body scroll in fullscreen
+  useEffect(() => {
+    document.body.style.overflow = isFullscreen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [isFullscreen]);
+
   const deviceMode: DeviceMode =
-    forcedDeviceMode ?? (width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop");
+    width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop";
   const stageWidth = Math.max(width - 2, 280);
-  const stageHeight =
-    deviceMode === "mobile" ? 460 : deviceMode === "tablet" ? 390 : 340;
+  const stageHeight = isFullscreen
+    ? window.innerHeight - 120
+    : deviceMode === "mobile" ? 460 : deviceMode === "tablet" ? 390 : 340;
   const hideEdgeLabels = deviceMode === "mobile" || stageWidth < 640;
 
   const positionedNodes = useMemo(
@@ -97,11 +96,7 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
         .map((edge) => {
           const from = positionedNodes.find((node) => node.id === edge.fromNodeId);
           const to = positionedNodes.find((node) => node.id === edge.toNodeId);
-
-          if (!from || !to) {
-            return null;
-          }
-
+          if (!from || !to) return null;
           return {
             ...edge,
             from,
@@ -125,11 +120,16 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
   const activeNode =
     positionedNodes.find((node) => node.id === activeNodeId) ?? positionedNodes[0] ?? null;
 
-  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if ((event.target as HTMLElement).closest("button")) {
-      return;
-    }
+  function handleWheel(event: React.WheelEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setTransform((current) => ({
+      ...current,
+      scale: clamp(current.scale - event.deltaY * 0.0012, 0.5, 3),
+    }));
+  }
 
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if ((event.target as HTMLElement).closest("button")) return;
     pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     if (pointersRef.current.size === 1) {
       panStateRef.current = {
@@ -140,7 +140,6 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
       };
       pinchStateRef.current = null;
     }
-
     if (pointersRef.current.size === 2) {
       const [first, second] = [...pointersRef.current.values()];
       pinchStateRef.current = {
@@ -152,10 +151,7 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
   }
 
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
-    if (!pointersRef.current.has(event.pointerId)) {
-      return;
-    }
-
+    if (!pointersRef.current.has(event.pointerId)) return;
     pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
 
     if (pinchStateRef.current && pointersRef.current.size >= 2) {
@@ -166,8 +162,8 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
         scale: clamp(
           pinchStateRef.current!.startScale *
             (currentDistance / pinchStateRef.current!.startDistance),
-          0.7,
-          2.4,
+          0.5,
+          3,
         ),
       }));
       return;
@@ -176,28 +172,43 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
     if (panStateRef.current) {
       const nextX = panStateRef.current.originX + (event.clientX - panStateRef.current.startX);
       const nextY = panStateRef.current.originY + (event.clientY - panStateRef.current.startY);
-      setTransform((current) => ({
-        ...current,
-        x: nextX,
-        y: nextY,
-      }));
+      setTransform((current) => ({ ...current, x: nextX, y: nextY }));
     }
   }
 
   function handlePointerEnd(event: React.PointerEvent<HTMLDivElement>) {
     pointersRef.current.delete(event.pointerId);
-
-    if (pointersRef.current.size < 2) {
-      pinchStateRef.current = null;
-    }
-
-    if (pointersRef.current.size === 0) {
-      panStateRef.current = null;
-    }
+    if (pointersRef.current.size < 2) pinchStateRef.current = null;
+    if (pointersRef.current.size === 0) panStateRef.current = null;
   }
 
+  function resetView() {
+    setTransform({ x: 0, y: 0, scale: 1 });
+  }
+
+  if (nodes.length === 0) {
+    return (
+      <section className={styles.section}>
+        <div className={styles.header}>
+          <div>
+            <p className={styles.kicker}>Web of Fate</p>
+            <h3>No relationships mapped yet.</h3>
+          </div>
+        </div>
+        <div className={styles.emptyState}>
+          <span className={styles.emptyIcon}>✦</span>
+          <p>Open the Map tab in the editor to add nodes and draw connections.</p>
+        </div>
+      </section>
+    );
+  }
+
+  const sectionClass = isFullscreen
+    ? `${styles.section} ${styles.fullscreenSection}`
+    : styles.section;
+
   return (
-    <section className={styles.section}>
+    <section className={sectionClass}>
       <div className={styles.header}>
         <div>
           <p className={styles.kicker}>Web of Fate</p>
@@ -205,9 +216,18 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
         </div>
 
         <div className={styles.actions}>
-          <span>{deviceMode}</span>
-          <button type="button" onClick={() => setTransform({ x: 0, y: 0, scale: 1 })}>
-            Reset view
+          <button type="button" onClick={resetView}>
+            Reset
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              resetView();
+              setIsFullscreen((v) => !v);
+            }}
+            aria-label={isFullscreen ? "Exit fullscreen" : "Expand fullscreen"}
+          >
+            {isFullscreen ? "⤡" : "⤢"}
           </button>
         </div>
       </div>
@@ -217,6 +237,7 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
           ref={hostRef}
           className={styles.viewport}
           style={{ height: stageHeight }}
+          onWheel={handleWheel}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}
@@ -236,6 +257,19 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
               viewBox={`0 0 ${stageWidth} ${stageHeight}`}
               preserveAspectRatio="none"
             >
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="6"
+                  refY="3"
+                  orient="auto"
+                >
+                  <path d="M0,0 L0,6 L8,3 z" fill="rgba(124,66,35,0.55)" />
+                </marker>
+              </defs>
+
               {positionedEdges.map((edge) => (
                 <g key={edge.id}>
                   <line
@@ -244,8 +278,9 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
                     x2={edge.to.left}
                     y2={edge.to.top}
                     className={`${styles.edge} ${styles[edge.style]}`}
+                    markerEnd={edge.style === "solid" ? "url(#arrowhead)" : undefined}
                   />
-                  {!hideEdgeLabels ? (
+                  {!hideEdgeLabels && edge.label ? (
                     <text x={edge.midpoint.x} y={edge.midpoint.y} className={styles.edgeLabel}>
                       {edge.label}
                     </text>
@@ -289,6 +324,10 @@ export function WebOfFate({ nodes, edges, forcedDeviceMode }: WebOfFateProps) {
           <h4>{activeNode.label}</h4>
           <p>{activeNode.tooltip}</p>
         </div>
+      ) : null}
+
+      {isFullscreen ? (
+        <div className={styles.fullscreenHint}>Esc or ⤡ to exit · Drag to pan · Scroll / pinch to zoom</div>
       ) : null}
     </section>
   );

@@ -19,71 +19,73 @@ export function DashboardClient({
 }: DashboardClientProps) {
   const router = useRouter();
   const [handouts, setHandouts] = useState(initialHandouts);
-  const [pendingState, setPendingState] = useState<{
-    id: string;
-    action: "share" | "delete";
-  } | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [search, setSearch] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const sortedHandouts = useMemo(
-    () =>
-      [...handouts].sort((left, right) =>
-        right.updatedAt.localeCompare(left.updatedAt),
-      ),
-    [handouts],
-  );
+  const sortedHandouts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return [...handouts]
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+      .filter(
+        (h) =>
+          !q ||
+          h.identity.name.toLowerCase().includes(q) ||
+          h.identity.title.toLowerCase().includes(q) ||
+          h.slug.toLowerCase().includes(q),
+      );
+  }, [handouts, search]);
 
   async function toggleShare(id: string, isShared: boolean) {
-    setPendingState({ id, action: "share" });
+    setPendingId(id);
     const response = await fetch(`/api/handouts/${id}/share`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isShared: !isShared }),
     });
 
     if (!response.ok) {
-      setPendingState(null);
+      setPendingId(null);
       return;
     }
 
     const payload = (await response.json()) as { handout: Handout };
     setHandouts((current) =>
-      current.map((handout) =>
-        handout.id === payload.handout.id ? payload.handout : handout,
-      ),
+      current.map((h) => (h.id === payload.handout.id ? payload.handout : h)),
     );
 
-    startTransition(() => {
-      router.refresh();
-    });
-    setPendingState(null);
+    startTransition(() => router.refresh());
+    setPendingId(null);
   }
 
-  async function removeHandout(id: string, name: string) {
-    const confirmed = window.confirm(`Delete "${name}"? This cannot be undone.`);
-
-    if (!confirmed) {
-      return;
+  async function deleteHandout(id: string, name: string) {
+    if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    setPendingId(id);
+    const response = await fetch(`/api/handouts/${id}`, { method: "DELETE" });
+    if (response.ok) {
+      setHandouts((current) => current.filter((h) => h.id !== id));
+      startTransition(() => router.refresh());
     }
+    setPendingId(null);
+  }
 
-    setPendingState({ id, action: "delete" });
-    const response = await fetch(`/api/handouts/${id}`, {
-      method: "DELETE",
-    });
-
-    if (!response.ok) {
-      setPendingState(null);
-      return;
+  async function duplicateHandout(id: string) {
+    setPendingId(id);
+    const response = await fetch(`/api/handouts/${id}/duplicate`, { method: "POST" });
+    if (response.ok) {
+      const payload = (await response.json()) as { handout: Handout };
+      setHandouts((current) => [payload.handout, ...current]);
+      startTransition(() => router.refresh());
     }
+    setPendingId(null);
+  }
 
-    setHandouts((current) => current.filter((handout) => handout.id !== id));
-
-    startTransition(() => {
-      router.refresh();
-    });
-    setPendingState(null);
+  async function copyShareUrl(slug: string, id: string) {
+    const url = `${window.location.origin}/h/${slug}`;
+    await navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId((cur) => (cur === id ? null : cur)), 2000);
   }
 
   return (
@@ -100,72 +102,123 @@ export function DashboardClient({
 
         <div className={styles.heroMeta}>
           <span>Persistence: {persistenceMode}</span>
-          <span>{sortedHandouts.length} handouts</span>
+          <span>{handouts.length} handouts</span>
           <Link href="/app/handouts/new" className={styles.primary}>
             New handout
           </Link>
         </div>
       </section>
 
+      <div className={styles.searchBar}>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by name, title or slug…"
+          className={styles.searchInput}
+        />
+        {search ? (
+          <button type="button" className={styles.clearSearch} onClick={() => setSearch("")}>
+            ✕
+          </button>
+        ) : null}
+      </div>
+
+      {sortedHandouts.length === 0 ? (
+        <p className={styles.emptyMessage}>
+          {search ? "No handouts match that search." : "No handouts yet — create one above."}
+        </p>
+      ) : null}
+
       <section className={styles.grid}>
         {sortedHandouts.map((handout) => (
           <article key={handout.id} className={styles.card}>
-            <div className={styles.cardHeader}>
-              <div>
-                <p className={styles.cardEyebrow}>Handout</p>
-                <h2>{handout.identity.name}</h2>
+            <div className={styles.cardTop}>
+              {handout.portrait.src && !handout.portrait.src.startsWith("/seed") ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={handout.portrait.src}
+                  alt={handout.portrait.alt}
+                  className={styles.cardPortrait}
+                />
+              ) : null}
+
+              <div className={styles.cardHeader}>
+                <div className={styles.cardTitleRow}>
+                  <div>
+                    <p className={styles.cardEyebrow}>Handout</p>
+                    <h2>{handout.identity.name}</h2>
+                  </div>
+                  <span
+                    className={`${styles.sharePill} ${handout.isShared ? styles.live : styles.private}`}
+                  >
+                    {handout.isShared ? "Live" : "Private"}
+                  </span>
+                </div>
+
+                <p className={styles.title}>{handout.identity.title}</p>
+                <p className={styles.epithet}>{handout.identity.epithet}</p>
               </div>
-              <span
-                className={`${styles.sharePill} ${handout.isShared ? styles.live : styles.private}`}
-              >
-                {handout.isShared ? "Live" : "Private"}
-              </span>
             </div>
 
-            <p className={styles.title}>{handout.identity.title}</p>
-            <p className={styles.epithet}>{handout.identity.epithet}</p>
+            <dl className={styles.metaList}>
+              <div>
+                <dt>Slug</dt>
+                <dd>/h/{handout.slug}</dd>
+              </div>
+              <div>
+                <dt>Sessions</dt>
+                <dd>{handout.sessionEntries.length}</dd>
+              </div>
+              <div>
+                <dt>Updated</dt>
+                <dd>{new Date(handout.updatedAt).toLocaleDateString()}</dd>
+              </div>
+            </dl>
 
             <div className={styles.links}>
               <Link href={`/app/handouts/${handout.id}/edit`} className={styles.primary}>
                 Edit
               </Link>
-              <Link href={`/app/handouts/${handout.id}`} className={styles.secondary}>
+              <Link href={`/h/${handout.slug}`} className={styles.secondary} target="_blank">
                 View
               </Link>
               <button
                 type="button"
                 className={styles.ghost}
                 onClick={() => toggleShare(handout.id, handout.isShared)}
-                disabled={pendingState?.id === handout.id || isPending}
+                disabled={pendingId === handout.id || isPending}
               >
-                {pendingState?.id === handout.id && pendingState.action === "share"
-                  ? "Updating..."
-                  : handout.isShared
-                    ? "Unshare"
-                    : "Share"}
-              </button>
-              <button
-                type="button"
-                className={styles.danger}
-                onClick={() => removeHandout(handout.id, handout.identity.name)}
-                disabled={pendingState?.id === handout.id || isPending}
-              >
-                {pendingState?.id === handout.id && pendingState.action === "delete"
-                  ? "Deleting..."
-                  : "Delete"}
+                {pendingId === handout.id ? "…" : handout.isShared ? "Unshare" : "Share"}
               </button>
             </div>
 
-            <dl className={styles.metaList}>
-              <div>
-                <dt>Slug</dt>
-                <dd>{handout.slug}</dd>
-              </div>
-              <div>
-                <dt>Updated</dt>
-                <dd>{new Date(handout.updatedAt).toLocaleString()}</dd>
-              </div>
-            </dl>
+            <div className={styles.secondaryLinks}>
+              <button
+                type="button"
+                className={styles.ghost}
+                onClick={() => copyShareUrl(handout.slug, handout.id)}
+                disabled={!handout.isShared}
+                title={handout.isShared ? "Copy public link" : "Enable sharing first"}
+              >
+                {copiedId === handout.id ? "Copied!" : "Copy link"}
+              </button>
+              <button
+                type="button"
+                className={styles.ghost}
+                onClick={() => duplicateHandout(handout.id)}
+                disabled={pendingId === handout.id || isPending}
+              >
+                Duplicate
+              </button>
+              <button
+                type="button"
+                className={`${styles.ghost} ${styles.danger}`}
+                onClick={() => deleteHandout(handout.id, handout.identity.name)}
+                disabled={pendingId === handout.id || isPending}
+              >
+                Delete
+              </button>
+            </div>
           </article>
         ))}
       </section>

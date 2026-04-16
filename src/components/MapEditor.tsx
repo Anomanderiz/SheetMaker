@@ -29,8 +29,6 @@ import styles from "./MapEditor.module.css";
 interface MapEditorProps {
   nodes: RelationshipNode[];
   edges: RelationshipEdge[];
-  deviceMode?: "desktop" | "mobile";
-  onModeChange?: (mode: "desktop" | "mobile") => void;
   onChange: (payload: {
     relationshipNodes: RelationshipNode[];
     relationshipEdges: RelationshipEdge[];
@@ -153,22 +151,11 @@ function buildPayload(
   };
 }
 
-export function MapEditor({
-  nodes,
-  edges,
-  deviceMode: controlledDeviceMode,
-  onModeChange,
-  onChange,
-}: MapEditorProps) {
-  const [uncontrolledDeviceMode, setUncontrolledDeviceMode] = useState<"desktop" | "mobile">(
-    controlledDeviceMode ?? "desktop",
-  );
+export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
+  const [deviceMode, setDeviceMode] = useState<"desktop" | "mobile">("desktop");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
-  const activeDeviceMode = controlledDeviceMode ?? uncontrolledDeviceMode;
-  const [flowNodes, setFlowNodes] = useState<Node[]>(() =>
-    toFlowNodes(nodes, activeDeviceMode),
-  );
+  const [flowNodes, setFlowNodes] = useState<Node[]>(() => toFlowNodes(nodes, "desktop"));
   const [flowEdges, setFlowEdges] = useState<Edge[]>(() => toFlowEdges(edges));
 
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? null;
@@ -178,15 +165,12 @@ export function MapEditor({
     [nodes],
   );
 
-  function commit(nextFlowNodes: Node[], nextFlowEdges: Edge[], mode = activeDeviceMode) {
+  function commit(nextFlowNodes: Node[], nextFlowEdges: Edge[], mode = deviceMode) {
     onChange(buildPayload(nodes, edges, nextFlowNodes, nextFlowEdges, mode));
   }
 
   function resetCanvas(mode: "desktop" | "mobile", nextNodes = nodes, nextEdges = edges) {
-    if (!controlledDeviceMode) {
-      setUncontrolledDeviceMode(mode);
-    }
-    onModeChange?.(mode);
+    setDeviceMode(mode);
     setFlowNodes(toFlowNodes(nextNodes, mode));
     setFlowEdges(toFlowEdges(nextEdges));
   }
@@ -256,7 +240,7 @@ export function MapEditor({
       relationshipNodes: nextNodes,
       relationshipEdges: edges,
     });
-    resetCanvas(activeDeviceMode, nextNodes, edges);
+    resetCanvas(deviceMode, nextNodes, edges);
     setSelectedNodeId(newNode.id);
     setSelectedEdgeId(null);
   }
@@ -271,7 +255,7 @@ export function MapEditor({
         relationshipNodes: nextNodes,
         relationshipEdges: nextEdges,
       });
-      resetCanvas(activeDeviceMode, nextNodes, nextEdges);
+      resetCanvas(deviceMode, nextNodes, nextEdges);
       setSelectedNodeId(null);
       return;
     }
@@ -282,7 +266,7 @@ export function MapEditor({
         relationshipNodes: nodes,
         relationshipEdges: nextEdges,
       });
-      resetCanvas(activeDeviceMode, nodes, nextEdges);
+      resetCanvas(deviceMode, nodes, nextEdges);
       setSelectedEdgeId(null);
     }
   }
@@ -302,7 +286,7 @@ export function MapEditor({
       relationshipNodes: nextNodes,
       relationshipEdges: edges,
     });
-    setFlowNodes(toFlowNodes(nextNodes, activeDeviceMode));
+    setFlowNodes(toFlowNodes(nextNodes, deviceMode));
   }
 
   function updateEdgeField<K extends keyof RelationshipEdge>(
@@ -329,14 +313,14 @@ export function MapEditor({
         <div className={styles.modeToggle}>
           <button
             type="button"
-            className={activeDeviceMode === "desktop" ? styles.active : ""}
+            className={deviceMode === "desktop" ? styles.active : ""}
             onClick={() => resetCanvas("desktop")}
           >
             Desktop layout
           </button>
           <button
             type="button"
-            className={activeDeviceMode === "mobile" ? styles.active : ""}
+            className={deviceMode === "mobile" ? styles.active : ""}
             onClick={() => resetCanvas("mobile")}
           >
             Mobile layout
@@ -357,7 +341,7 @@ export function MapEditor({
         <div className={styles.canvas}>
           <ReactFlowProvider>
             <ReactFlow
-              key={activeDeviceMode}
+              key={deviceMode}
               nodes={flowNodes}
               edges={flowEdges}
               fitView

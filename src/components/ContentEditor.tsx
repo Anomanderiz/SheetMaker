@@ -105,7 +105,7 @@ export function ContentEditor({
         <p className={styles.cardKicker}>Portrait & Traits</p>
         <div className={styles.fieldGrid}>
           <label>
-            <span>Portrait image</span>
+            <span>Portrait image (upload)</span>
             <input
               type="file"
               accept="image/*"
@@ -113,6 +113,19 @@ export function ContentEditor({
             />
           </label>
           <label>
+            <span>Portrait URL (or paste data URL)</span>
+            <input
+              value={handout.portrait.src.startsWith("data:") ? "" : handout.portrait.src}
+              placeholder="https://… or leave blank to use upload"
+              onChange={(event) =>
+                patch((current) => ({
+                  ...current,
+                  portrait: { ...current.portrait, src: event.target.value },
+                }))
+              }
+            />
+          </label>
+          <label className={styles.fullWidth}>
             <span>Portrait alt text</span>
             <input
               value={handout.portrait.alt}
@@ -337,39 +350,63 @@ export function ContentEditor({
         <div className={styles.stack}>
           {handout.gallery.map((asset, index) => (
             <div key={asset.id} className={styles.subcard}>
-              <label>
-                <span>Image</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => onGalleryUpload(asset.id, event.target.files?.[0])}
-                />
-              </label>
               <div className={styles.doubleRow}>
-                <input
-                  value={asset.caption}
-                  onChange={(event) =>
-                    patch((current) => ({
-                      ...current,
-                      gallery: replaceAt(current.gallery, index, {
-                        ...asset,
-                        caption: event.target.value,
-                      }),
-                    }))
-                  }
-                />
-                <input
-                  value={asset.alt}
-                  onChange={(event) =>
-                    patch((current) => ({
-                      ...current,
-                      gallery: replaceAt(current.gallery, index, {
-                        ...asset,
-                        alt: event.target.value,
-                      }),
-                    }))
-                  }
-                />
+                <label>
+                  <span>Image (upload)</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => onGalleryUpload(asset.id, event.target.files?.[0])}
+                  />
+                </label>
+                <label>
+                  <span>Image URL</span>
+                  <input
+                    value={asset.src.startsWith("data:") ? "" : asset.src}
+                    placeholder="https://…"
+                    onChange={(event) =>
+                      patch((current) => ({
+                        ...current,
+                        gallery: replaceAt(current.gallery, index, {
+                          ...asset,
+                          src: event.target.value,
+                        }),
+                      }))
+                    }
+                  />
+                </label>
+              </div>
+              <div className={styles.doubleRow}>
+                <label>
+                  <span>Caption</span>
+                  <input
+                    value={asset.caption}
+                    onChange={(event) =>
+                      patch((current) => ({
+                        ...current,
+                        gallery: replaceAt(current.gallery, index, {
+                          ...asset,
+                          caption: event.target.value,
+                        }),
+                      }))
+                    }
+                  />
+                </label>
+                <label>
+                  <span>Alt text</span>
+                  <input
+                    value={asset.alt}
+                    onChange={(event) =>
+                      patch((current) => ({
+                        ...current,
+                        gallery: replaceAt(current.gallery, index, {
+                          ...asset,
+                          alt: event.target.value,
+                        }),
+                      }))
+                    }
+                  />
+                </label>
               </div>
               <button
                 type="button"
