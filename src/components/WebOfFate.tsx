@@ -3,6 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { DeviceMode, RelationshipEdge, RelationshipNode, RelationshipNodeType } from "@/lib/types";
+import {
+  getWebOfFateViewerSceneSize,
+  WEB_OF_FATE_DESKTOP_VIEWPORT_HEIGHT,
+  WEB_OF_FATE_MAX_SCALE,
+  WEB_OF_FATE_MOBILE_VIEWPORT_HEIGHT,
+  WEB_OF_FATE_TABLET_VIEWPORT_HEIGHT,
+} from "@/lib/webOfFateScene";
 
 import styles from "./WebOfFate.module.css";
 
@@ -18,11 +25,23 @@ interface TransformState {
   scale: number;
 }
 
+interface LocalPoint {
+  x: number;
+  y: number;
+}
+
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
 function distance(a: { x: number; y: number }, b: { x: number; y: number }) {
   return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function midpoint(a: LocalPoint, b: LocalPoint): LocalPoint {
+  return {
+    x: (a.x + b.x) / 2,
+    y: (a.y + b.y) / 2,
+  };
 }
 
 const NODE_TYPE_COLOR: Record<RelationshipNodeType, string> = {
@@ -50,7 +69,7 @@ function edgeColor(fromType: RelationshipNodeType, toType: RelationshipNodeType)
 
 export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const pointersRef = useRef(new Map<number, { x: number; y: number }>());
+  const pointersRef = useRef(new Map<number, LocalPoint>());
   const panStateRef = useRef<{
     startX: number;
     startY: number;
@@ -60,12 +79,23 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
   const pinchStateRef = useRef<{
     startDistance: number;
     startScale: number;
+    startMidpoint: LocalPoint;
+    originX: number;
+    originY: number;
   } | null>(null);
 
   const [width, setWidth] = useState(0);
   const [transform, setTransform] = useState<TransformState>({ x: 0, y: 0, scale: 1 });
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [windowHeight, setWindowHeight] = useState(0);
+
+  useEffect(() => {
+    const updateWindowHeight = () => setWindowHeight(window.innerHeight);
+    updateWindowHeight();
+    window.addEventListener("resize", updateWindowHeight);
+    return () => window.removeEventListener("resize", updateWindowHeight);
+  }, []);
 
   useEffect(() => {
     if (!hostRef.current) return;
@@ -74,20 +104,6 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
     });
     observer.observe(hostRef.current);
     return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const el = hostRef.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      setTransform((current) => ({
-        ...current,
-        scale: clamp(current.scale - e.deltaY * 0.0012, 0.5, 3),
-      }));
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
   // Close fullscreen on Escape
@@ -108,11 +124,18 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
 
   const deviceMode: DeviceMode =
     width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop";
-  const stageWidth = Math.max(width - 2, 280);
-  const stageHeight = isFullscreen
-    ? window.innerHeight - 80
-    : deviceMode === "mobile" ? 680 : deviceMode === "tablet" ? 560 : 520;
-  const hideEdgeLabels = deviceMode === "mobile" || stageWidth < 640;
+  const viewportWidth = Math.max(width - 2, 280);
+  const viewportHeight = isFullscreen
+    ? Math.max(windowHeight - 80, 320)
+    : deviceMode === "mobile"
+      ? WEB_OF_FATE_MOBILE_VIEWPORT_HEIGHT
+      : deviceMode === "tablet"
+        ? WEB_OF_FATE_TABLET_VIEWPORT_HEIGHT
+        : WEB_OF_FATE_DESKTOP_VIEWPORT_HEIGHT;
+  const scene = getWebOfFateViewerSceneSize(deviceMode, viewportWidth, viewportHeight);
+  const fitScale = Math.min(viewportWidth / scene.width, viewportHeight / scene.height);
+  const minScale = Math.min(0.5, Math.max(0.35, fitScale * 0.92));
+  const hideEdgeLabels = deviceMode === "mobile" || scene.width < 640;
 
   const positionedNodes = useMemo(
     () =>
@@ -120,13 +143,75 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
         ...node,
         left:
           (deviceMode === "mobile" && node.mobileX !== undefined ? node.mobileX : node.x) *
-          stageWidth,
+          scene.width,
         top:
           (deviceMode === "mobile" && node.mobileY !== undefined ? node.mobileY : node.y) *
-          stageHeight,
+          scene.height,
       })),
-    [deviceMode, nodes, stageHeight, stageWidth],
+    [deviceMode, nodes, scene.height, scene.width],
   );
+
+  const defaultTransform = useMemo<TransformState>(() => {
+    if (positionedNodes.length === 0) {
+      return { x: 0, y: 0, scale: 1 };
+    }
+
+    let minX = Number.POSITIVE_INFINITY;
+    let maxX = Number.NEGATIVE_INFINITY;
+    let minY = Number.POSITIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+
+    for (const node of positionedNodes) {
+      minX = Math.min(minX, node.left);
+      maxX = Math.max(maxX, node.left);
+      minY = Math.min(minY, node.top);
+      maxY = Math.max(maxY, node.top);
+    }
+
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+
+    return {
+      x: viewportWidth / 2 - centerX,
+      y: viewportHeight / 2 - centerY,
+      scale: 1,
+    };
+  }, [positionedNodes, viewportHeight, viewportWidth]);
+
+  useEffect(() => {
+    setTransform(defaultTransform);
+  }, [defaultTransform]);
+
+  useEffect(() => {
+    const el = hostRef.current;
+    if (!el) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const anchor = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
+
+      setTransform((current) => {
+        const nextScale = clamp(current.scale - e.deltaY * 0.0012, minScale, WEB_OF_FATE_MAX_SCALE);
+        if (nextScale === current.scale) return current;
+
+        const sceneX = (anchor.x - current.x) / current.scale;
+        const sceneY = (anchor.y - current.y) / current.scale;
+
+        return {
+          x: anchor.x - sceneX * nextScale,
+          y: anchor.y - sceneY * nextScale,
+          scale: nextScale,
+        };
+      });
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [minScale]);
 
   const positionedEdges = useMemo(
     () =>
@@ -170,13 +255,23 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
     [activeNodeId, positionedEdges],
   );
 
+  function localPoint(event: React.PointerEvent<HTMLDivElement>): LocalPoint {
+    const rect = event.currentTarget.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  }
+
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if ((event.target as HTMLElement).closest("button")) return;
-    pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const point = localPoint(event);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    pointersRef.current.set(event.pointerId, point);
     if (pointersRef.current.size === 1) {
       panStateRef.current = {
-        startX: event.clientX,
-        startY: event.clientY,
+        startX: point.x,
+        startY: point.y,
         originX: transform.x,
         originY: transform.y,
       };
@@ -187,6 +282,9 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
       pinchStateRef.current = {
         startDistance: distance(first, second),
         startScale: transform.scale,
+        startMidpoint: midpoint(first, second),
+        originX: transform.x,
+        originY: transform.y,
       };
       panStateRef.current = null;
     }
@@ -194,38 +292,63 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
 
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
     if (!pointersRef.current.has(event.pointerId)) return;
-    pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const point = localPoint(event);
+    pointersRef.current.set(event.pointerId, point);
 
     if (pinchStateRef.current && pointersRef.current.size >= 2) {
       const [first, second] = [...pointersRef.current.values()];
       const currentDistance = distance(first, second);
-      setTransform((current) => ({
-        ...current,
-        scale: clamp(
-          pinchStateRef.current!.startScale *
-            (currentDistance / pinchStateRef.current!.startDistance),
-          0.5,
-          3,
-        ),
-      }));
+      const currentMidpoint = midpoint(first, second);
+      const nextScale = clamp(
+        pinchStateRef.current.startScale *
+          (currentDistance / Math.max(pinchStateRef.current.startDistance, 1)),
+        minScale,
+        WEB_OF_FATE_MAX_SCALE,
+      );
+      const sceneX =
+        (pinchStateRef.current.startMidpoint.x - pinchStateRef.current.originX) /
+        pinchStateRef.current.startScale;
+      const sceneY =
+        (pinchStateRef.current.startMidpoint.y - pinchStateRef.current.originY) /
+        pinchStateRef.current.startScale;
+
+      setTransform({
+        x: currentMidpoint.x - sceneX * nextScale,
+        y: currentMidpoint.y - sceneY * nextScale,
+        scale: nextScale,
+      });
       return;
     }
 
     if (panStateRef.current) {
-      const nextX = panStateRef.current.originX + (event.clientX - panStateRef.current.startX);
-      const nextY = panStateRef.current.originY + (event.clientY - panStateRef.current.startY);
+      const nextX = panStateRef.current.originX + (point.x - panStateRef.current.startX);
+      const nextY = panStateRef.current.originY + (point.y - panStateRef.current.startY);
       setTransform((current) => ({ ...current, x: nextX, y: nextY }));
     }
   }
 
   function handlePointerEnd(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
     pointersRef.current.delete(event.pointerId);
     if (pointersRef.current.size < 2) pinchStateRef.current = null;
-    if (pointersRef.current.size === 0) panStateRef.current = null;
+    if (pointersRef.current.size === 1) {
+      const [remaining] = [...pointersRef.current.values()];
+      panStateRef.current = {
+        startX: remaining.x,
+        startY: remaining.y,
+        originX: transform.x,
+        originY: transform.y,
+      };
+      return;
+    }
+
+    panStateRef.current = null;
   }
 
   function resetView() {
-    setTransform({ x: 0, y: 0, scale: 1 });
+    setTransform(defaultTransform);
   }
 
   if (nodes.length === 0) {
@@ -278,12 +401,11 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
         <div
           ref={hostRef}
           className={styles.viewport}
-          style={{ height: stageHeight }}
+          style={{ height: viewportHeight }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}
           onPointerCancel={handlePointerEnd}
-          onPointerLeave={handlePointerEnd}
           onClick={() => setActiveNodeId(null)}
         >
           {backgroundSrc ? (
@@ -296,14 +418,14 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
           <div
             className={styles.scene}
             style={{
-              width: stageWidth,
-              height: stageHeight,
+              width: scene.width,
+              height: scene.height,
               transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
             }}
           >
             <svg
               className={styles.edges}
-              viewBox={`0 0 ${stageWidth} ${stageHeight}`}
+              viewBox={`0 0 ${scene.width} ${scene.height}`}
               preserveAspectRatio="none"
             >
               <defs>

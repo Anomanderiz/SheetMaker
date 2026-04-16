@@ -23,6 +23,7 @@ import type {
   RelationshipNode,
   RelationshipNodeType,
 } from "@/lib/types";
+import { getWebOfFateEditorSceneSize } from "@/lib/webOfFateScene";
 
 import styles from "./MapEditor.module.css";
 
@@ -54,9 +55,7 @@ function nodeTint(type: RelationshipNodeType) {
 }
 
 function sceneSize(mode: "desktop" | "mobile") {
-  return mode === "mobile"
-    ? { width: 360, height: 680 }
-    : { width: 920, height: 520 };
+  return getWebOfFateEditorSceneSize(mode);
 }
 
 function toFlowNodes(
