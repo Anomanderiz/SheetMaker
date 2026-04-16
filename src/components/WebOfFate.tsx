@@ -233,7 +233,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
         </div>
       </div>
 
-      <div className={styles.viewportWrap}>
+      <div className={`${styles.viewportWrap} ${!isFullscreen && deviceMode !== "desktop" ? styles.viewportWrapConstrained : ""}`}>
         <div
           ref={hostRef}
           className={styles.viewport}
