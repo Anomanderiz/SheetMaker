@@ -147,6 +147,46 @@ function edgeColor(fromType: RelationshipNodeType, toType: RelationshipNodeType)
   return NODE_TYPE_COLOR[toType === "self" ? fromType : toType];
 }
 
+function ExpandIcon({ expanded }: { expanded: boolean }) {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 18 18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {expanded ? (
+        <>
+          <path d="M6 3H3v3" />
+          <path d="M12 3h3v3" />
+          <path d="M3 12v3h3" />
+          <path d="M15 12v3h-3" />
+          <path d="M3 3l4 4" />
+          <path d="M15 3l-4 4" />
+          <path d="M3 15l4-4" />
+          <path d="M15 15l-4-4" />
+        </>
+      ) : (
+        <>
+          <path d="M7 7H3V3" />
+          <path d="M11 7h4V3" />
+          <path d="M7 11H3v4" />
+          <path d="M11 11h4v4" />
+          <path d="M3 3l5 5" />
+          <path d="M15 3l-5 5" />
+          <path d="M3 15l5-5" />
+          <path d="M15 15l-5-5" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const pointersRef = useRef(new Map<number, LocalPoint>());
@@ -207,7 +247,9 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
     width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop";
   const viewportWidth = Math.max(width - 2, 280);
   const viewportHeight = isFullscreen
-    ? Math.max(windowHeight - 80, 320)
+    ? deviceMode === "mobile"
+      ? Math.max(Math.round(windowHeight * 1.35), 940)
+      : Math.max(windowHeight - 80, 320)
     : deviceMode === "mobile"
       ? WEB_OF_FATE_MOBILE_VIEWPORT_HEIGHT
       : deviceMode === "tablet"
@@ -286,24 +328,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
     () => getFitTransform(nodeBounds, viewportWidth, viewportHeight, minScale),
     [minScale, nodeBounds, viewportHeight, viewportWidth],
   );
-  const mobileFocusTransform = useMemo(
-    () =>
-      selectedNode
-        ? getCenteredTransform(
-            selectedNode.left,
-            selectedNode.top,
-            viewportWidth,
-            viewportHeight,
-            1.05,
-            0.38,
-          )
-        : null,
-    [selectedNode, viewportHeight, viewportWidth],
-  );
-  const preferredTransform =
-    deviceMode === "mobile"
-      ? mobileFocusTransform ?? desktopDefaultTransform
-      : desktopDefaultTransform;
+  const preferredTransform = desktopDefaultTransform;
 
   useEffect(() => {
     setTransform(preferredTransform);
@@ -499,7 +524,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
           </div>
         </div>
         <div className={styles.emptyState}>
-          <span className={styles.emptyIcon}>âœ¦</span>
+          <span className={styles.emptyIcon}>*</span>
           <p>Open the Map tab in the editor to add nodes and draw connections.</p>
         </div>
       </section>
@@ -530,7 +555,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
             }}
             aria-label={isFullscreen ? "Exit fullscreen" : "Expand fullscreen"}
           >
-            {isFullscreen ? "â¤¡" : "â¤¢"}
+            <ExpandIcon expanded={isFullscreen} />
           </button>
         </div>
       </div>
@@ -712,23 +737,11 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
                 </button>
               ))}
             </div>
-
-            {selectedNode ? (
-              <div className={styles.mobileSheet}>
-                <p className={styles.mobileSheetLabel}>{selectedNode.rel}</p>
-                <h4>{selectedNode.label}</h4>
-                <p>{selectedNode.tooltip}</p>
-                <span className={styles.mobileHint}>
-                  Tap a node to focus. Drag the web to explore. Pinch to zoom out for the full
-                  view.
-                </span>
-              </div>
-            ) : null}
           </div>
         ) : null}
       </div>
 
-      {detailNode && deviceMode !== "mobile" ? (
+      {detailNode ? (
         <div className={styles.details}>
           <p className={styles.detailLabel}>{detailNode.rel}</p>
           <h4>{detailNode.label}</h4>
@@ -751,7 +764,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
 
       {isFullscreen && deviceMode !== "mobile" ? (
         <div className={styles.fullscreenHint}>
-          Esc or â¤¡ to exit Â· Drag to pan Â· Scroll / pinch to zoom
+          Esc or close to exit | Drag to pan | Scroll / pinch to zoom
         </div>
       ) : null}
     </section>
