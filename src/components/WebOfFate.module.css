@@ -1,12 +1,18 @@
-/* ── Web of Fate viewer ───────────────────────────────────────────────── */
-
 @keyframes march {
-  to { stroke-dashoffset: -20; }
+  to {
+    stroke-dashoffset: -20;
+  }
 }
 
 @keyframes fatePulse {
-  0%, 100% { opacity: 0.6; }
-  50%       { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .section {
@@ -25,8 +31,6 @@
   gap: 14px;
   align-content: start;
 }
-
-/* ── Header ───────────────────────────────────────────────────────────── */
 
 .header {
   display: flex;
@@ -72,10 +76,14 @@
   transition: background 0.13s;
 }
 
-.actions button:last-child { border-right: 1px solid rgba(180, 20, 20, 0.28); }
-.actions button:hover { background: rgba(240, 236, 232, 0.06); color: var(--white); }
+.actions button:last-child {
+  border-right: 1px solid rgba(180, 20, 20, 0.28);
+}
 
-/* ── Viewport ─────────────────────────────────────────────────────────── */
+.actions button:hover {
+  background: rgba(240, 236, 232, 0.06);
+  color: var(--white);
+}
 
 .viewportWrap {
   border: 1px solid rgba(180, 20, 20, 0.3);
@@ -89,18 +97,25 @@
   box-shadow: inset 0 0 0 1px rgba(180, 20, 20, 0.2);
 }
 
-/* corner ornaments */
 .viewportWrap::before,
 .viewportWrap::after {
-  content: "✦";
+  content: "âœ¦";
   position: absolute;
   color: rgba(180, 20, 20, 0.3);
   font-size: 0.65rem;
   z-index: 2;
   pointer-events: none;
 }
-.viewportWrap::before { top: 7px; left: 8px; }
-.viewportWrap::after  { bottom: 7px; right: 8px; }
+
+.viewportWrap::before {
+  top: 7px;
+  left: 8px;
+}
+
+.viewportWrap::after {
+  bottom: 7px;
+  right: 8px;
+}
 
 .viewport {
   position: relative;
@@ -108,7 +123,10 @@
   touch-action: none;
   cursor: grab;
 }
-.viewport:active { cursor: grabbing; }
+
+.viewport:active {
+  cursor: grabbing;
+}
 
 .bgLayer {
   position: absolute;
@@ -120,16 +138,12 @@
   z-index: 0;
 }
 
-/* ensure the scene (nodes + edges) sits above the background */
-.scene { z-index: 1; }
-
 .scene {
   position: relative;
+  z-index: 1;
   transform-origin: 0 0;
   transition: transform 60ms linear;
 }
-
-/* ── Edges ────────────────────────────────────────────────────────────── */
 
 .edges {
   position: absolute;
@@ -139,7 +153,9 @@
   overflow: visible;
 }
 
-.edge { fill: none; }
+.edge {
+  fill: none;
+}
 
 .solid {
   stroke-width: 1.5;
@@ -167,11 +183,13 @@
   pointer-events: none;
 }
 
+.edgeGroupHighlighted {
+  filter: brightness(2.2);
+}
 
-.edgeGroupHighlighted { filter: brightness(2.2); }
-.edgeGroupDimmed      { opacity: 0.15; }
-
-/* ── Nodes ────────────────────────────────────────────────────────────── */
+.edgeGroupDimmed {
+  opacity: 0.15;
+}
 
 .node {
   position: absolute;
@@ -183,10 +201,12 @@
   border: 0;
   background: transparent;
   cursor: pointer;
-  transition: filter 0.14s;
+  transition: filter 0.14s, opacity 0.18s ease;
 }
 
-.node:hover { filter: brightness(1.12); }
+.node:hover {
+  filter: brightness(1.12);
+}
 
 .nodePortrait,
 .nodeIcon {
@@ -204,7 +224,11 @@
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75);
 }
 
-.nodePortrait { background-position: center; background-size: cover; filter: grayscale(0.15); }
+.nodePortrait {
+  background-position: center;
+  background-size: cover;
+  filter: grayscale(0.15);
+}
 
 .nodeIcon {
   display: grid;
@@ -240,7 +264,6 @@
   font-style: italic;
 }
 
-/* active ring */
 .active .nodeText {
   border-color: rgba(180, 20, 20, 0.5);
   box-shadow:
@@ -248,31 +271,55 @@
     0 8px 22px rgba(0, 0, 0, 0.6);
 }
 
-/* type-colour outlines on the portrait/icon — red spectrum for enemies, subtle for others */
-.self .nodePortrait, .self .nodeIcon {
-  border-color: rgba(220, 200, 140, 0.6);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.65), 0 0 10px rgba(200,170,80,0.18);
-}
-.enemy .nodePortrait, .enemy .nodeIcon {
-  border-color: rgba(180, 20, 20, 0.65);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.65), 0 0 10px rgba(180,20,20,0.2);
-}
-.threat .nodePortrait, .threat .nodeIcon {
-  border-color: rgba(140, 20, 140, 0.5);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.65), 0 0 8px rgba(140,20,140,0.18);
-}
-.ally .nodePortrait, .ally .nodeIcon {
-  border-color: rgba(40, 140, 60, 0.45);
-}
-.faction .nodePortrait, .faction .nodeIcon {
-  border-color: rgba(60, 80, 200, 0.45);
-}
-.mystery .nodePortrait, .mystery .nodeIcon {
-  border-color: rgba(220, 200, 140, 0.5);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.65), 0 0 10px rgba(200,170,80,0.15);
+.nodeHighlighted {
+  z-index: 2;
 }
 
-/* ── Detail panel ─────────────────────────────────────────────────────── */
+.nodeDimmed {
+  opacity: 0.38;
+}
+
+.self .nodePortrait,
+.self .nodeIcon {
+  border-color: rgba(220, 200, 140, 0.6);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.65),
+    0 0 10px rgba(200, 170, 80, 0.18);
+}
+
+.enemy .nodePortrait,
+.enemy .nodeIcon {
+  border-color: rgba(180, 20, 20, 0.65);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.65),
+    0 0 10px rgba(180, 20, 20, 0.2);
+}
+
+.threat .nodePortrait,
+.threat .nodeIcon {
+  border-color: rgba(140, 20, 140, 0.5);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.65),
+    0 0 8px rgba(140, 20, 140, 0.18);
+}
+
+.ally .nodePortrait,
+.ally .nodeIcon {
+  border-color: rgba(40, 140, 60, 0.45);
+}
+
+.faction .nodePortrait,
+.faction .nodeIcon {
+  border-color: rgba(60, 80, 200, 0.45);
+}
+
+.mystery .nodePortrait,
+.mystery .nodeIcon {
+  border-color: rgba(220, 200, 140, 0.5);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.65),
+    0 0 10px rgba(200, 170, 80, 0.15);
+}
 
 .detailLabel {
   color: var(--grey);
@@ -302,7 +349,109 @@
   font-style: italic;
 }
 
-/* ── Empty state ──────────────────────────────────────────────────────── */
+.mobileHud {
+  position: absolute;
+  inset-inline: 12px;
+  bottom: 12px;
+  z-index: 3;
+  display: grid;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.mobileJumpRail,
+.mobileSheet {
+  pointer-events: auto;
+}
+
+.mobileJumpRail {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.mobileJumpRail::-webkit-scrollbar {
+  display: none;
+}
+
+.mobileJumpUtility,
+.mobileJumpButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 12px;
+  border: 1px solid rgba(240, 236, 232, 0.12);
+  background: rgba(12, 9, 12, 0.88);
+  color: var(--grey);
+  font: inherit;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  backdrop-filter: blur(14px);
+}
+
+.mobileJumpUtility {
+  color: var(--white);
+  border-color: rgba(180, 20, 20, 0.4);
+}
+
+.mobileJumpButton {
+  box-shadow: inset 0 0 0 1px var(--mobile-accent, transparent);
+}
+
+.mobileJumpButtonActive {
+  color: var(--white);
+  border-color: var(--mobile-accent, rgba(180, 20, 20, 0.45));
+}
+
+.mobileJumpDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--mobile-accent, rgba(240, 236, 232, 0.42));
+}
+
+.mobileSheet {
+  display: grid;
+  gap: 7px;
+  padding: 13px 14px 14px;
+  border: 1px solid rgba(240, 236, 232, 0.08);
+  background: linear-gradient(180deg, rgba(18, 14, 18, 0.94), rgba(10, 8, 10, 0.98));
+  color: var(--grey);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.42);
+}
+
+.mobileSheetLabel {
+  color: var(--grey);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.mobileSheet h4 {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.06rem;
+  color: var(--white);
+}
+
+.mobileSheet p:last-of-type {
+  display: -webkit-box;
+  overflow: hidden;
+  line-height: 1.55;
+  font-size: 0.84rem;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.mobileHint {
+  color: var(--dim);
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+}
 
 .emptyState {
   display: grid;
@@ -318,8 +467,6 @@
   font-size: 1.8rem;
   color: rgba(180, 20, 20, 0.28);
 }
-
-/* ── Legend ───────────────────────────────────────────────────────────── */
 
 .legend {
   display: flex;
@@ -347,8 +494,6 @@
   flex-shrink: 0;
 }
 
-/* ── Fullscreen hint ──────────────────────────────────────────────────── */
-
 .fullscreenHint {
   text-align: center;
   font-size: 0.74rem;
@@ -357,14 +502,37 @@
   font-family: var(--font-cinzel), serif;
 }
 
-/* ── Responsive ───────────────────────────────────────────────────────── */
-
 @media (max-width: 767px) {
-  .header { display: grid; }
-  .actions { justify-content: start; }
-  .node { width: min(124px, 30vw); }
-  .nodeText { padding: 7px 8px; }
-  .nodeText strong { font-size: 0.78rem; }
-  .nodeText span   { font-size: 0.7rem; }
-  .fullscreenSection { padding: 12px; }
+  .header {
+    display: grid;
+  }
+
+  .actions {
+    justify-content: start;
+  }
+
+  .node {
+    width: min(124px, 30vw);
+  }
+
+  .nodeText {
+    padding: 7px 8px;
+  }
+
+  .nodeText strong {
+    font-size: 0.78rem;
+  }
+
+  .nodeText span {
+    font-size: 0.7rem;
+  }
+
+  .mobileHud {
+    inset-inline: 10px;
+    bottom: 10px;
+  }
+
+  .fullscreenSection {
+    padding: 12px;
+  }
 }
