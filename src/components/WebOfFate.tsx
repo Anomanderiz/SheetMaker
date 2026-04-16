@@ -269,6 +269,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
           onPointerUp={handlePointerEnd}
           onPointerCancel={handlePointerEnd}
           onPointerLeave={handlePointerEnd}
+          onClick={() => setActiveNodeId(null)}
         >
           {backgroundSrc ? (
             <div
@@ -351,7 +352,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
                   node.id === activeNodeId ? styles.active : ""
                 }`}
                 style={{ left: node.left, top: node.top }}
-                onClick={() => setActiveNodeId(node.id)}
+                onClick={(e) => { e.stopPropagation(); setActiveNodeId(node.id); }}
               >
                 {node.assetSrc ? (
                   <span
