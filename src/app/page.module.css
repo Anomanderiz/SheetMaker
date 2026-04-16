@@ -84,17 +84,22 @@
 .sigil {
   position: absolute;
   bottom: -6vh;
-  left: calc(var(--i) * 7.2% + 0.5%);
-  font-size: clamp(0.5rem, 1vw, 0.85rem);
-  color: rgba(180, 20, 20, 0.5);
+  left: calc(var(--i) * 3.6% + 0.5%);
+  /* alternate between three sizes based on position */
+  font-size: clamp(0.9rem, 1.8vw, 2rem);
+  color: rgba(180, 20, 20, 0.72);
   animation:
     sigilDrift
-    calc(13s + var(--i) * 1.3s)
+    calc(11s + var(--i) * 0.9s)
     linear
-    calc(var(--i) * -2.1s)
+    calc(var(--i) * -1.4s)
     infinite;
   will-change: transform, opacity;
 }
+
+/* Give every third sigil a larger size for variety */
+.sigil:nth-child(3n)   { font-size: clamp(1.3rem, 2.5vw, 3rem);  color: rgba(180, 20, 20, 0.55); }
+.sigil:nth-child(3n+2) { font-size: clamp(0.7rem, 1.2vw, 1.4rem); color: rgba(180, 20, 20, 0.85); }
 
 /* ── Page corner ornaments ────────────────────────────────────────────────── */
 

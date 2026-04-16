@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import styles from "./page.module.css";
 
-const SIGIL_COUNT = 14;
+const SIGIL_COUNT = 28;
 
 export default function Home() {
   return (

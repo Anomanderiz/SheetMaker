@@ -90,6 +90,13 @@ export function DashboardClient({
 
   return (
     <main className={styles.page}>
+      <div className={styles.sigils} aria-hidden="true">
+        {Array.from({ length: 22 }, (_, i) => (
+          <span key={i} className={styles.sigil} style={{ "--i": i } as React.CSSProperties}>
+            ✦
+          </span>
+        ))}
+      </div>
       <section className={styles.hero}>
         <div>
           <p className={styles.appName}>Librum</p>
