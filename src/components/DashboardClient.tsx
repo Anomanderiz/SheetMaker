@@ -8,6 +8,16 @@ import type { Handout } from "@/lib/types";
 
 import styles from "./DashboardClient.module.css";
 
+// Pseudo-random scatter: left (0–97%), opacity, duration offset, delay offset
+const SIGILS: [number, number, number, number][] = [
+  [3,  0.8, 0,   0  ], [13, 0.4, 1.8, -4  ], [8,  0.9, 0.6, -7.2], [21, 0.5, 2.2, -1.5],
+  [30, 0.7, 1.1, -5.8], [38, 0.3, 2.7, -9  ], [45, 1.0, 0.4, -2.6], [53, 0.6, 1.5, -6.4],
+  [61, 0.4, 2.0, -0.7], [68, 0.8, 0.9, -3.9], [76, 0.3, 2.4, -8.3], [84, 0.7, 0.3, -1.1],
+  [91, 0.5, 1.9, -5.2], [97, 0.9, 2.6, -7.8], [6,  0.3, 1.3, -4.5], [17, 0.7, 0.7, -10 ],
+  [26, 0.5, 2.1, -2.2], [35, 0.9, 0.2, -6.9], [48, 0.4, 1.6, -3.7], [57, 0.8, 2.9, -0.4],
+  [72, 0.6, 0.8, -8.1], [88, 0.4, 1.4, -5.5],
+];
+
 interface DashboardClientProps {
   initialHandouts: Handout[];
   persistenceMode: string;
@@ -95,8 +105,8 @@ export function DashboardClient({
   return (
     <main className={styles.page}>
       <div className={styles.sigils} aria-hidden="true">
-        {Array.from({ length: 22 }, (_, i) => (
-          <span key={i} className={styles.sigil} style={{ "--i": i } as React.CSSProperties}>
+        {SIGILS.map(([left, op, dur, delay], i) => (
+          <span key={i} className={styles.sigil} style={{ "--i": i, "--left": left, "--op": op, "--dur": dur, "--dly": delay } as React.CSSProperties}>
             ✦
           </span>
         ))}

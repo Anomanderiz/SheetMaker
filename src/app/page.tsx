@@ -2,7 +2,16 @@ import Link from "next/link";
 
 import styles from "./page.module.css";
 
-const SIGIL_COUNT = 28;
+// Pseudo-random scatter: left position (0–97%), opacity weight, duration offset, delay offset
+const SIGILS: [number, number, number, number][] = [
+  [2,  0.9, 0,   0  ], [11, 0.4, 2.1, -3.5], [7,  0.7, 1.2, -7  ], [19, 0.5, 0.7, -1.8],
+  [28, 1.0, 1.8, -5  ], [35, 0.3, 0.3, -9.2], [43, 0.8, 2.5, -2.4], [51, 0.6, 1.0, -6.7],
+  [58, 0.4, 0.5, -0.9], [66, 0.9, 2.0, -4.1], [74, 0.3, 1.5, -8  ], [82, 0.7, 0.8, -3  ],
+  [90, 0.5, 2.3, -6.3], [97, 0.9, 0.2, -1.5], [5,  0.4, 1.7, -10 ], [15, 0.8, 0.9, -4.8],
+  [24, 0.6, 2.6, -7.5], [33, 1.0, 0.4, -2.1], [46, 0.3, 1.3, -5.6], [55, 0.7, 2.2, -0.3],
+  [63, 0.5, 0.6, -8.8], [71, 0.9, 1.9, -3.3], [79, 0.4, 2.4, -6.1], [87, 0.6, 0.1, -1.2],
+  [94, 0.8, 1.6, -9.5], [38, 0.5, 2.8, -4.4], [49, 0.9, 0.7, -7.8], [22, 0.3, 1.1, -2.7],
+];
 
 export default function Home() {
   return (
@@ -13,11 +22,11 @@ export default function Home() {
 
       {/* Floating ornamental sigils */}
       <div className={styles.sigils} aria-hidden="true">
-        {Array.from({ length: SIGIL_COUNT }, (_, i) => (
+        {SIGILS.map(([left, op, dur, delay], i) => (
           <span
             key={i}
             className={styles.sigil}
-            style={{ "--i": i } as React.CSSProperties}
+            style={{ "--i": i, "--left": left, "--op": op, "--dur": dur, "--dly": delay } as React.CSSProperties}
           >
             ✦
           </span>

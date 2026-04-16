@@ -35,20 +35,20 @@
 .sigil {
   position: absolute;
   bottom: -6vh;
-  left: calc(var(--i) * 4.8% + 0.5%);
+  left: calc(var(--left, 50) * 1%);
   font-size: clamp(0.9rem, 1.8vw, 2rem);
-  color: rgba(180, 20, 20, 0.68);
+  color: rgba(180, 20, 20, var(--op, 0.68));
   animation:
     sigilDrift
-    calc(12s + var(--i) * 1s)
+    calc(10s + var(--dur, 0) * 1s)
     linear
-    calc(var(--i) * -1.6s)
+    calc(var(--dly, 0) * 1s)
     infinite;
   will-change: transform, opacity;
 }
 
-.sigil:nth-child(3n)   { font-size: clamp(1.3rem, 2.5vw, 3rem);  color: rgba(180, 20, 20, 0.5);  }
-.sigil:nth-child(3n+2) { font-size: clamp(0.7rem, 1.2vw, 1.4rem); color: rgba(180, 20, 20, 0.82); }
+.sigil:nth-child(3n)   { font-size: clamp(1.3rem, 2.5vw, 3rem); }
+.sigil:nth-child(3n+2) { font-size: clamp(0.7rem, 1.2vw, 1.4rem); }
 
 /* ── Dashboard ────────────────────────────────────────────────────────── */
 
