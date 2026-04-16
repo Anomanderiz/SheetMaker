@@ -142,18 +142,15 @@
 .edge { fill: none; }
 
 .solid {
-  stroke: rgba(240, 236, 232, 0.35);
   stroke-width: 1.5;
 }
 
 .dashed {
-  stroke: rgba(240, 236, 232, 0.22);
   stroke-width: 1.4;
   stroke-dasharray: 7 5;
 }
 
 .ominous {
-  stroke: rgba(180, 20, 20, 0.75);
   stroke-width: 2;
   stroke-dasharray: 5 5;
   animation:
@@ -169,9 +166,6 @@
   pointer-events: none;
 }
 
-.solidLabel   { fill: rgba(240, 236, 232, 0.6); }
-.dashedLabel  { fill: rgba(240, 236, 232, 0.4); }
-.ominousLabel { fill: rgba(210, 80, 80, 0.9); }
 
 .edgeGroupHighlighted { filter: brightness(2.2); }
 .edgeGroupDimmed      { opacity: 0.15; }

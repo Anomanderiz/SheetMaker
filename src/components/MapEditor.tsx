@@ -260,7 +260,7 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
         id: uid(),
         source: connection.source,
         target: connection.target,
-        label: "relates to",
+        label: "",
       },
       flowEdges,
     );
