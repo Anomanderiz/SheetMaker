@@ -21,9 +21,12 @@ const imFellEnglish = IM_Fell_English({
 });
 
 export const metadata: Metadata = {
-  title: "Responsive Character Handout App",
+  title: {
+    default: "Librum",
+    template: "%s · Librum",
+  },
   description:
-    "A responsive Curse of Strahd style character handout app with a mobile-aware viewer and editor.",
+    "Librum — build, maintain, and share character dossiers for tabletop campaigns. Structured stats, lore, session notes, galleries, and editable relationship maps.",
 };
 
 export default function RootLayout({

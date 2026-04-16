@@ -92,8 +92,9 @@ export function DashboardClient({
     <main className={styles.page}>
       <section className={styles.hero}>
         <div>
-          <p className={styles.kicker}>Handouts</p>
-          <h1>Manage drafts, published links, and active campaign records.</h1>
+          <p className={styles.appName}>Librum</p>
+          <p className={styles.kicker}>Campaign Archive</p>
+          <h1>Your dossiers, organised.</h1>
           <p className={styles.summary}>
             Create and maintain character handouts with structured stats, lore,
             media, session notes, and configurable relationship maps.
@@ -130,8 +131,12 @@ export function DashboardClient({
       ) : null}
 
       <section className={styles.grid}>
-        {sortedHandouts.map((handout) => (
-          <article key={handout.id} className={styles.card}>
+        {sortedHandouts.map((handout, index) => (
+          <article
+            key={handout.id}
+            className={styles.card}
+            style={{ "--i": index } as React.CSSProperties}
+          >
             <div className={styles.cardTop}>
               {handout.portrait.src && !handout.portrait.src.startsWith("/seed") ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
