@@ -162,13 +162,19 @@
 }
 
 .edgeLabel {
-  fill: var(--dim);
   font-family: var(--font-cinzel), serif;
   font-size: 11px;
   letter-spacing: 0.07em;
   text-anchor: middle;
   pointer-events: none;
 }
+
+.solidLabel   { fill: rgba(240, 236, 232, 0.6); }
+.dashedLabel  { fill: rgba(240, 236, 232, 0.4); }
+.ominousLabel { fill: rgba(210, 80, 80, 0.9); }
+
+.edgeGroupHighlighted { filter: brightness(2.2); }
+.edgeGroupDimmed      { opacity: 0.15; }
 
 /* ── Nodes ────────────────────────────────────────────────────────────── */
 

@@ -121,6 +121,18 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
   const activeNode =
     positionedNodes.find((node) => node.id === activeNodeId) ?? positionedNodes[0] ?? null;
 
+  const connectedEdgeIds = useMemo(
+    () =>
+      activeNodeId
+        ? new Set(
+            positionedEdges
+              .filter((e) => e.fromNodeId === activeNodeId || e.toNodeId === activeNodeId)
+              .map((e) => e.id),
+          )
+        : null,
+    [activeNodeId, positionedEdges],
+  );
+
   function handleWheel(event: React.WheelEvent<HTMLDivElement>) {
     event.preventDefault();
     setTransform((current) => ({
@@ -278,23 +290,34 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
                 </marker>
               </defs>
 
-              {positionedEdges.map((edge) => (
-                <g key={edge.id}>
-                  <line
-                    x1={edge.from.left}
-                    y1={edge.from.top}
-                    x2={edge.to.left}
-                    y2={edge.to.top}
-                    className={`${styles.edge} ${styles[edge.style]}`}
-                    markerEnd={edge.style === "solid" ? "url(#arrowhead)" : undefined}
-                  />
-                  {!hideEdgeLabels && edge.label ? (
-                    <text x={edge.midpoint.x} y={edge.midpoint.y} className={styles.edgeLabel}>
-                      {edge.label}
-                    </text>
-                  ) : null}
-                </g>
-              ))}
+              {positionedEdges.map((edge) => {
+                const edgeState = connectedEdgeIds
+                  ? connectedEdgeIds.has(edge.id)
+                    ? styles.edgeGroupHighlighted
+                    : styles.edgeGroupDimmed
+                  : "";
+                return (
+                  <g key={edge.id} className={edgeState}>
+                    <line
+                      x1={edge.from.left}
+                      y1={edge.from.top}
+                      x2={edge.to.left}
+                      y2={edge.to.top}
+                      className={`${styles.edge} ${styles[edge.style]}`}
+                      markerEnd={edge.style === "solid" ? "url(#arrowhead)" : undefined}
+                    />
+                    {!hideEdgeLabels && edge.label ? (
+                      <text
+                        x={edge.midpoint.x}
+                        y={edge.midpoint.y}
+                        className={`${styles.edgeLabel} ${styles[`${edge.style}Label`]}`}
+                      >
+                        {edge.label}
+                      </text>
+                    ) : null}
+                  </g>
+                );
+              })}
             </svg>
 
             {positionedNodes.map((node) => (
