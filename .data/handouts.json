@@ -1,0 +1,253 @@
+{
+  "handouts": [
+    {
+      "id": "seed-zenith-rhal",
+      "slug": "zenith-rhal",
+      "theme": "parchment_v1",
+      "isShared": true,
+      "identity": {
+        "name": "Zenith Rhal",
+        "title": "Githyanki Wizard · Occultist · Level 3",
+        "epithet": "Haunted by dark whispers but unable to relinquish their power",
+        "footer": "Curse of Strahd · Session Notes · 1489 DR"
+      },
+      "portrait": {
+        "id": "portrait-zenith",
+        "src": "/seed/portrait.png",
+        "alt": "Portrait of Zenith Rhal holding a lantern in Barovia"
+      },
+      "statGroups": [
+        {
+          "id": "vital-records",
+          "title": "Vital Records",
+          "fields": [
+            { "id": "f001", "label": "Race",       "value": "Githyanki" },
+            { "id": "f002", "label": "Class",      "value": "Wizard" },
+            { "id": "f003", "label": "Subclass",   "value": "School of Divination" },
+            { "id": "f004", "label": "Level",      "value": "3" },
+            { "id": "f005", "label": "Background", "value": "Occultist" },
+            { "id": "f006", "label": "Homeland",   "value": "Astral Sea" },
+            { "id": "f007", "label": "Age",        "value": "29" },
+            { "id": "f008", "label": "Deity",      "value": "None" }
+          ]
+        },
+        {
+          "id": "campaign-state",
+          "title": "The Mists Took",
+          "fields": [
+            { "id": "f009", "label": "Entered Barovia", "value": "3 nights ago" },
+            { "id": "f010", "label": "Days Trapped",    "value": "11" },
+            { "id": "f011", "label": "Allies Lost",     "value": "2" },
+            { "id": "f012", "label": "Current Fear",    "value": "What the amber voices want" }
+          ]
+        }
+      ],
+      "traitTags": [
+        { "id": "t001", "label": "Resourceful" },
+        { "id": "t002", "label": "Haunted" },
+        { "id": "t003", "label": "Knowledgeable" },
+        { "id": "t004", "label": "Stubborn" },
+        { "id": "t005", "label": "Kind" },
+        { "id": "t006", "label": "Power-Hungry" }
+      ],
+      "relationshipNodes": [
+        {
+          "id": "node-self",
+          "type": "self",
+          "label": "Zenith",
+          "rel": "The Seeker",
+          "tooltip": "A desperate scholar clawing after forbidden understanding.",
+          "assetSrc": "/seed/node-zenith.jpg",
+          "x": 0.5,  "y": 0.52,
+          "mobileX": 0.5, "mobileY": 0.2
+        },
+        {
+          "id": "node-strahd",
+          "type": "threat",
+          "label": "Strahd",
+          "rel": "Captor",
+          "tooltip": "The master of Ravenloft sees Zenith as a useful curiosity.",
+          "icon": "S",
+          "x": 0.18, "y": 0.18,
+          "mobileX": 0.2, "mobileY": 0.6
+        },
+        {
+          "id": "node-rahadin",
+          "type": "enemy",
+          "label": "Rahadin",
+          "rel": "Jailer",
+          "tooltip": "His patience is colder than the dungeons beneath the castle.",
+          "icon": "R",
+          "x": 0.82, "y": 0.2,
+          "mobileX": 0.8, "mobileY": 0.58
+        },
+        {
+          "id": "node-eva",
+          "type": "ally",
+          "label": "Madam Eva",
+          "rel": "Warning",
+          "tooltip": "Her reading named the danger but not its cost.",
+          "assetSrc": "/seed/node-eva.jpg",
+          "x": 0.16, "y": 0.78,
+          "mobileX": 0.18, "mobileY": 0.86
+        },
+        {
+          "id": "node-muriel",
+          "type": "ally",
+          "label": "Muriel",
+          "rel": "Shelter",
+          "tooltip": "A cautious wereraven who offered cover when the hunt closed in.",
+          "assetSrc": "/seed/node-muriel.jpg",
+          "x": 0.82, "y": 0.8,
+          "mobileX": 0.82, "mobileY": 0.86
+        },
+        {
+          "id": "node-vlaakith",
+          "type": "faction",
+          "label": "Vlaakith",
+          "rel": "Forsaken Queen",
+          "tooltip": "The lich queen Zenith fled still casts a longer shadow than Strahd.",
+          "assetSrc": "/seed/node-vlaakith.jpg",
+          "x": 0.5, "y": 0.08,
+          "mobileX": 0.5, "mobileY": 0.42
+        },
+        {
+          "id": "node-amber",
+          "type": "mystery",
+          "label": "The Voices",
+          "rel": "Unknown Patron",
+          "tooltip": "Something ancient stirs in amber. It knows Zenith's name and has for a very long time.",
+          "icon": "?",
+          "x": 0.5, "y": 0.82,
+          "mobileX": 0.5, "mobileY": 0.72
+        }
+      ],
+      "relationshipEdges": [
+        {
+          "id": "e001",
+          "fromNodeId": "node-self",
+          "toNodeId": "node-strahd",
+          "style": "ominous",
+          "label": "captured by"
+        },
+        {
+          "id": "e002",
+          "fromNodeId": "node-self",
+          "toNodeId": "node-vlaakith",
+          "style": "dashed",
+          "label": "fled from"
+        },
+        {
+          "id": "e003",
+          "fromNodeId": "node-self",
+          "toNodeId": "node-eva",
+          "style": "solid",
+          "label": "warned by"
+        },
+        {
+          "id": "e004",
+          "fromNodeId": "node-self",
+          "toNodeId": "node-muriel",
+          "style": "solid",
+          "label": "sheltered by"
+        },
+        {
+          "id": "e005",
+          "fromNodeId": "node-strahd",
+          "toNodeId": "node-rahadin",
+          "style": "solid",
+          "label": "commands"
+        },
+        {
+          "id": "e006",
+          "fromNodeId": "node-rahadin",
+          "toNodeId": "node-self",
+          "style": "ominous",
+          "label": "jailer"
+        },
+        {
+          "id": "e007",
+          "fromNodeId": "node-amber",
+          "toNodeId": "node-self",
+          "style": "dashed",
+          "label": "speaks to"
+        }
+      ],
+      "loreSections": [
+        {
+          "id": "l001",
+          "title": "Chronicle of Shadows",
+          "body": "<p>Zenith Rhal was born into the iron certainty of the githyanki war-host, where obedience and conquest were treated as the only forms of destiny worth respecting. Even as a child, Zenith was less interested in command than in the stray fragments of forbidden history hidden inside confiscated tomes and captured relics.</p><p>That appetite for dangerous knowledge only deepened with age. While others perfected the sword, Zenith learned to read omens in cracked crystal, whispered with spirits that should have remained silent, and became convinced that power was never truly evil, only costly.</p><p>The Mists of Barovia answered that arrogance with enthusiasm. Ravenloft offered visions, amber whispers, and the kind of occult leverage Zenith had chased for years. Now every revelation comes attached to a debt, and every debt drags another thread tight around the throat.</p>"
+        },
+        {
+          "id": "l002",
+          "title": "Current Disposition",
+          "body": "<p>Zenith presents as composed and analytical, but that calm is performance more than truth. Sleep is scarce. Candlelight is preferred to darkness. There is a growing certainty that whatever began whispering in the castle dungeons still has not finished speaking.</p>"
+        }
+      ],
+      "secretBlocks": [
+        {
+          "id": "s001",
+          "title": "What He Knows",
+          "body": "<p>Zenith understands that Strahd studies people the way a wizard studies a spell: patiently, from every angle, until every weakness is catalogued. He also suspects the Amber Temple is not merely a ruin but a key.</p>"
+        },
+        {
+          "id": "s002",
+          "title": "What He Does Not Know",
+          "body": "<p>Zenith does not yet realize that some of his most vivid visions are not prophecies at all. They are curated invitations from powers that have already decided he is useful. The voices in the amber have a name for him — they have simply not chosen to share it yet.</p>"
+        }
+      ],
+      "gallery": [
+        {
+          "id": "g001",
+          "src": "/seed/gallery-1.jpg",
+          "alt": "Lantern light in a crypt corridor",
+          "caption": "The night Zenith first realized Barovia listens."
+        },
+        {
+          "id": "g002",
+          "src": "/seed/gallery-2.jpg",
+          "alt": "Occult notes scattered across a wooden desk",
+          "caption": "Recovered notes from the castle dungeons."
+        },
+        {
+          "id": "g003",
+          "src": "/seed/gallery-3.jpg",
+          "alt": "Fog-draped road through dark trees",
+          "caption": "A raven-guided escape through the Svalich Woods."
+        },
+        {
+          "id": "g004",
+          "src": "/seed/gallery-4.jpg",
+          "alt": "Amber-lit chamber with ritual markings",
+          "caption": "Dreams of amber fire and unfinished bargains."
+        }
+      ],
+      "sessionEntries": [
+        {
+          "id": "se001",
+          "sessionNumber": 7,
+          "playedOn": "2026-03-30",
+          "title": "Capture at Ravenloft",
+          "body": "<p>Separated from the party after a failed reconnaissance attempt. Zenith survived interrogation by trading fragments of truth for time, then escaped the lower halls with Muriel's help and one new voice lodged firmly in the back of his mind.</p>"
+        },
+        {
+          "id": "se002",
+          "sessionNumber": 6,
+          "playedOn": "2026-03-16",
+          "title": "The Tser Pool Reading",
+          "body": "<p>Madam Eva laid out the cards at the Tser Pool encampment. Three of the five revealed something Zenith was not meant to see — a tower, an amber sarcophagus, and a figure that looked uncomfortably familiar. He has not shared the full reading with the others.</p>"
+        },
+        {
+          "id": "se003",
+          "sessionNumber": 5,
+          "playedOn": "2026-03-02",
+          "title": "Arrival in Vallaki",
+          "body": "<p>The party reached Vallaki under the banner of a festival nobody wanted. Zenith spent most of the session in the Blue Water Inn's upper room transcribing everything he could remember about the castle's lower levels. The innkeeper's wife gave him a look that suggested she knew more than she was letting on.</p>"
+        }
+      ],
+      "createdAt": "2026-04-01T00:00:00.000Z",
+      "updatedAt": "2026-04-16T00:00:00.000Z"
+    }
+  ]
+}

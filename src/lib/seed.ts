@@ -267,7 +267,7 @@ export function createBlankHandout(): Handout {
     },
     portrait: {
       id: uid(),
-      src: "/seed/portrait.png",
+      src: "/portrait-default.svg",
       alt: "Character portrait",
     },
     statGroups: [

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" width="240" height="320">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1c1018"/>
+      <stop offset="100%" stop-color="#0a060a"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(180,20,20,0.08)"/>
+      <stop offset="100%" stop-color="rgba(180,20,20,0)"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="240" height="320" fill="url(#bg)"/>
+  <rect width="240" height="320" fill="url(#glow)"/>
+
+  <!-- Silhouette: head -->
+  <ellipse cx="120" cy="104" rx="40" ry="46" fill="#1e141e"/>
+
+  <!-- Silhouette: shoulders / cloak -->
+  <path d="M28,320 C28,210 64,178 120,172 C176,178 212,210 212,320 Z" fill="#1e141e"/>
+
+  <!-- Subtle collar line -->
+  <path d="M90,172 Q120,182 150,172" fill="none" stroke="rgba(180,20,20,0.18)" stroke-width="1"/>
+
+  <!-- Border -->
+  <rect x="0.5" y="0.5" width="239" height="319" fill="none" stroke="rgba(180,20,20,0.22)" stroke-width="1"/>
+
+  <!-- Inner rule lines top/bottom -->
+  <line x1="24" y1="18" x2="216" y2="18" stroke="rgba(180,20,20,0.14)" stroke-width="0.6"/>
+  <line x1="24" y1="302" x2="216" y2="302" stroke="rgba(180,20,20,0.14)" stroke-width="0.6"/>
+
+  <!-- Corner ornaments -->
+  <text x="10" y="15" fill="rgba(180,20,20,0.35)" font-size="9" font-family="serif">✦</text>
+  <text x="222" y="15" fill="rgba(180,20,20,0.35)" font-size="9" font-family="serif">✦</text>
+  <text x="10" y="316" fill="rgba(180,20,20,0.35)" font-size="9" font-family="serif">✦</text>
+  <text x="222" y="316" fill="rgba(180,20,20,0.35)" font-size="9" font-family="serif">✦</text>
+
+  <!-- Unknown mark -->
+  <text x="120" y="116" fill="rgba(180,20,20,0.22)" font-size="38" font-family="Georgia,serif" text-anchor="middle" font-weight="bold">?</text>
+</svg>
