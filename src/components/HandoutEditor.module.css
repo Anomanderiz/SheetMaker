@@ -249,14 +249,68 @@
 .checkbox {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-left: 2px solid rgba(180, 20, 20, 0.25);
+  padding: 14px 16px;
+  border: 1px solid rgba(180, 20, 20, 0.22);
   background: rgba(240, 236, 232, 0.02);
-  color: var(--grey);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+.checkbox:hover {
+  background: rgba(240, 236, 232, 0.05);
+  border-color: rgba(180, 20, 20, 0.45);
 }
 
-.checkbox input { width: auto; border-bottom: none; }
+/* Fully hide the native input while keeping it accessible */
+.checkbox input[type="checkbox"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The span becomes a flex row: [indicator box] [label text] */
+.checkbox input[type="checkbox"] + span {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--grey);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Visual indicator box */
+.checkbox input[type="checkbox"] + span::before {
+  content: "";
+  display: block;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(180, 20, 20, 0.45);
+  background: transparent;
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+}
+
+/* Checked state: red sigil fills the box */
+.checkbox input[type="checkbox"]:checked + span::before {
+  content: "✦";
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  color: rgba(180, 20, 20, 0.95);
+  background: rgba(180, 20, 20, 0.12);
+  border-color: rgba(180, 20, 20, 0.8);
+  box-shadow: 0 0 14px rgba(180, 20, 20, 0.18);
+}
+
+/* Focus ring for keyboard nav */
+.checkbox input[type="checkbox"]:focus-visible + span::before {
+  outline: 2px solid rgba(180, 20, 20, 0.6);
+  outline-offset: 3px;
+}
 
 /* ── Preview ──────────────────────────────────────────────────────────── */
 

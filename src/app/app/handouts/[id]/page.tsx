@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AutoPrint } from "@/components/AutoPrint";
 import { HandoutRenderer } from "@/components/HandoutRenderer";
 import { PdfDownloadButton } from "@/components/PdfDownloadButton";
 import { getHandoutById } from "@/lib/data/handoutRepository";
@@ -12,10 +13,12 @@ export const dynamic = "force-dynamic";
 
 export default async function HandoutPreviewPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ print?: string }>;
 }) {
-  const { id } = await params;
+  const [{ id }, { print }] = await Promise.all([params, searchParams]);
   const handout = await getHandoutById(id);
 
   if (!handout) {
@@ -25,7 +28,8 @@ export default async function HandoutPreviewPage({
   const publicUrl = getPublicHandoutUrl(handout.slug);
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${print === "1" ? styles.printMode : ""}`}>
+      {print === "1" ? <AutoPrint /> : null}
       <header className={styles.topbar}>
         <div className={styles.identity}>
           <p className={styles.kicker}>Preview</p>

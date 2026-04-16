@@ -100,15 +100,22 @@
   color: var(--text-strong);
 }
 
+/* Hide topbar immediately when in print mode (before the dialog opens) */
+.printMode .topbar { display: none; }
+
 @media print {
-  .page {
-    min-height: auto;
-    background: transparent;
+  /* Preserve every background color and image */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .topbar {
-    display: none;
+  .page {
+    min-height: auto;
+    background: #080608 !important;
   }
+
+  .topbar { display: none !important; }
 }
 
 @media (max-width: 767px) {

@@ -354,13 +354,24 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
                 <div className={styles.subcard}>
                   <p>Export</p>
                   <p>Download this handout as a JSON file for backup or migration.</p>
-                  <button
-                    type="button"
-                    className={styles.secondary}
-                    onClick={() => downloadJson(handout)}
-                  >
-                    Export JSON
-                  </button>
+                  <div className={styles.actionRow}>
+                    <button
+                      type="button"
+                      className={styles.secondary}
+                      onClick={() => downloadJson(handout)}
+                    >
+                      Export JSON
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.secondary}
+                      onClick={() =>
+                        window.open(`/app/handouts/${handout.id}?print=1`, "_blank")
+                      }
+                    >
+                      Export PDF
+                    </button>
+                  </div>
                 </div>
               </div>
             </section>
