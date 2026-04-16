@@ -17,9 +17,14 @@ function CopyLinkButton({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(`${window.location.origin}/h/${slug}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2200);
+    const url = `${window.location.origin}/h/${slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch {
+      window.prompt("Copy this link:", url);
+    }
   }
 
   return (

@@ -357,7 +357,8 @@
 .secondary:hover,
 .ghost:hover { background: rgba(240, 236, 232, 0.05); color: var(--white); }
 
-.ghost:disabled { opacity: 0.28; cursor: not-allowed; }
+.ghost:disabled,
+.ghost[aria-disabled="true"] { opacity: 0.28; cursor: not-allowed; pointer-events: none; }
 
 .danger { color: var(--dim); }
 .danger:hover:not(:disabled) { background: rgba(180, 20, 20, 0.1); color: var(--grey); }

@@ -11,7 +11,8 @@ export async function readLocalStore(): Promise<HandoutStore> {
   try {
     const raw = await readFile(storePath, "utf8");
     return JSON.parse(raw) as HandoutStore;
-  } catch {
+  } catch (err) {
+    console.warn("[localDb] Could not read store, seeding fresh data:", err);
     const seedStore = createSeedStore();
     await writeLocalStore(seedStore);
     return seedStore;

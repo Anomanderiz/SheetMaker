@@ -83,9 +83,13 @@ export function DashboardClient({
 
   async function copyShareUrl(slug: string, id: string) {
     const url = `${window.location.origin}/h/${slug}`;
-    await navigator.clipboard.writeText(url);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId((cur) => (cur === id ? null : cur)), 2000);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId((cur) => (cur === id ? null : cur)), 2000);
+    } catch {
+      window.prompt("Copy this link:", url);
+    }
   }
 
   return (
@@ -191,9 +195,15 @@ export function DashboardClient({
               <Link href={`/app/handouts/${handout.id}/edit`} className={styles.primary}>
                 Edit
               </Link>
-              <Link href={`/h/${handout.slug}`} className={styles.secondary} target="_blank">
-                View
-              </Link>
+              {handout.isShared ? (
+                <Link href={`/h/${handout.slug}`} className={styles.secondary} target="_blank">
+                  View
+                </Link>
+              ) : (
+                <span className={`${styles.secondary} ${styles.ghost}`} aria-disabled="true">
+                  View
+                </span>
+              )}
               <button
                 type="button"
                 className={styles.ghost}

@@ -149,3 +149,13 @@ img { max-width: 100%; display: block; }
 .react-flow__attribution {
   display: none;
 }
+
+/* ── Print ───────────────────────────────────────────────────────────── */
+/* Preserve dark theme backgrounds when saving to PDF */
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

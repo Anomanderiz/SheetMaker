@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -10,6 +11,16 @@ import { getPublicHandoutUrl } from "@/lib/site";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const handout = await getHandoutById(id);
+  return { title: handout ? handout.identity.name : "Preview" };
+}
 
 export default async function HandoutPreviewPage({
   params,

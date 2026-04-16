@@ -104,12 +104,6 @@
 .printMode .topbar { display: none; }
 
 @media print {
-  /* Preserve every background color and image */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
   .page {
     min-height: auto;
     background: #080608 !important;
