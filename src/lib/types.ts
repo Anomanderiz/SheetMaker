@@ -63,6 +63,7 @@ export interface RelationshipEdge {
   toNodeId: string;
   style: RelationshipEdgeStyle;
   label: string;
+  color?: string;
 }
 
 export interface LoreSection {

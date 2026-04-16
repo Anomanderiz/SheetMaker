@@ -147,14 +147,15 @@
 
 .dashed {
   stroke-width: 1.4;
-  stroke-dasharray: 7 5;
+  stroke-dasharray: 5 12;
+  opacity: 0.75;
 }
 
 .ominous {
-  stroke-width: 2;
-  stroke-dasharray: 5 5;
+  stroke-width: 2.5;
+  stroke-dasharray: 2 9;
   animation:
-    march 0.75s linear infinite,
+    march 0.6s linear infinite,
     fatePulse 2s ease-in-out infinite;
 }
 
@@ -312,6 +313,34 @@
 .emptyIcon {
   font-size: 1.8rem;
   color: rgba(180, 20, 20, 0.28);
+}
+
+/* ── Legend ───────────────────────────────────────────────────────────── */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  padding: 10px 0;
+  border-top: var(--rule);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--grey);
+}
+
+.legendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 /* ── Fullscreen hint ──────────────────────────────────────────────────── */

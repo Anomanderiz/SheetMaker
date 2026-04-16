@@ -97,26 +97,32 @@ function toFlowNodes(
 }
 
 function toFlowEdges(sourceEdges: RelationshipEdge[]): Edge[] {
-  return sourceEdges.map((edge) => ({
-    id: edge.id,
-    source: edge.fromNodeId,
-    target: edge.toNodeId,
-    label: edge.label,
-    animated: edge.style === "ominous",
-    style:
-      edge.style === "dashed"
-        ? { strokeDasharray: "6 6", stroke: "rgba(240,236,232,0.45)", strokeWidth: 1.6 }
-        : edge.style === "ominous"
-          ? { strokeDasharray: "3 6", stroke: "rgba(180,20,20,0.9)", strokeWidth: 2.2 }
-          : { stroke: "rgba(240,236,232,0.75)", strokeWidth: 1.8 },
-    labelStyle: {
-      fill: "#d4c8b0",
-      fontFamily: "var(--font-cinzel), serif",
-      fontSize: 11,
-      letterSpacing: "0.06em",
-    },
-    labelBgStyle: { fill: "rgba(8,6,8,0.82)", stroke: "none" },
-  }));
+  return sourceEdges.map((edge) => {
+    const defaultStroke = edge.style === "ominous"
+      ? "rgba(180,20,20,0.9)"
+      : "rgba(240,236,232,0.6)";
+    const stroke = edge.color ?? defaultStroke;
+    return {
+      id: edge.id,
+      source: edge.fromNodeId,
+      target: edge.toNodeId,
+      label: edge.label,
+      animated: edge.style === "ominous",
+      style:
+        edge.style === "dashed"
+          ? { strokeDasharray: "5 12", stroke, strokeWidth: 1.6 }
+          : edge.style === "ominous"
+            ? { strokeDasharray: "2 9", stroke, strokeWidth: 2.5 }
+            : { stroke, strokeWidth: 1.8 },
+      labelStyle: {
+        fill: "#d4c8b0",
+        fontFamily: "var(--font-cinzel), serif",
+        fontSize: 11,
+        letterSpacing: "0.06em",
+      },
+      labelBgStyle: { fill: "rgba(8,6,8,0.82)", stroke: "none" },
+    };
+  });
 }
 
 function buildPayload(
@@ -148,6 +154,7 @@ function buildPayload(
       toNodeId: edge.target,
       style: existing?.style ?? "solid",
       label: typeof edge.label === "string" ? edge.label : existing?.label ?? "",
+      color: existing?.color,
     } satisfies RelationshipEdge;
   });
 
@@ -510,6 +517,24 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
                 </select>
               </label>
               <label>
+                <span>Colour</span>
+                <select
+                  value={selectedEdge.color ?? ""}
+                  onChange={(event) =>
+                    updateEdgeField("color", event.target.value || undefined)
+                  }
+                >
+                  <option value="">Default — inherit from node</option>
+                  <option value="rgba(220,200,140,0.9)">Gold</option>
+                  <option value="rgba(180,20,20,0.9)">Crimson</option>
+                  <option value="rgba(40,140,60,0.85)">Forest</option>
+                  <option value="rgba(60,80,200,0.85)">Azure</option>
+                  <option value="rgba(160,20,160,0.85)">Violet</option>
+                  <option value="rgba(200,192,188,0.75)">Silver</option>
+                  <option value="rgba(240,236,232,0.85)">Bone</option>
+                </select>
+              </label>
+              <label>
                 <span>From</span>
                 <select
                   value={selectedEdge.fromNodeId}
@@ -535,6 +560,13 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
                   ))}
                 </select>
               </label>
+              <button
+                type="button"
+                className={styles.deleteEdgeBtn}
+                onClick={deleteSelection}
+              >
+                Delete connection
+              </button>
             </div>
           ) : (
             <div className={styles.editorCard}>

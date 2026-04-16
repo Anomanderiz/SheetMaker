@@ -34,6 +34,15 @@ const NODE_TYPE_COLOR: Record<RelationshipNodeType, string> = {
   threat:  "rgba(160,  20, 160, 0.8)",
 };
 
+const LEGEND_ENTRIES = [
+  { label: "Ally",    color: "rgba(40,  140,  60, 0.85)" },
+  { label: "Foe",     color: "rgba(180,  20,  20, 0.9)"  },
+  { label: "Threat",  color: "rgba(160,  20, 160, 0.85)" },
+  { label: "Faction", color: "rgba(60,   80, 200, 0.85)" },
+  { label: "Neutral", color: "rgba(200, 192, 188, 0.6)"  },
+  { label: "Mystery", color: "rgba(220, 200, 140, 0.85)" },
+] as const;
+
 function edgeColor(fromType: RelationshipNodeType, toType: RelationshipNodeType): string {
   return NODE_TYPE_COLOR[toType === "self" ? fromType : toType];
 }
@@ -312,12 +321,30 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
                     </marker>
                   ),
                 )}
+                {positionedEdges
+                  .filter((e) => e.color && e.style === "solid")
+                  .map((e) => (
+                    <marker
+                      key={`arrow-c-${e.id}`}
+                      id={`arrow-c-${e.id}`}
+                      markerWidth="8"
+                      markerHeight="8"
+                      refX="6"
+                      refY="3"
+                      orient="auto"
+                    >
+                      <path d="M0,0 L0,6 L8,3 z" fill={e.color} />
+                    </marker>
+                  ))}
               </defs>
 
               {positionedEdges.map((edge) => {
                 const effectiveType: RelationshipNodeType =
                   edge.to.type === "self" ? edge.from.type : edge.to.type;
-                const color = edgeColor(edge.from.type, edge.to.type);
+                const color = edge.color ?? edgeColor(edge.from.type, edge.to.type);
+                const markerId = edge.color
+                  ? `arrow-c-${edge.id}`
+                  : `arrow-${effectiveType}`;
                 const edgeState = connectedEdgeIds
                   ? connectedEdgeIds.has(edge.id)
                     ? styles.edgeGroupHighlighted
@@ -332,7 +359,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
                       y2={edge.to.top}
                       className={`${styles.edge} ${styles[edge.style]}`}
                       stroke={color}
-                      markerEnd={edge.style === "solid" ? `url(#arrow-${effectiveType})` : undefined}
+                      markerEnd={edge.style === "solid" ? `url(#${markerId})` : undefined}
                     />
                     {!hideEdgeLabels && edge.label ? (
                       <text
@@ -385,6 +412,15 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
           <p>{activeNode.tooltip}</p>
         </div>
       ) : null}
+
+      <div className={styles.legend} aria-label="Relationship legend">
+        {LEGEND_ENTRIES.map((entry) => (
+          <span key={entry.label} className={styles.legendItem}>
+            <span className={styles.legendSwatch} style={{ background: entry.color }} aria-hidden="true" />
+            {entry.label}
+          </span>
+        ))}
+      </div>
 
       {isFullscreen ? (
         <div className={styles.fullscreenHint}>Esc or ⤡ to exit · Drag to pan · Scroll / pinch to zoom</div>
