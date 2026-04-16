@@ -60,7 +60,7 @@ export default function Home() {
           <Link href="/app/handouts" className={styles.primary}>
             Open Archive
           </Link>
-          <Link href="/h/zenith-rhal" className={styles.secondary}>
+          <Link href="/h/unnamed-hero" className={styles.secondary}>
             View Sample
           </Link>
         </div>

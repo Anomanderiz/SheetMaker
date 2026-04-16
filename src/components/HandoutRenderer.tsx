@@ -173,7 +173,11 @@ export function HandoutRenderer({
           {hasRelationships ? (
             <section className={`${styles.panel} ${styles.mapPanel}`}>
               <WebOfFate
-                nodes={handout.relationshipNodes}
+                nodes={handout.relationshipNodes.map((n) =>
+                  n.type === "self"
+                    ? { ...n, assetSrc: handout.portrait.src || n.assetSrc }
+                    : n
+                )}
                 edges={handout.relationshipEdges}
                 backgroundSrc={handout.mapBackgroundSrc}
               />

@@ -1,252 +1,262 @@
 {
   "handouts": [
     {
-      "id": "seed-zenith-rhal",
-      "slug": "zenith-rhal",
+      "id": "seed-unnamed-hero",
+      "slug": "unnamed-hero",
       "theme": "parchment_v1",
       "isShared": true,
       "identity": {
-        "name": "Zenith Rhal",
-        "title": "Githyanki Wizard · Occultist · Level 3",
-        "epithet": "Haunted by dark whispers but unable to relinquish their power",
-        "footer": "Curse of Strahd · Session Notes · 1489 DR"
+        "name": "Unnamed Hero",
+        "title": "Class · Role · Level 1",
+        "epithet": "A brief line that frames the handout's voice and current tension",
+        "footer": "Campaign · Session Notes · Year"
       },
       "portrait": {
-        "id": "portrait-zenith",
-        "src": "/seed/portrait.png",
-        "alt": "Portrait of Zenith Rhal holding a lantern in Barovia"
+        "id": "portrait-default",
+        "src": "/portrait-default.svg",
+        "alt": "Character portrait"
       },
       "statGroups": [
         {
           "id": "vital-records",
           "title": "Vital Records",
           "fields": [
-            { "id": "f001", "label": "Race",       "value": "Githyanki" },
-            { "id": "f002", "label": "Class",      "value": "Wizard" },
-            { "id": "f003", "label": "Subclass",   "value": "School of Divination" },
-            { "id": "f004", "label": "Level",      "value": "3" },
-            { "id": "f005", "label": "Background", "value": "Occultist" },
-            { "id": "f006", "label": "Homeland",   "value": "Astral Sea" },
-            { "id": "f007", "label": "Age",        "value": "29" },
-            { "id": "f008", "label": "Deity",      "value": "None" }
+            { "id": "f001", "label": "Race",       "value": "Unknown" },
+            { "id": "f002", "label": "Class",      "value": "Unknown" },
+            { "id": "f003", "label": "Level",      "value": "1" },
+            { "id": "f004", "label": "Background", "value": "Unknown" },
+            { "id": "f005", "label": "Homeland",   "value": "Unknown" },
+            { "id": "f006", "label": "Age",        "value": "Unknown" }
           ]
         },
         {
           "id": "campaign-state",
-          "title": "The Mists Took",
+          "title": "Campaign State",
           "fields": [
-            { "id": "f009", "label": "Entered Barovia", "value": "3 nights ago" },
-            { "id": "f010", "label": "Days Trapped",    "value": "11" },
-            { "id": "f011", "label": "Allies Lost",     "value": "2" },
-            { "id": "f012", "label": "Current Fear",    "value": "What the amber voices want" }
+            { "id": "f007", "label": "Current Goal",   "value": "Define the next objective" },
+            { "id": "f008", "label": "Active Threat",  "value": "Define the active pressure" },
+            { "id": "f009", "label": "Days Elapsed",   "value": "0" }
           ]
         }
       ],
       "traitTags": [
-        { "id": "t001", "label": "Resourceful" },
-        { "id": "t002", "label": "Haunted" },
-        { "id": "t003", "label": "Knowledgeable" },
+        { "id": "t001", "label": "Driven" },
+        { "id": "t002", "label": "Marked" },
+        { "id": "t003", "label": "Watchful" },
         { "id": "t004", "label": "Stubborn" },
-        { "id": "t005", "label": "Kind" },
-        { "id": "t006", "label": "Power-Hungry" }
+        { "id": "t005", "label": "Resourceful" },
+        { "id": "t006", "label": "Haunted" }
       ],
       "relationshipNodes": [
         {
           "id": "node-self",
           "type": "self",
-          "label": "Zenith",
-          "rel": "The Seeker",
-          "tooltip": "A desperate scholar clawing after forbidden understanding.",
-          "assetSrc": "/seed/node-zenith.jpg",
-          "x": 0.5,  "y": 0.52,
-          "mobileX": 0.5, "mobileY": 0.2
+          "label": "Hero",
+          "rel": "The Protagonist",
+          "tooltip": "The focal character around whom all pressures converge.",
+          "x": 0.5,
+          "y": 0.5,
+          "mobileX": 0.5,
+          "mobileY": 0.22
         },
         {
-          "id": "node-strahd",
-          "type": "threat",
-          "label": "Strahd",
-          "rel": "Captor",
-          "tooltip": "The master of Ravenloft sees Zenith as a useful curiosity.",
-          "icon": "S",
-          "x": 0.18, "y": 0.18,
-          "mobileX": 0.2, "mobileY": 0.6
+          "id": "node-ally",
+          "type": "ally",
+          "label": "Trusted Ally",
+          "rel": "Companion",
+          "tooltip": "Someone who has earned trust through shared hardship.",
+          "icon": "A",
+          "x": 0.18,
+          "y": 0.72,
+          "mobileX": 0.18,
+          "mobileY": 0.82
         },
         {
-          "id": "node-rahadin",
+          "id": "node-enemy",
           "type": "enemy",
-          "label": "Rahadin",
-          "rel": "Jailer",
-          "tooltip": "His patience is colder than the dungeons beneath the castle.",
-          "icon": "R",
-          "x": 0.82, "y": 0.2,
-          "mobileX": 0.8, "mobileY": 0.58
+          "label": "Known Foe",
+          "rel": "Antagonist",
+          "tooltip": "A direct enemy whose goals conflict with the hero's survival.",
+          "icon": "F",
+          "x": 0.82,
+          "y": 0.22,
+          "mobileX": 0.82,
+          "mobileY": 0.5
         },
         {
-          "id": "node-eva",
-          "type": "ally",
-          "label": "Madam Eva",
-          "rel": "Warning",
-          "tooltip": "Her reading named the danger but not its cost.",
-          "assetSrc": "/seed/node-eva.jpg",
-          "x": 0.16, "y": 0.78,
-          "mobileX": 0.18, "mobileY": 0.86
+          "id": "node-threat",
+          "type": "threat",
+          "label": "Looming Threat",
+          "rel": "Danger",
+          "tooltip": "A force too large to confront directly — for now.",
+          "icon": "T",
+          "x": 0.18,
+          "y": 0.22,
+          "mobileX": 0.18,
+          "mobileY": 0.5
         },
         {
-          "id": "node-muriel",
-          "type": "ally",
-          "label": "Muriel",
-          "rel": "Shelter",
-          "tooltip": "A cautious wereraven who offered cover when the hunt closed in.",
-          "assetSrc": "/seed/node-muriel.jpg",
-          "x": 0.82, "y": 0.8,
-          "mobileX": 0.82, "mobileY": 0.86
-        },
-        {
-          "id": "node-vlaakith",
+          "id": "node-faction",
           "type": "faction",
-          "label": "Vlaakith",
-          "rel": "Forsaken Queen",
-          "tooltip": "The lich queen Zenith fled still casts a longer shadow than Strahd.",
-          "assetSrc": "/seed/node-vlaakith.jpg",
-          "x": 0.5, "y": 0.08,
-          "mobileX": 0.5, "mobileY": 0.42
+          "label": "The Order",
+          "rel": "Faction",
+          "tooltip": "An organisation with its own agenda. Currently useful. Possibly dangerous.",
+          "icon": "O",
+          "x": 0.5,
+          "y": 0.1,
+          "mobileX": 0.5,
+          "mobileY": 0.38
         },
         {
-          "id": "node-amber",
+          "id": "node-neutral",
+          "type": "neutral",
+          "label": "Bystander",
+          "rel": "Witness",
+          "tooltip": "Neither ally nor enemy — but they know more than they admit.",
+          "icon": "W",
+          "x": 0.82,
+          "y": 0.72,
+          "mobileX": 0.82,
+          "mobileY": 0.82
+        },
+        {
+          "id": "node-mystery",
           "type": "mystery",
-          "label": "The Voices",
-          "rel": "Unknown Patron",
-          "tooltip": "Something ancient stirs in amber. It knows Zenith's name and has for a very long time.",
+          "label": "Unknown",
+          "rel": "Mystery",
+          "tooltip": "Something or someone whose nature and intent remain unclear.",
           "icon": "?",
-          "x": 0.5, "y": 0.82,
-          "mobileX": 0.5, "mobileY": 0.72
+          "x": 0.5,
+          "y": 0.88,
+          "mobileX": 0.5,
+          "mobileY": 0.68
         }
       ],
       "relationshipEdges": [
         {
           "id": "e001",
           "fromNodeId": "node-self",
-          "toNodeId": "node-strahd",
-          "style": "ominous",
-          "label": "captured by"
+          "toNodeId": "node-ally",
+          "style": "solid",
+          "label": "trusts"
         },
         {
           "id": "e002",
           "fromNodeId": "node-self",
-          "toNodeId": "node-vlaakith",
-          "style": "dashed",
-          "label": "fled from"
+          "toNodeId": "node-enemy",
+          "style": "ominous",
+          "label": "hunted by"
         },
         {
           "id": "e003",
           "fromNodeId": "node-self",
-          "toNodeId": "node-eva",
-          "style": "solid",
-          "label": "warned by"
+          "toNodeId": "node-threat",
+          "style": "ominous",
+          "label": "in the shadow of"
         },
         {
           "id": "e004",
           "fromNodeId": "node-self",
-          "toNodeId": "node-muriel",
-          "style": "solid",
-          "label": "sheltered by"
+          "toNodeId": "node-faction",
+          "style": "dashed",
+          "label": "indebted to"
         },
         {
           "id": "e005",
-          "fromNodeId": "node-strahd",
-          "toNodeId": "node-rahadin",
-          "style": "solid",
-          "label": "commands"
+          "fromNodeId": "node-self",
+          "toNodeId": "node-neutral",
+          "style": "dashed",
+          "label": "watched by"
         },
         {
           "id": "e006",
-          "fromNodeId": "node-rahadin",
+          "fromNodeId": "node-mystery",
           "toNodeId": "node-self",
-          "style": "ominous",
-          "label": "jailer"
+          "style": "dashed",
+          "label": "reaches for"
         },
         {
           "id": "e007",
-          "fromNodeId": "node-amber",
-          "toNodeId": "node-self",
-          "style": "dashed",
-          "label": "speaks to"
+          "fromNodeId": "node-threat",
+          "toNodeId": "node-enemy",
+          "style": "solid",
+          "label": "commands"
         }
       ],
       "loreSections": [
         {
           "id": "l001",
-          "title": "Chronicle of Shadows",
-          "body": "<p>Zenith Rhal was born into the iron certainty of the githyanki war-host, where obedience and conquest were treated as the only forms of destiny worth respecting. Even as a child, Zenith was less interested in command than in the stray fragments of forbidden history hidden inside confiscated tomes and captured relics.</p><p>That appetite for dangerous knowledge only deepened with age. While others perfected the sword, Zenith learned to read omens in cracked crystal, whispered with spirits that should have remained silent, and became convinced that power was never truly evil, only costly.</p><p>The Mists of Barovia answered that arrogance with enthusiasm. Ravenloft offered visions, amber whispers, and the kind of occult leverage Zenith had chased for years. Now every revelation comes attached to a debt, and every debt drags another thread tight around the throat.</p>"
+          "title": "Origin",
+          "body": "<p>Every hero begins somewhere. This section describes where your character came from, what shaped their outlook, and what drove them into the world beyond safety and routine.</p><p>Fill this in with backstory, formative events, and the moment they became who they are today.</p>"
         },
         {
           "id": "l002",
           "title": "Current Disposition",
-          "body": "<p>Zenith presents as composed and analytical, but that calm is performance more than truth. Sleep is scarce. Candlelight is preferred to darkness. There is a growing certainty that whatever began whispering in the castle dungeons still has not finished speaking.</p>"
+          "body": "<p>How does the character carry themselves right now? What is their emotional state, their immediate priority, and the tension they are living inside? This section updates as the campaign evolves.</p>"
         }
       ],
       "secretBlocks": [
         {
           "id": "s001",
-          "title": "What He Knows",
-          "body": "<p>Zenith understands that Strahd studies people the way a wizard studies a spell: patiently, from every angle, until every weakness is catalogued. He also suspects the Amber Temple is not merely a ruin but a key.</p>"
+          "title": "What They Know",
+          "body": "<p>Private knowledge the character holds — information they have not shared with allies, or leverage they are keeping in reserve.</p>"
         },
         {
           "id": "s002",
-          "title": "What He Does Not Know",
-          "body": "<p>Zenith does not yet realize that some of his most vivid visions are not prophecies at all. They are curated invitations from powers that have already decided he is useful. The voices in the amber have a name for him — they have simply not chosen to share it yet.</p>"
+          "title": "What They Don't Know",
+          "body": "<p>Blind spots. Things the character believes that aren't true. Forces already in motion that they haven't noticed yet.</p>"
         }
       ],
       "gallery": [
         {
           "id": "g001",
           "src": "/seed/gallery-1.jpg",
-          "alt": "Lantern light in a crypt corridor",
-          "caption": "The night Zenith first realized Barovia listens."
+          "alt": "A dramatic scene from the campaign",
+          "caption": "A moment that changed everything."
         },
         {
           "id": "g002",
           "src": "/seed/gallery-2.jpg",
-          "alt": "Occult notes scattered across a wooden desk",
-          "caption": "Recovered notes from the castle dungeons."
+          "alt": "Documents and notes",
+          "caption": "Recovered notes and gathered intelligence."
         },
         {
           "id": "g003",
           "src": "/seed/gallery-3.jpg",
-          "alt": "Fog-draped road through dark trees",
-          "caption": "A raven-guided escape through the Svalich Woods."
+          "alt": "A journey through dangerous terrain",
+          "caption": "The road between safety and the next objective."
         },
         {
           "id": "g004",
           "src": "/seed/gallery-4.jpg",
-          "alt": "Amber-lit chamber with ritual markings",
-          "caption": "Dreams of amber fire and unfinished bargains."
+          "alt": "An ominous chamber or location",
+          "caption": "Somewhere the character was not meant to find."
         }
       ],
       "sessionEntries": [
         {
           "id": "se001",
-          "sessionNumber": 7,
-          "playedOn": "2026-03-30",
-          "title": "Capture at Ravenloft",
-          "body": "<p>Separated from the party after a failed reconnaissance attempt. Zenith survived interrogation by trading fragments of truth for time, then escaped the lower halls with Muriel's help and one new voice lodged firmly in the back of his mind.</p>"
+          "sessionNumber": 3,
+          "playedOn": "2026-04-13",
+          "title": "First Blood",
+          "body": "<p>The session where the stakes became real. Whatever had been abstract — the threat, the faction's demands, the enemy's patience — arrived in person. The hero survived. The cost is still being counted.</p>"
         },
         {
           "id": "se002",
-          "sessionNumber": 6,
-          "playedOn": "2026-03-16",
-          "title": "The Tser Pool Reading",
-          "body": "<p>Madam Eva laid out the cards at the Tser Pool encampment. Three of the five revealed something Zenith was not meant to see — a tower, an amber sarcophagus, and a figure that looked uncomfortably familiar. He has not shared the full reading with the others.</p>"
+          "sessionNumber": 2,
+          "playedOn": "2026-03-30",
+          "title": "Complications",
+          "body": "<p>An alliance that seemed simple revealed its conditions. The bystander said something they should not have known. The mystery deepened by one more layer.</p>"
         },
         {
           "id": "se003",
-          "sessionNumber": 5,
-          "playedOn": "2026-03-02",
-          "title": "Arrival in Vallaki",
-          "body": "<p>The party reached Vallaki under the banner of a festival nobody wanted. Zenith spent most of the session in the Blue Water Inn's upper room transcribing everything he could remember about the castle's lower levels. The innkeeper's wife gave him a look that suggested she knew more than she was letting on.</p>"
+          "sessionNumber": 1,
+          "playedOn": "2026-03-16",
+          "title": "The Beginning",
+          "body": "<p>Where it started. The inciting event, the first choice, the moment the character stepped into the story rather than watching from the edge of it.</p>"
         }
       ],
-      "createdAt": "2026-04-01T00:00:00.000Z",
+      "createdAt": "2026-04-16T00:00:00.000Z",
       "updatedAt": "2026-04-16T00:00:00.000Z"
     }
   ]

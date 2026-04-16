@@ -14,7 +14,11 @@ export async function readLocalStore(): Promise<HandoutStore> {
   } catch (err) {
     console.warn("[localDb] Could not read store, seeding fresh data:", err);
     const seedStore = createSeedStore();
-    await writeLocalStore(seedStore);
+    try {
+      await writeLocalStore(seedStore);
+    } catch (writeErr) {
+      console.warn("[localDb] Could not persist seed (read-only FS?):", writeErr);
+    }
     return seedStore;
   }
 }
