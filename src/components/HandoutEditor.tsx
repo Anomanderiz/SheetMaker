@@ -19,8 +19,6 @@ import styles from "./HandoutEditor.module.css";
 type EditorTab = "content" | "map" | "preview" | "share";
 type PreviewMode = "desktop" | "tablet" | "mobile";
 type UploadKind = "portrait" | "gallery" | "map-background" | "node";
-const MAX_UPLOAD_DIMENSION = 2200;
-const MAX_UPLOAD_BYTES = 6 * 1024 * 1024;
 
 function downloadJson(handout: import("@/lib/types").Handout) {
   const blob = new Blob([JSON.stringify(handout, null, 2)], { type: "application/json" });
@@ -59,96 +57,6 @@ async function uploadImageAsset(params: {
   }
 
   return payload.src;
-}
-
-function renameFileExtension(name: string, extension: string) {
-  const lastDot = name.lastIndexOf(".");
-  const baseName = lastDot > 0 ? name.slice(0, lastDot) : name;
-  return `${baseName}.${extension}`;
-}
-
-function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: number) {
-  return new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(resolve, type, quality);
-  });
-}
-
-function loadLocalImage(objectUrl: string) {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image();
-    image.decoding = "async";
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error("Could not process image."));
-    image.src = objectUrl;
-  });
-}
-
-async function prepareImageForUpload(file: File) {
-  if (!file.type.startsWith("image/")) {
-    return file;
-  }
-
-  if (file.type === "image/svg+xml" || file.type === "image/gif") {
-    return file;
-  }
-
-  const objectUrl = URL.createObjectURL(file);
-
-  try {
-    let image: HTMLImageElement;
-    try {
-      image = await loadLocalImage(objectUrl);
-    } catch {
-      return file;
-    }
-
-    try {
-      const largestDimension = Math.max(image.naturalWidth, image.naturalHeight);
-      const scale =
-        largestDimension > MAX_UPLOAD_DIMENSION ? MAX_UPLOAD_DIMENSION / largestDimension : 1;
-      const width = Math.max(1, Math.round(image.naturalWidth * scale));
-      const height = Math.max(1, Math.round(image.naturalHeight * scale));
-      const shouldOptimize = scale < 1 || file.size > MAX_UPLOAD_BYTES;
-
-      if (!shouldOptimize) {
-        return file;
-      }
-
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-
-      const context = canvas.getContext("2d");
-      if (!context) {
-        return file;
-      }
-
-      context.drawImage(image, 0, 0, width, height);
-
-      const webpBlob = await canvasToBlob(canvas, "image/webp", 0.86);
-      const fallbackBlob =
-        webpBlob ?? (await canvasToBlob(canvas, "image/jpeg", 0.88));
-      const blob = fallbackBlob;
-
-      if (!blob) {
-        return file;
-      }
-
-      if (blob.size >= file.size && scale === 1) {
-        return file;
-      }
-
-      const nextExtension = blob.type === "image/webp" ? "webp" : "jpg";
-      return new File([blob], renameFileExtension(file.name, nextExtension), {
-        type: blob.type,
-        lastModified: Date.now(),
-      });
-    } catch {
-      return file;
-    }
-  } finally {
-    URL.revokeObjectURL(objectUrl);
-  }
 }
 
 function previewWidth(mode: PreviewMode) {
@@ -292,12 +200,11 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
     const scheduledUpload = uploadQueueRef.current
       .catch(() => undefined)
       .then(async () => {
-        const preparedFile = await prepareImageForUpload(params.file);
         return uploadImageAsset({
           handoutId: handoutRef.current.id,
           kind: params.kind,
           targetId: params.targetId,
-          file: preparedFile,
+          file: params.file,
         });
       });
 
