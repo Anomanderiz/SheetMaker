@@ -2,6 +2,7 @@
 
 import { RichTextField } from "@/components/RichTextField";
 import { DEFAULT_GALLERY_IMAGE_SRC } from "@/lib/assetDefaults";
+import { IMAGE_UPLOAD_WARNING } from "@/lib/uploads";
 import type {
   GalleryAsset,
   Handout,
@@ -104,6 +105,7 @@ export function ContentEditor({
 
       <section className={styles.card}>
         <p className={styles.cardKicker}>Portrait & Traits</p>
+        <p className={styles.helperText}>{IMAGE_UPLOAD_WARNING}</p>
         <div className={styles.fieldGrid}>
           <label>
             <span>Portrait image (upload)</span>
@@ -348,6 +350,7 @@ export function ContentEditor({
 
       <section className={styles.card}>
         <p className={styles.cardKicker}>Gallery</p>
+        <p className={styles.helperText}>{IMAGE_UPLOAD_WARNING}</p>
         <div className={styles.stack}>
           {handout.gallery.map((asset, index) => (
             <div key={asset.id} className={styles.subcard}>

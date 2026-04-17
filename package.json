@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.102.1",
+    "@vercel/blob": "^2.3.3",
     "@xyflow/react": "^12.10.2",
     "next": "16.2.2",
     "react": "19.2.4",

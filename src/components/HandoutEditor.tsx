@@ -1,5 +1,6 @@
 "use client";
 
+import { upload } from "@vercel/blob/client";
 import Link from "next/link";
 import {
   useCallback,
@@ -13,12 +14,20 @@ import { ContentEditor } from "@/components/ContentEditor";
 import { HandoutRenderer } from "@/components/HandoutRenderer";
 import { MapEditor } from "@/components/MapEditor";
 import type { Handout } from "@/lib/types";
+import {
+  buildBlobAssetPathname,
+  formatUploadSizeLabel,
+  IMAGE_UPLOAD_WARNING,
+  MAX_IMAGE_UPLOAD_BYTES,
+  MULTIPART_UPLOAD_THRESHOLD_BYTES,
+  serializeAssetUploadPayload,
+  type UploadKind,
+} from "@/lib/uploads";
 
 import styles from "./HandoutEditor.module.css";
 
 type EditorTab = "content" | "map" | "preview" | "share";
 type PreviewMode = "desktop" | "tablet" | "mobile";
-type UploadKind = "portrait" | "gallery" | "map-background" | "node";
 
 function downloadJson(handout: import("@/lib/types").Handout) {
   const blob = new Blob([JSON.stringify(handout, null, 2)], { type: "application/json" });
@@ -30,7 +39,7 @@ function downloadJson(handout: import("@/lib/types").Handout) {
   URL.revokeObjectURL(url);
 }
 
-async function uploadImageAsset(params: {
+async function uploadImageAssetLocally(params: {
   handoutId: string;
   kind: UploadKind;
   targetId?: string;
@@ -59,6 +68,52 @@ async function uploadImageAsset(params: {
   return payload.src;
 }
 
+function isLocalDevelopmentHost() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+}
+
+async function uploadImageAsset(params: {
+  handoutId: string;
+  kind: UploadKind;
+  targetId?: string;
+  file: File;
+  onProgress?: (percentage: number) => void;
+}) {
+  const payload = {
+    handoutId: params.handoutId,
+    kind: params.kind,
+    targetId: params.targetId,
+    fileName: params.file.name,
+    contentType: params.file.type,
+  };
+
+  try {
+    const blob = await upload(buildBlobAssetPathname(payload), params.file, {
+      access: "public",
+      clientPayload: serializeAssetUploadPayload(payload),
+      contentType: params.file.type || undefined,
+      handleUploadUrl: "/api/assets/client",
+      multipart: params.file.size >= MULTIPART_UPLOAD_THRESHOLD_BYTES,
+      onUploadProgress: (event) => params.onProgress?.(event.percentage),
+    });
+
+    params.onProgress?.(100);
+    return blob.url;
+  } catch (error) {
+    if (!isLocalDevelopmentHost()) {
+      throw error instanceof Error ? error : new Error("Image upload failed.");
+    }
+
+    const src = await uploadImageAssetLocally(params);
+    params.onProgress?.(100);
+    return src;
+  }
+}
+
 function previewWidth(mode: PreviewMode) {
   if (mode === "mobile") return 390;
   if (mode === "tablet") return 768;
@@ -74,6 +129,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
   );
   const [saveMessage, setSaveMessage] = useState("Ready.");
   const [uploadingCount, setUploadingCount] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [urlCopied, setUrlCopied] = useState(false);
   const autosaveSkipRef = useRef(true);
   const handoutRef = useRef(initialHandout);
@@ -81,6 +137,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
   const saveRequestIdRef = useRef(0);
   const uploadCountRef = useRef(0);
   const uploadQueueRef = useRef(Promise.resolve<string | void>(undefined));
+  const uploadSavePendingRef = useRef(false);
   const deferredHandout = useDeferredValue(handout);
 
   function markDirty() {
@@ -160,7 +217,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
       return;
     }
 
-    if (uploadingCount > 0) {
+    if (uploadingCount > 0 || uploadSavePendingRef.current) {
       return;
     }
 
@@ -171,15 +228,22 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
     return () => window.clearTimeout(timeout);
   }, [handout, persistHandout, uploadingCount]);
 
+  useEffect(() => {
+    if (uploadingCount > 0 || !uploadSavePendingRef.current) {
+      return;
+    }
+
+    uploadSavePendingRef.current = false;
+    void persistHandout(handoutRef.current);
+  }, [handout, persistHandout, uploadingCount]);
+
   function updateHandout(nextHandout: Handout | ((current: Handout) => Handout)) {
     markDirty();
     editVersionRef.current += 1;
-    setHandout((current) => {
-      const resolved =
-        typeof nextHandout === "function" ? nextHandout(current) : nextHandout;
-      handoutRef.current = resolved;
-      return resolved;
-    });
+    const resolved =
+      typeof nextHandout === "function" ? nextHandout(handoutRef.current) : nextHandout;
+    handoutRef.current = resolved;
+    setHandout(resolved);
   }
 
   async function queueImageUpload(params: {
@@ -192,6 +256,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
     const nextUploadCount = uploadCountRef.current + 1;
     uploadCountRef.current = nextUploadCount;
     setUploadingCount(nextUploadCount);
+    setUploadProgress(0);
     setSaveState("saving");
     setSaveMessage(
       nextUploadCount > 1 ? `Uploading ${nextUploadCount} images...` : params.label,
@@ -205,6 +270,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
           kind: params.kind,
           targetId: params.targetId,
           file: params.file,
+          onProgress: setUploadProgress,
         });
       });
 
@@ -215,6 +281,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
 
     try {
       const src = await scheduledUpload;
+      uploadSavePendingRef.current = true;
       params.onUploaded(src);
     } catch (error) {
       setSaveState("error");
@@ -223,6 +290,9 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
       const remainingUploads = Math.max(uploadCountRef.current - 1, 0);
       uploadCountRef.current = remainingUploads;
       setUploadingCount(remainingUploads);
+      if (remainingUploads === 0) {
+        setUploadProgress(0);
+      }
 
       if (remainingUploads > 0) {
         setSaveState("saving");
@@ -305,17 +375,44 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
         </div>
 
         <div className={styles.topbarActions}>
-          <span
-            className={`${styles.status} ${
-              saveState === "error"
-                ? styles.error
-                : saveState === "saved"
-                  ? styles.saved
-                  : ""
-            }`}
-          >
-            {saveMessage}
-          </span>
+          <div className={styles.statusStack}>
+            <span
+              className={`${styles.status} ${
+                saveState === "error"
+                  ? styles.error
+                  : saveState === "saved"
+                    ? styles.saved
+                    : ""
+              }`}
+            >
+              {saveMessage}
+            </span>
+            <p className={styles.helperText}>
+              {uploadingCount > 0
+                ? `Keep this page open until the upload bar completes. ${IMAGE_UPLOAD_WARNING}`
+                : IMAGE_UPLOAD_WARNING}
+            </p>
+            {uploadingCount > 0 ? (
+              <div className={styles.uploadProgressRow}>
+                <div
+                  className={styles.uploadProgressTrack}
+                  aria-label="Upload progress"
+                  aria-valuemax={100}
+                  aria-valuemin={0}
+                  aria-valuenow={Math.round(uploadProgress)}
+                  role="progressbar"
+                >
+                  <div
+                    className={styles.uploadProgressFill}
+                    style={{ width: `${Math.min(Math.max(uploadProgress, 2), 100)}%` }}
+                  />
+                </div>
+                <span className={styles.uploadProgressLabel}>
+                  {Math.round(uploadProgress)}%
+                </span>
+              </div>
+            ) : null}
+          </div>
           <Link href="/app/handouts" className={styles.ghost}>
             Dashboard
           </Link>
@@ -357,6 +454,10 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
           {activeTab === "map" ? (
             <section className={styles.card}>
               <p className={styles.cardKicker}>Web of Fate Editor</p>
+              <p className={styles.helperText}>
+                Uploads continue in the background. Keep map and node images under{" "}
+                {formatUploadSizeLabel(MAX_IMAGE_UPLOAD_BYTES)} each.
+              </p>
               <div className={styles.inlineRow}>
                 <label>
                   <span>Background image</span>

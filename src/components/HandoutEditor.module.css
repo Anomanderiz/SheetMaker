@@ -44,6 +44,13 @@
   justify-content: end;
 }
 
+.statusStack {
+  display: grid;
+  gap: 6px;
+  min-width: min(360px, 100%);
+  margin-right: 12px;
+}
+
 /* ── Shared button style ──────────────────────────────────────────────── */
 
 .status {
@@ -51,11 +58,45 @@
   color: var(--grey);
   font-size: 0.8rem;
   border: 1px solid rgba(180, 20, 20, 0.15);
-  border-right: 0;
 }
 
 .saved { color: rgba(160, 220, 140, 0.85); }
 .error { color: rgba(220, 100, 100, 0.9); }
+
+.helperText {
+  margin: 0;
+  color: rgba(200, 192, 188, 0.76);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.uploadProgressRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.uploadProgressTrack {
+  overflow: hidden;
+  height: 7px;
+  border: 1px solid rgba(180, 20, 20, 0.28);
+  background: rgba(240, 236, 232, 0.05);
+}
+
+.uploadProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(180, 20, 20, 0.88), rgba(220, 180, 140, 0.72));
+  transition: width 0.18s ease;
+}
+
+.uploadProgressLabel {
+  color: var(--grey);
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
 
 .ghost,
 .primary,
@@ -344,6 +385,7 @@
   .topbar, .card, .previewPanel { padding: 14px; }
   .topbar, .previewHeader { display: grid; }
   .topbarActions, .tabs { justify-content: stretch; }
+  .statusStack { margin-right: 0; }
 
   .tabs {
     display: grid;

@@ -1,4 +1,5 @@
 import { createBlankHandout, seededHandout } from "@/lib/seed";
+import { isBlobStoreConfigured, readBlobStore, writeBlobStore } from "@/lib/data/blobDb";
 import { readLocalStore, writeLocalStore } from "@/lib/data/localDb";
 import { createSupabaseAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import type { Handout } from "@/lib/types";
@@ -54,6 +55,11 @@ async function getAllHandouts(): Promise<Handout[]> {
     return (data ?? []).map((row) => clone(row.payload as Handout));
   }
 
+  if (isBlobStoreConfigured()) {
+    const store = await readBlobStore();
+    return clone(store.handouts);
+  }
+
   const store = await readLocalStore();
   return clone(store.handouts);
 }
@@ -85,6 +91,11 @@ async function replaceAllHandouts(handouts: Handout[]) {
       }
     }
 
+    return;
+  }
+
+  if (isBlobStoreConfigured()) {
+    await writeBlobStore({ handouts });
     return;
   }
 
@@ -159,10 +170,14 @@ export async function deleteHandout(id: string): Promise<boolean> {
     return true;
   }
 
-  const store = await readLocalStore();
+  const store = isBlobStoreConfigured() ? await readBlobStore() : await readLocalStore();
   const next = store.handouts.filter((h) => h.id !== id);
   if (next.length === store.handouts.length) return false;
-  await writeLocalStore({ handouts: next });
+  if (isBlobStoreConfigured()) {
+    await writeBlobStore({ handouts: next });
+  } else {
+    await writeLocalStore({ handouts: next });
+  }
   return true;
 }
 
