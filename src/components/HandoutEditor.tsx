@@ -18,6 +18,7 @@ import styles from "./HandoutEditor.module.css";
 
 type EditorTab = "content" | "map" | "preview" | "share";
 type PreviewMode = "desktop" | "tablet" | "mobile";
+type UploadKind = "portrait" | "gallery" | "map-background" | "node";
 
 function downloadJson(handout: import("@/lib/types").Handout) {
   const blob = new Blob([JSON.stringify(handout, null, 2)], { type: "application/json" });
@@ -29,13 +30,33 @@ function downloadJson(handout: import("@/lib/types").Handout) {
   URL.revokeObjectURL(url);
 }
 
-async function readFileAsDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result ?? ""));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
+async function uploadImageAsset(params: {
+  handoutId: string;
+  kind: UploadKind;
+  targetId?: string;
+  file: File;
+}) {
+  const formData = new FormData();
+  formData.append("handoutId", params.handoutId);
+  formData.append("kind", params.kind);
+  if (params.targetId) {
+    formData.append("targetId", params.targetId);
+  }
+  formData.append("file", params.file);
+
+  const response = await fetch("/api/assets", {
+    method: "POST",
+    body: formData,
   });
+  const payload = (await response.json().catch(() => null)) as
+    | { error?: string; src?: string }
+    | null;
+
+  if (!response.ok || !payload?.src) {
+    throw new Error(payload?.error ?? "Image upload failed.");
+  }
+
+  return payload.src;
 }
 
 function previewWidth(mode: PreviewMode) {
@@ -76,6 +97,9 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ handout: nextHandout }),
       });
+      const payload = (await response.json().catch(() => null)) as
+        | { error?: string; handout?: Handout }
+        | null;
 
       if (!response.ok) {
         if (requestId !== saveRequestIdRef.current) {
@@ -89,11 +113,9 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
         }
 
         setSaveState("error");
-        setSaveMessage("Save failed.");
+        setSaveMessage(payload?.error ?? "Save failed.");
         return;
       }
-
-      const payload = (await response.json()) as { handout: Handout };
 
       if (requestId !== saveRequestIdRef.current) {
         return;
@@ -105,19 +127,26 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
         return;
       }
 
+      if (!payload?.handout) {
+        setSaveState("error");
+        setSaveMessage("Save failed.");
+        return;
+      }
+      const savedHandout = payload.handout;
+
       autosaveSkipRef.current = true;
       setHandout((current) => {
         const merged = {
           ...current,
-          slug: payload.handout.slug,
-          createdAt: payload.handout.createdAt,
-          updatedAt: payload.handout.updatedAt,
+          slug: savedHandout.slug,
+          createdAt: savedHandout.createdAt,
+          updatedAt: savedHandout.updatedAt,
         };
         handoutRef.current = merged;
         return merged;
       });
       setSaveState("saved");
-      setSaveMessage(`Saved ${new Date(payload.handout.updatedAt).toLocaleTimeString()}.`);
+      setSaveMessage(`Saved ${new Date(savedHandout.updatedAt).toLocaleTimeString()}.`);
     },
     [],
   );
@@ -148,22 +177,89 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
 
   function updatePortrait(file?: File | null) {
     if (!file) return;
-    void readFileAsDataUrl(file).then((src) => {
-      updateHandout((current) => ({
-        ...current,
-        portrait: { ...current.portrait, src, alt: current.portrait.alt || "Character portrait" },
-      }));
-    });
+    setSaveState("saving");
+    setSaveMessage("Uploading portrait...");
+    void uploadImageAsset({
+      handoutId: handoutRef.current.id,
+      kind: "portrait",
+      targetId: handoutRef.current.portrait.id,
+      file,
+    })
+      .then((src) => {
+        updateHandout((current) => ({
+          ...current,
+          portrait: { ...current.portrait, src, alt: current.portrait.alt || "Character portrait" },
+        }));
+      })
+      .catch((error) => {
+        setSaveState("error");
+        setSaveMessage(error instanceof Error ? error.message : "Image upload failed.");
+      });
   }
 
   function updateGalleryImage(id: string, file?: File | null) {
     if (!file) return;
-    void readFileAsDataUrl(file).then((src) => {
-      updateHandout((current) => ({
-        ...current,
-        gallery: current.gallery.map((asset) => (asset.id === id ? { ...asset, src } : asset)),
-      }));
-    });
+    setSaveState("saving");
+    setSaveMessage("Uploading gallery image...");
+    void uploadImageAsset({
+      handoutId: handoutRef.current.id,
+      kind: "gallery",
+      targetId: id,
+      file,
+    })
+      .then((src) => {
+        updateHandout((current) => ({
+          ...current,
+          gallery: current.gallery.map((asset) => (asset.id === id ? { ...asset, src } : asset)),
+        }));
+      })
+      .catch((error) => {
+        setSaveState("error");
+        setSaveMessage(error instanceof Error ? error.message : "Image upload failed.");
+      });
+  }
+
+  function updateMapBackground(file?: File | null) {
+    if (!file) return;
+    setSaveState("saving");
+    setSaveMessage("Uploading background image...");
+    void uploadImageAsset({
+      handoutId: handoutRef.current.id,
+      kind: "map-background",
+      targetId: "background",
+      file,
+    })
+      .then((src) => {
+        updateHandout((current) => ({ ...current, mapBackgroundSrc: src }));
+      })
+      .catch((error) => {
+        setSaveState("error");
+        setSaveMessage(error instanceof Error ? error.message : "Image upload failed.");
+      });
+  }
+
+  function updateNodeImage(nodeId: string, file?: File | null) {
+    if (!file) return;
+    setSaveState("saving");
+    setSaveMessage("Uploading node portrait...");
+    void uploadImageAsset({
+      handoutId: handoutRef.current.id,
+      kind: "node",
+      targetId: nodeId,
+      file,
+    })
+      .then((src) => {
+        updateHandout((current) => ({
+          ...current,
+          relationshipNodes: current.relationshipNodes.map((node) =>
+            node.id === nodeId ? { ...node, assetId: undefined, assetSrc: src } : node,
+          ),
+        }));
+      })
+      .catch((error) => {
+        setSaveState("error");
+        setSaveMessage(error instanceof Error ? error.message : "Image upload failed.");
+      });
   }
 
   return (
@@ -234,10 +330,7 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
                     accept="image/*"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      if (!file) return;
-                      void readFileAsDataUrl(file).then((src) =>
-                        updateHandout((current) => ({ ...current, mapBackgroundSrc: src }))
-                      );
+                      updateMapBackground(file);
                     }}
                   />
                 </label>
@@ -256,6 +349,8 @@ export function HandoutEditor({ initialHandout }: { initialHandout: Handout }) {
               <MapEditor
                 nodes={handout.relationshipNodes}
                 edges={handout.relationshipEdges}
+                galleryAssets={handout.gallery}
+                onNodeAssetUpload={updateNodeImage}
                 onChange={({ relationshipNodes, relationshipEdges }) =>
                   updateHandout((current) => ({
                     ...current,

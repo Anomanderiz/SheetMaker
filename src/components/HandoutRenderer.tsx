@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import type { Handout } from "@/lib/types";
 
+import sigilStyles from "./FloatingSigils.module.css";
 import { WebOfFate } from "./WebOfFate";
 import styles from "./HandoutRenderer.module.css";
 
@@ -12,6 +13,31 @@ interface HandoutRendererProps {
   handout: Handout;
   embedded?: boolean;
 }
+
+const SIGILS: [number, number, number, number][] = [
+  [3, 0.8, 0, 0],
+  [13, 0.4, 1.8, -4],
+  [8, 0.9, 0.6, -7.2],
+  [21, 0.5, 2.2, -1.5],
+  [30, 0.7, 1.1, -5.8],
+  [38, 0.3, 2.7, -9],
+  [45, 1.0, 0.4, -2.6],
+  [53, 0.6, 1.5, -6.4],
+  [61, 0.4, 2.0, -0.7],
+  [68, 0.8, 0.9, -3.9],
+  [76, 0.3, 2.4, -8.3],
+  [84, 0.7, 0.3, -1.1],
+  [91, 0.5, 1.9, -5.2],
+  [97, 0.9, 2.6, -7.8],
+  [6, 0.3, 1.3, -4.5],
+  [17, 0.7, 0.7, -10],
+  [26, 0.5, 2.1, -2.2],
+  [35, 0.9, 0.2, -6.9],
+  [48, 0.4, 1.6, -3.7],
+  [57, 0.8, 2.9, -0.4],
+  [72, 0.6, 0.8, -8.1],
+  [88, 0.4, 1.4, -5.5],
+];
 
 function CopyLinkButton({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false);
@@ -96,14 +122,43 @@ export function HandoutRenderer({
 
   return (
     <>
-      <main className={`${styles.shell} ${embedded ? styles.embeddedShell : ""}`}>
+      <main
+        className={`${styles.shell} ${embedded ? styles.embeddedShell : ""}`}
+        style={{ isolation: "isolate", overflow: "hidden", position: "relative" }}
+      >
+        <div
+          className={sigilStyles.sigils}
+          aria-hidden="true"
+          style={{ inset: 0, pointerEvents: "none", position: "absolute", zIndex: 0 }}
+        >
+          {SIGILS.map(([left, op, dur, delay], index) => (
+            <span
+              key={index}
+              className={sigilStyles.sigil}
+              style={
+                {
+                  "--left": left,
+                  "--op": op,
+                  "--dur": dur,
+                  "--dly": delay,
+                } as React.CSSProperties
+              }
+            >
+              {"\u2726"}
+            </span>
+          ))}
+        </div>
+
         {!embedded && handout.isShared ? (
           <div className={styles.floatingShare}>
             <CopyLinkButton slug={handout.slug} />
           </div>
         ) : null}
 
-        <article className={styles.handout}>
+        <article
+          className={styles.handout}
+          style={{ position: "relative", zIndex: 1 }}
+        >
           <header className={styles.header}>
             <p className={styles.kicker}>Character Dossier</p>
             <h1>{handout.identity.name}</h1>

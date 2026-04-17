@@ -21,15 +21,20 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-  const payload = (await request.json()) as { handout?: Handout };
+  try {
+    const { id } = await params;
+    const payload = (await request.json()) as { handout?: Handout };
 
-  if (!payload.handout || payload.handout.id !== id) {
-    return NextResponse.json({ error: "Invalid handout payload" }, { status: 400 });
+    if (!payload.handout || payload.handout.id !== id) {
+      return NextResponse.json({ error: "Invalid handout payload" }, { status: 400 });
+    }
+
+    const saved = await saveHandout(payload.handout);
+    return NextResponse.json({ handout: saved });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not save handout";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  const saved = await saveHandout(payload.handout);
-  return NextResponse.json({ handout: saved });
 }
 
 export async function DELETE(

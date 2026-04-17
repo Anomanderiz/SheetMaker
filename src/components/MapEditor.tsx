@@ -19,6 +19,7 @@ import {
 } from "@xyflow/react";
 
 import type {
+  GalleryAsset,
   RelationshipEdge,
   RelationshipNode,
   RelationshipNodeType,
@@ -30,6 +31,8 @@ import styles from "./MapEditor.module.css";
 interface MapEditorProps {
   nodes: RelationshipNode[];
   edges: RelationshipEdge[];
+  galleryAssets: GalleryAsset[];
+  onNodeAssetUpload: (nodeId: string, file?: File | null) => void;
   onChange: (payload: {
     relationshipNodes: RelationshipNode[];
     relationshipEdges: RelationshipEdge[];
@@ -194,7 +197,13 @@ function spreadPosition(existingCount: number) {
   };
 }
 
-export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
+export function MapEditor({
+  nodes,
+  edges,
+  galleryAssets,
+  onNodeAssetUpload,
+  onChange,
+}: MapEditorProps) {
   const [deviceMode, setDeviceMode] = useState<"desktop" | "mobile">("desktop");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
@@ -210,6 +219,10 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
   const nodeOptions = useMemo(
     () => nodes.map((node) => ({ id: node.id, label: node.label })),
     [nodes],
+  );
+  const galleryOptions = useMemo(
+    () => galleryAssets.filter((asset) => asset.src.trim().length > 0),
+    [galleryAssets],
   );
 
   // Keep canvas in sync with prop changes (label edits etc.) while preserving selection
@@ -337,6 +350,39 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
     );
     // Only call onChange — the useEffect above will sync flowNodes
     // while preserving selection via fieldFocusedRef guard
+    onChange({ relationshipNodes: nextNodes, relationshipEdges: edges });
+  }
+
+  function updateNodeImageSource(nextAssetId: string) {
+    if (!selectedNodeId) return;
+
+    if (!nextAssetId) {
+      const nextNodes = nodes.map((node) =>
+        node.id === selectedNodeId ? { ...node, assetId: undefined } : node,
+      );
+      onChange({ relationshipNodes: nextNodes, relationshipEdges: edges });
+      return;
+    }
+
+    const asset = galleryAssets.find((candidate) => candidate.id === nextAssetId);
+    if (!asset) return;
+
+    const nextNodes = nodes.map((node) =>
+      node.id === selectedNodeId
+        ? { ...node, assetId: asset.id, assetSrc: asset.src }
+        : node,
+    );
+    onChange({ relationshipNodes: nextNodes, relationshipEdges: edges });
+  }
+
+  function updateNodePortraitUrl(value: string) {
+    if (!selectedNodeId) return;
+
+    const nextNodes = nodes.map((node) =>
+      node.id === selectedNodeId
+        ? { ...node, assetId: undefined, assetSrc: value }
+        : node,
+    );
     onChange({ relationshipNodes: nextNodes, relationshipEdges: edges });
   }
 
@@ -481,10 +527,33 @@ export function MapEditor({ nodes, edges, onChange }: MapEditorProps) {
                 />
               </label>
               <label>
+                <span>Use gallery image</span>
+                <select
+                  value={selectedNode.assetId ?? ""}
+                  onChange={(event) => updateNodeImageSource(event.target.value)}
+                  disabled={galleryOptions.length === 0}
+                >
+                  <option value="">Custom upload / URL</option>
+                  {galleryOptions.map((asset, index) => (
+                    <option key={asset.id} value={asset.id}>
+                      {asset.caption || `Gallery image ${index + 1}`}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>Portrait image (upload)</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => onNodeAssetUpload(selectedNode.id, event.target.files?.[0])}
+                />
+              </label>
+              <label>
                 <span>Portrait URL</span>
                 <input
-                  value={selectedNode.assetSrc ?? ""}
-                  onChange={(event) => updateNodeField("assetSrc", event.target.value)}
+                  value={selectedNode.assetSrc?.startsWith("data:") ? "" : selectedNode.assetSrc ?? ""}
+                  onChange={(event) => updateNodePortraitUrl(event.target.value)}
                 />
               </label>
             </div>
