@@ -18,6 +18,7 @@ import {
   type NodeChange,
 } from "@xyflow/react";
 
+import { isGalleryPlaceholderSrc } from "@/lib/assetDefaults";
 import type {
   GalleryAsset,
   RelationshipEdge,
@@ -221,7 +222,7 @@ export function MapEditor({
     [nodes],
   );
   const galleryOptions = useMemo(
-    () => galleryAssets.filter((asset) => asset.src.trim().length > 0),
+    () => galleryAssets.filter((asset) => !isGalleryPlaceholderSrc(asset.src)),
     [galleryAssets],
   );
 

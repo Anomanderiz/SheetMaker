@@ -1,6 +1,7 @@
 "use client";
 
 import { RichTextField } from "@/components/RichTextField";
+import { DEFAULT_GALLERY_IMAGE_SRC } from "@/lib/assetDefaults";
 import type {
   GalleryAsset,
   Handout,
@@ -431,7 +432,7 @@ export function ContentEditor({
                   ...current.gallery,
                   {
                     id: uid(),
-                    src: "/seed/gallery-1.jpg",
+                    src: DEFAULT_GALLERY_IMAGE_SRC,
                     alt: "Gallery image",
                     caption: "New gallery caption",
                   } satisfies GalleryAsset,

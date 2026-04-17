@@ -3,6 +3,7 @@
 
 import { useMemo, useState } from "react";
 
+import { DEFAULT_GALLERY_IMAGE_SRC, isGalleryPlaceholderSrc } from "@/lib/assetDefaults";
 import type { Handout } from "@/lib/types";
 
 import sigilStyles from "./FloatingSigils.module.css";
@@ -126,29 +127,6 @@ export function HandoutRenderer({
         className={`${styles.shell} ${embedded ? styles.embeddedShell : ""}`}
         style={{ isolation: "isolate", overflow: "hidden", position: "relative" }}
       >
-        <div
-          className={sigilStyles.sigils}
-          aria-hidden="true"
-          style={{ inset: 0, pointerEvents: "none", position: "absolute", zIndex: 0 }}
-        >
-          {SIGILS.map(([left, op, dur, delay], index) => (
-            <span
-              key={index}
-              className={sigilStyles.sigil}
-              style={
-                {
-                  "--left": left,
-                  "--op": op,
-                  "--dur": dur,
-                  "--dly": delay,
-                } as React.CSSProperties
-              }
-            >
-              {"\u2726"}
-            </span>
-          ))}
-        </div>
-
         {!embedded && handout.isShared ? (
           <div className={styles.floatingShare}>
             <CopyLinkButton slug={handout.slug} />
@@ -157,167 +135,195 @@ export function HandoutRenderer({
 
         <article
           className={styles.handout}
-          style={{ position: "relative", zIndex: 1 }}
+          style={{ overflow: "hidden", position: "relative", zIndex: 1 }}
         >
-          <header className={styles.header}>
-            <p className={styles.kicker}>Character Dossier</p>
-            <h1>{handout.identity.name}</h1>
-            <p className={styles.title}>{handout.identity.title}</p>
-            <p className={styles.epithet}>{handout.identity.epithet}</p>
-          </header>
+          <div
+            className={sigilStyles.sigils}
+            aria-hidden="true"
+            style={{ inset: 0, pointerEvents: "none", position: "absolute", zIndex: 0 }}
+          >
+            {SIGILS.map(([left, op, dur, delay], index) => (
+              <span
+                key={index}
+                className={sigilStyles.sigil}
+                style={
+                  {
+                    "--left": left,
+                    "--op": op,
+                    "--dur": dur,
+                    "--dly": delay,
+                  } as React.CSSProperties
+                }
+              >
+                {"\u2726"}
+              </span>
+            ))}
+          </div>
 
-          <section className={styles.overview}>
-            <div className={`${styles.panel} ${styles.portraitPanel}`}>
-              <div className={styles.portraitFrame}>
-                <img src={handout.portrait.src} alt={handout.portrait.alt} />
-              </div>
-              <p className={styles.footerLine}>{handout.identity.footer}</p>
-            </div>
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <header className={styles.header}>
+              <p className={styles.kicker}>Character Dossier</p>
+              <h1>{handout.identity.name}</h1>
+              <p className={styles.title}>{handout.identity.title}</p>
+              <p className={styles.epithet}>{handout.identity.epithet}</p>
+            </header>
 
-            {primaryStatGroup ? (
-              <section className={`${styles.panel} ${styles.vitalPanel}`}>
-                <div className={styles.sectionHeader}>
-                  <p className={styles.sectionKicker}>Vital Stats</p>
-                  <h2>{primaryStatGroup.title}</h2>
+            <section className={styles.overview}>
+              <div className={`${styles.panel} ${styles.portraitPanel}`}>
+                <div className={styles.portraitFrame}>
+                  <img src={handout.portrait.src} alt={handout.portrait.alt} />
                 </div>
-                <dl className={styles.statList}>
-                  {primaryStatGroup.fields.map((field) => (
-                    <div key={field.id}>
-                      <dt>{field.label}</dt>
-                      <dd>{field.value}</dd>
-                    </div>
+                <p className={styles.footerLine}>{handout.identity.footer}</p>
+              </div>
+
+              {primaryStatGroup ? (
+                <section className={`${styles.panel} ${styles.vitalPanel}`}>
+                  <div className={styles.sectionHeader}>
+                    <p className={styles.sectionKicker}>Vital Stats</p>
+                    <h2>{primaryStatGroup.title}</h2>
+                  </div>
+                  <dl className={styles.statList}>
+                    {primaryStatGroup.fields.map((field) => (
+                      <div key={field.id}>
+                        <dt>{field.label}</dt>
+                        <dd>{field.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              ) : null}
+
+              <section className={`${styles.panel} ${styles.traitPanel}`}>
+                <div className={styles.sectionHeader}>
+                  <p className={styles.sectionKicker}>Traits</p>
+                  <h2>Temperament and survival instinct</h2>
+                </div>
+                <div className={styles.tagList}>
+                  {handout.traitTags.map((trait) => (
+                    <span key={trait.id}>{trait.label}</span>
                   ))}
-                </dl>
+                </div>
+              </section>
+
+              {remainingStatGroups.length > 0 ? (
+                <div className={`${styles.panel} ${styles.campaignPanel}`}>
+                  {remainingStatGroups.map((group) => (
+                    <section key={group.id} className={styles.groupBlock}>
+                      <div className={styles.sectionHeader}>
+                        <p className={styles.sectionKicker}>Campaign State</p>
+                        <h2>{group.title}</h2>
+                      </div>
+                      <dl className={styles.statList}>
+                        {group.fields.map((field) => (
+                          <div key={field.id}>
+                            <dt>{field.label}</dt>
+                            <dd>{field.value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </section>
+                  ))}
+                </div>
+              ) : null}
+            </section>
+
+            {hasRelationships ? (
+              <section className={`${styles.panel} ${styles.mapPanel}`}>
+                <WebOfFate
+                  nodes={handout.relationshipNodes.map((n) =>
+                    n.type === "self"
+                      ? { ...n, assetSrc: handout.portrait.src || n.assetSrc }
+                      : n
+                  )}
+                  edges={handout.relationshipEdges}
+                  backgroundSrc={handout.mapBackgroundSrc}
+                />
               </section>
             ) : null}
 
-            <section className={`${styles.panel} ${styles.traitPanel}`}>
-              <div className={styles.sectionHeader}>
-                <p className={styles.sectionKicker}>Traits</p>
-                <h2>Temperament and survival instinct</h2>
-              </div>
-              <div className={styles.tagList}>
-                {handout.traitTags.map((trait) => (
-                  <span key={trait.id}>{trait.label}</span>
-                ))}
-              </div>
-            </section>
-
-            {remainingStatGroups.length > 0 ? (
-              <div className={`${styles.panel} ${styles.campaignPanel}`}>
-                {remainingStatGroups.map((group) => (
-                  <section key={group.id} className={styles.groupBlock}>
+            {(hasLore || hasSecrets) ? (
+              <section className={styles.storyGrid}>
+                {hasLore ? (
+                  <div className={`${styles.panel} ${styles.lorePanel}`}>
                     <div className={styles.sectionHeader}>
-                      <p className={styles.sectionKicker}>Campaign State</p>
-                      <h2>{group.title}</h2>
+                      <p className={styles.sectionKicker}>Lore</p>
+                      <h2>Chronicle and current state</h2>
                     </div>
-                    <dl className={styles.statList}>
-                      {group.fields.map((field) => (
-                        <div key={field.id}>
-                          <dt>{field.label}</dt>
-                          <dd>{field.value}</dd>
-                        </div>
+                    <div className={styles.longformStack}>
+                      {handout.loreSections.map((section) => (
+                        <section key={section.id} className={styles.longformBlock}>
+                          <h3>{section.title}</h3>
+                          <div
+                            className={styles.richText}
+                            dangerouslySetInnerHTML={{ __html: section.body }}
+                          />
+                        </section>
                       ))}
-                    </dl>
-                  </section>
-                ))}
-              </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {hasSecrets ? (
+                  <aside className={`${styles.panel} ${styles.secretPanel}`}>
+                    <div className={styles.sectionHeader}>
+                      <p className={styles.sectionKicker}>Secrets</p>
+                      <h2>Private knowledge and blind spots</h2>
+                    </div>
+                    <div className={styles.secretStack}>
+                      {handout.secretBlocks.map((block) => (
+                        <section key={block.id} className={styles.secretBlock}>
+                          <h3>{block.title}</h3>
+                          <div
+                            className={styles.richText}
+                            dangerouslySetInnerHTML={{ __html: block.body }}
+                          />
+                        </section>
+                      ))}
+                    </div>
+                  </aside>
+                ) : null}
+              </section>
             ) : null}
-          </section>
 
-          {hasRelationships ? (
-            <section className={`${styles.panel} ${styles.mapPanel}`}>
-              <WebOfFate
-                nodes={handout.relationshipNodes.map((n) =>
-                  n.type === "self"
-                    ? { ...n, assetSrc: handout.portrait.src || n.assetSrc }
-                    : n
-                )}
-                edges={handout.relationshipEdges}
-                backgroundSrc={handout.mapBackgroundSrc}
-              />
-            </section>
-          ) : null}
-
-          {(hasLore || hasSecrets) ? (
-            <section className={styles.storyGrid}>
-              {hasLore ? (
-                <div className={`${styles.panel} ${styles.lorePanel}`}>
-                  <div className={styles.sectionHeader}>
-                    <p className={styles.sectionKicker}>Lore</p>
-                    <h2>Chronicle and current state</h2>
-                  </div>
-                  <div className={styles.longformStack}>
-                    {handout.loreSections.map((section) => (
-                      <section key={section.id} className={styles.longformBlock}>
-                        <h3>{section.title}</h3>
-                        <div
-                          className={styles.richText}
-                          dangerouslySetInnerHTML={{ __html: section.body }}
-                        />
-                      </section>
-                    ))}
-                  </div>
+            {hasGallery ? (
+              <section className={`${styles.panel} ${styles.galleryPanel}`}>
+                <div className={styles.sectionHeader}>
+                  <p className={styles.sectionKicker}>Gallery</p>
+                  <h2>Fragments of memory, omen, and aftermath</h2>
                 </div>
-              ) : null}
+                <div className={styles.galleryGrid}>
+                  {handout.gallery.map((asset) => (
+                    <button
+                      key={asset.id}
+                      type="button"
+                      className={styles.galleryCard}
+                      onClick={() => setLightboxId(asset.id)}
+                    >
+                      <img
+                        src={isGalleryPlaceholderSrc(asset.src) ? DEFAULT_GALLERY_IMAGE_SRC : asset.src}
+                        alt={asset.alt}
+                      />
+                      <span>{asset.caption}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ) : null}
 
-              {hasSecrets ? (
-                <aside className={`${styles.panel} ${styles.secretPanel}`}>
-                  <div className={styles.sectionHeader}>
-                    <p className={styles.sectionKicker}>Secrets</p>
-                    <h2>Private knowledge and blind spots</h2>
-                  </div>
-                  <div className={styles.secretStack}>
-                    {handout.secretBlocks.map((block) => (
-                      <section key={block.id} className={styles.secretBlock}>
-                        <h3>{block.title}</h3>
-                        <div
-                          className={styles.richText}
-                          dangerouslySetInnerHTML={{ __html: block.body }}
-                        />
-                      </section>
-                    ))}
-                  </div>
-                </aside>
-              ) : null}
-            </section>
-          ) : null}
-
-          {hasGallery ? (
-            <section className={`${styles.panel} ${styles.galleryPanel}`}>
-              <div className={styles.sectionHeader}>
-                <p className={styles.sectionKicker}>Gallery</p>
-                <h2>Fragments of memory, omen, and aftermath</h2>
-              </div>
-              <div className={styles.galleryGrid}>
-                {handout.gallery.map((asset) => (
-                  <button
-                    key={asset.id}
-                    type="button"
-                    className={styles.galleryCard}
-                    onClick={() => setLightboxId(asset.id)}
-                  >
-                    <img src={asset.src} alt={asset.alt} />
-                    <span>{asset.caption}</span>
-                  </button>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          {hasSessions ? (
-            <section className={`${styles.panel} ${styles.sessionPanel}`}>
-              <div className={styles.sectionHeader}>
-                <p className={styles.sectionKicker}>Session Notes</p>
-                <h2>Update the handout as the campaign evolves</h2>
-              </div>
-              <div className={styles.sessionList}>
-                {sortedSessions.map((entry) => (
-                  <CollapsibleSession key={entry.id} entry={entry} />
-                ))}
-              </div>
-            </section>
-          ) : null}
+            {hasSessions ? (
+              <section className={`${styles.panel} ${styles.sessionPanel}`}>
+                <div className={styles.sectionHeader}>
+                  <p className={styles.sectionKicker}>Session Notes</p>
+                  <h2>Update the handout as the campaign evolves</h2>
+                </div>
+                <div className={styles.sessionList}>
+                  {sortedSessions.map((entry) => (
+                    <CollapsibleSession key={entry.id} entry={entry} />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+          </div>
         </article>
       </main>
 
@@ -334,7 +340,14 @@ export function HandoutRenderer({
           }}
         >
           <div className={styles.lightboxInner} onClick={(event) => event.stopPropagation()}>
-            <img src={selectedImage.src} alt={selectedImage.alt} />
+            <img
+              src={
+                isGalleryPlaceholderSrc(selectedImage.src)
+                  ? DEFAULT_GALLERY_IMAGE_SRC
+                  : selectedImage.src
+              }
+              alt={selectedImage.alt}
+            />
             <p>{selectedImage.caption}</p>
           </div>
         </div>

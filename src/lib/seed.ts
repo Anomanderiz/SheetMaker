@@ -1,3 +1,4 @@
+import { DEFAULT_GALLERY_IMAGE_SRC, DEFAULT_PORTRAIT_SRC } from "@/lib/assetDefaults";
 import type { Handout, HandoutStore } from "@/lib/types";
 
 const uid = () => crypto.randomUUID();
@@ -17,7 +18,7 @@ export const seededHandout: Handout = {
   },
   portrait: {
     id: "portrait-default",
-    src: "/portrait-default.svg",
+    src: DEFAULT_PORTRAIT_SRC,
     alt: "Character portrait",
   },
   statGroups: [
@@ -170,10 +171,10 @@ export const seededHandout: Handout = {
     },
   ],
   gallery: [
-    { id: "g001", src: "/gallery-placeholder.svg", alt: "Gallery image", caption: "A moment that changed everything." },
-    { id: "g002", src: "/gallery-placeholder.svg", alt: "Gallery image", caption: "Recovered notes and gathered intelligence." },
-    { id: "g003", src: "/gallery-placeholder.svg", alt: "Gallery image", caption: "The road between safety and the next objective." },
-    { id: "g004", src: "/gallery-placeholder.svg", alt: "Gallery image", caption: "Somewhere the character was not meant to find." },
+    { id: "g001", src: DEFAULT_GALLERY_IMAGE_SRC, alt: "Gallery image", caption: "A moment that changed everything." },
+    { id: "g002", src: DEFAULT_GALLERY_IMAGE_SRC, alt: "Gallery image", caption: "Recovered notes and gathered intelligence." },
+    { id: "g003", src: DEFAULT_GALLERY_IMAGE_SRC, alt: "Gallery image", caption: "The road between safety and the next objective." },
+    { id: "g004", src: DEFAULT_GALLERY_IMAGE_SRC, alt: "Gallery image", caption: "Somewhere the character was not meant to find." },
   ],
   sessionEntries: [
     {
@@ -225,7 +226,7 @@ export function createBlankHandout(): Handout {
     },
     portrait: {
       id: uid(),
-      src: "/portrait-default.svg",
+      src: DEFAULT_PORTRAIT_SRC,
       alt: "Character portrait",
     },
     statGroups: [

@@ -1,6 +1,7 @@
 @keyframes sigilDrift {
   0% {
-    transform: translateY(8vh) rotate(0deg) scale(0.85);
+    top: 108%;
+    transform: rotate(0deg) scale(0.85);
     opacity: 0;
   }
 
@@ -13,7 +14,8 @@
   }
 
   100% {
-    transform: translateY(-90vh) rotate(180deg) scale(1.1);
+    top: -12%;
+    transform: rotate(180deg) scale(1.1);
     opacity: 0;
   }
 }
@@ -24,7 +26,7 @@
 
 .sigil {
   position: absolute;
-  bottom: -6vh;
+  top: 108%;
   left: calc(var(--left, 50) * 1%);
   font-size: clamp(0.9rem, 1.8vw, 2rem);
   color: rgba(180, 20, 20, var(--op, 0.68));
