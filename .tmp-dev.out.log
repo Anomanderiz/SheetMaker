@@ -1,0 +1,21 @@
+
+> cos-character-handout-app@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.197:3000
+✓ Ready in 1746ms
+Creating turbopack project { dir: 'F:\\Anomanderiz\\SheetMaker', testMode: true }
+
+ POST /api/assets 200 in 568ms (next.js: 538ms, application-code: 31ms)
+ POST /api/assets 200 in 14ms (next.js: 3ms, application-code: 11ms)
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.197:3000
+✓ Ready in 422ms
+Creating turbopack project { dir: 'F:\\Anomanderiz\\SheetMaker', testMode: true }
+- Experiments (use with caution):
+  · proxyClientMaxBodySize: "50mb"
+
+[?25h

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" width="400" height="280">
+  <defs>
+    <radialGradient id="pg" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#1c1018"/>
+      <stop offset="100%" stop-color="#0a060a"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="280" fill="url(#pg)"/>
+  <rect x="0.5" y="0.5" width="399" height="279" fill="none" stroke="rgba(180,20,20,0.2)" stroke-width="1"/>
+  <line x1="32" y1="28" x2="368" y2="28" stroke="rgba(180,20,20,0.12)" stroke-width="0.6"/>
+  <line x1="32" y1="252" x2="368" y2="252" stroke="rgba(180,20,20,0.12)" stroke-width="0.6"/>
+  <text x="10" y="22"  fill="rgba(180,20,20,0.28)" font-size="9" font-family="serif">✦</text>
+  <text x="382" y="22"  fill="rgba(180,20,20,0.28)" font-size="9" font-family="serif">✦</text>
+  <text x="10" y="270" fill="rgba(180,20,20,0.28)" font-size="9" font-family="serif">✦</text>
+  <text x="382" y="270" fill="rgba(180,20,20,0.28)" font-size="9" font-family="serif">✦</text>
+  <!-- mountain/landscape silhouette -->
+  <path d="M0,200 L80,120 L140,160 L220,80 L300,150 L360,100 L400,130 L400,280 L0,280 Z"
+        fill="rgba(30,18,28,0.9)"/>
+  <!-- moon -->
+  <circle cx="320" cy="80" r="28" fill="rgba(40,30,40,0.8)"/>
+  <circle cx="330" cy="72" r="24" fill="#0a060a"/>
+  <!-- image icon -->
+  <rect x="172" y="108" width="56" height="42" rx="3" fill="none" stroke="rgba(180,20,20,0.3)" stroke-width="1.2"/>
+  <circle cx="184" cy="120" r="5" fill="none" stroke="rgba(180,20,20,0.3)" stroke-width="1"/>
+  <path d="M172,140 L190,125 L208,138 L220,130 L228,140 L228,150 L172,150 Z" fill="rgba(180,20,20,0.15)"/>
+</svg>
