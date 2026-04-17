@@ -110,7 +110,11 @@ export function ContentEditor({
             <input
               type="file"
               accept="image/*"
-              onChange={(event) => onPortraitUpload(event.target.files?.[0])}
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                onPortraitUpload(file);
+              }}
             />
           </label>
           <label>
@@ -357,7 +361,11 @@ export function ContentEditor({
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(event) => onGalleryUpload(asset.id, event.target.files?.[0])}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      event.target.value = "";
+                      onGalleryUpload(asset.id, file);
+                    }}
                   />
                 </label>
                 <label>
