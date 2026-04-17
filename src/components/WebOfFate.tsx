@@ -206,7 +206,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
   } | null>(null);
 
   const [width, setWidth] = useState(0);
-  const [transform, setTransform] = useState<TransformState>({ x: 0, y: 0, scale: 1 });
+  const [transform, setTransform] = useState<TransformState | null>(null);
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [windowHeight, setWindowHeight] = useState(0);
@@ -248,7 +248,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
   const viewportWidth = Math.max(width - 2, 280);
   const viewportHeight = isFullscreen
     ? deviceMode === "mobile"
-      ? Math.max(Math.round(windowHeight * 1.35), 940)
+      ? Math.max(Math.round(windowHeight * 1.6), 1280)
       : Math.max(windowHeight - 80, 320)
     : deviceMode === "mobile"
       ? WEB_OF_FATE_MOBILE_VIEWPORT_HEIGHT
@@ -301,8 +301,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
     }
   >;
 
-  const defaultNodeId = nodes.find((node) => node.type === "self")?.id ?? nodes[0]?.id ?? null;
-  const selectedNodeId = activeNodeId ?? (deviceMode === "mobile" ? defaultNodeId : null);
+  const selectedNodeId = activeNodeId;
   const selectedNode = selectedNodeId
     ? positionedNodes.find((node) => node.id === selectedNodeId) ?? null
     : null;
@@ -328,11 +327,14 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
     () => getFitTransform(nodeBounds, viewportWidth, viewportHeight, minScale),
     [minScale, nodeBounds, viewportHeight, viewportWidth],
   );
-  const preferredTransform = desktopDefaultTransform;
-
-  useEffect(() => {
-    setTransform(preferredTransform);
-  }, [preferredTransform]);
+  const preferredTransform = useMemo(
+    () =>
+      deviceMode === "mobile"
+        ? { x: 0, y: 0, scale: 1 }
+        : desktopDefaultTransform,
+    [desktopDefaultTransform, deviceMode],
+  );
+  const effectiveTransform = transform ?? preferredTransform;
 
   useEffect(() => {
     const el = hostRef.current;
@@ -347,15 +349,16 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
       };
 
       setTransform((current) => {
+        const baseTransform = current ?? preferredTransform;
         const nextScale = clamp(
-          current.scale - event.deltaY * 0.0012,
+          baseTransform.scale - event.deltaY * 0.0012,
           minScale,
           WEB_OF_FATE_MAX_SCALE,
         );
-        if (nextScale === current.scale) return current;
+        if (nextScale === baseTransform.scale) return current;
 
-        const sceneX = (anchor.x - current.x) / current.scale;
-        const sceneY = (anchor.y - current.y) / current.scale;
+        const sceneX = (anchor.x - baseTransform.x) / baseTransform.scale;
+        const sceneY = (anchor.y - baseTransform.y) / baseTransform.scale;
 
         return {
           x: anchor.x - sceneX * nextScale,
@@ -367,7 +370,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
 
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
-  }, [minScale]);
+  }, [minScale, preferredTransform]);
 
   const connectedEdgeIds = useMemo(
     () =>
@@ -398,9 +401,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
   );
 
   const showFocusContext =
-    deviceMode === "mobile" &&
-    !!selectedNodeId &&
-    transform.scale > overviewTransform.scale + 0.08;
+    !!selectedNodeId;
 
   function localPoint(event: React.PointerEvent<HTMLDivElement>): LocalPoint {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -428,8 +429,8 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
       panStateRef.current = {
         startX: point.x,
         startY: point.y,
-        originX: transform.x,
-        originY: transform.y,
+        originX: effectiveTransform.x,
+        originY: effectiveTransform.y,
       };
       pinchStateRef.current = null;
     }
@@ -437,10 +438,10 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
       const [first, second] = [...pointersRef.current.values()];
       pinchStateRef.current = {
         startDistance: distance(first, second),
-        startScale: transform.scale,
+        startScale: effectiveTransform.scale,
         startMidpoint: midpoint(first, second),
-        originX: transform.x,
-        originY: transform.y,
+        originX: effectiveTransform.x,
+        originY: effectiveTransform.y,
       };
       panStateRef.current = null;
     }
@@ -486,7 +487,11 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
       }
       const nextX = panStateRef.current.originX + (point.x - panStateRef.current.startX);
       const nextY = panStateRef.current.originY + (point.y - panStateRef.current.startY);
-      setTransform((current) => ({ ...current, x: nextX, y: nextY }));
+      setTransform((current) => ({
+        ...(current ?? preferredTransform),
+        x: nextX,
+        y: nextY,
+      }));
     }
   }
 
@@ -501,8 +506,8 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
       panStateRef.current = {
         startX: remaining.x,
         startY: remaining.y,
-        originX: transform.x,
-        originY: transform.y,
+        originX: effectiveTransform.x,
+        originY: effectiveTransform.y,
       };
       return;
     }
@@ -511,7 +516,12 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
   }
 
   function resetView() {
-    setTransform(preferredTransform);
+    setTransform(null);
+  }
+
+  function toggleFullscreen() {
+    setTransform((current) => current ?? effectiveTransform);
+    setIsFullscreen((value) => !value);
   }
 
   if (nodes.length === 0) {
@@ -549,10 +559,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
           </button>
           <button
             type="button"
-            onClick={() => {
-              resetView();
-              setIsFullscreen((value) => !value);
-            }}
+            onClick={toggleFullscreen}
             aria-label={isFullscreen ? "Exit fullscreen" : "Expand fullscreen"}
           >
             <ExpandIcon expanded={isFullscreen} />
@@ -590,7 +597,7 @@ export function WebOfFate({ nodes, edges, backgroundSrc }: WebOfFateProps) {
             style={{
               width: scene.width,
               height: scene.height,
-              transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+              transform: `translate(${effectiveTransform.x}px, ${effectiveTransform.y}px) scale(${effectiveTransform.scale})`,
             }}
           >
             <svg

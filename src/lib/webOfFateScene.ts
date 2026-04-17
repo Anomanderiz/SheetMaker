@@ -8,25 +8,13 @@ export const WEB_OF_FATE_TABLET_VIEWPORT_HEIGHT = 560;
 export const WEB_OF_FATE_DESKTOP_VIEWPORT_HEIGHT = 520;
 export const WEB_OF_FATE_MOBILE_VIEWPORT_HEIGHT = 720;
 
-const MOBILE_SCENE_WIDTH_FACTOR = 1.85;
-const MOBILE_SCENE_HEIGHT_FACTOR = 1.3;
-
 export function getWebOfFateViewerSceneSize(
   deviceMode: DeviceMode,
   viewportWidth: number,
   viewportHeight: number,
 ) {
   if (deviceMode === "mobile") {
-    return {
-      width: Math.max(
-        Math.round(viewportWidth * MOBILE_SCENE_WIDTH_FACTOR),
-        MOBILE_EDITOR_SCENE.width,
-      ),
-      height: Math.max(
-        Math.round(viewportHeight * MOBILE_SCENE_HEIGHT_FACTOR),
-        MOBILE_EDITOR_SCENE.height,
-      ),
-    };
+    return MOBILE_EDITOR_SCENE;
   }
 
   return {
